@@ -37,7 +37,7 @@ export default class FranchiseRoute implements IRoute {
     // GET domain:/api/franchise/:id - Get franchise by id
     this.router.get(API_PATH.FRANCHISE_ID, authMiddleware(), this.controller.getItem);
 
-    // POST domain:/api/franchise - Get all franchises
+    // POST domain:/api/franchise/search - Get all franchises
     this.router.post(
       API_PATH.FRANCHISE_SEARCH,
       authMiddleware(),

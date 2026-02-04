@@ -29,6 +29,8 @@ tags:
     description: Auth related endpoints
   - name: User
     description: User related endpoints
+  - name: AuditLog
+    description: AuditLog related endpoints
 paths:
   /api/auth/register:
     post:

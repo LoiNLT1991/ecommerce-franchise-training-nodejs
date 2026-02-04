@@ -1,3 +1,4 @@
+import { MSG_BUSINESS } from "../../core/constants";
 import { HttpStatus } from "../../core/enums";
 import { HttpException } from "../../core/exceptions";
 import { BaseRepository } from "../../core/repository";
@@ -7,7 +8,6 @@ import { IFranchise } from "./franchise.interface";
 import FranchiseSchema from "./franchise.model";
 
 export class FranchiseRepository extends BaseRepository<IFranchise> {
-  private franchiseSchema = FranchiseSchema;
   constructor() {
     super(FranchiseSchema);
   }
@@ -46,7 +46,7 @@ export class FranchiseRepository extends BaseRepository<IFranchise> {
     const skip = (pageNum - 1) * pageSize;
 
     try {
-      const result = await this.franchiseSchema.aggregate([
+      const result = await this.model.aggregate([
         { $match: matchQuery },
         {
           $facet: {
@@ -61,7 +61,7 @@ export class FranchiseRepository extends BaseRepository<IFranchise> {
         total: result[0].total[0]?.count || 0,
       };
     } catch (error) {
-      throw new HttpException(HttpStatus.BadRequest, "Database query failed");
+      throw new HttpException(HttpStatus.BadRequest, MSG_BUSINESS.DATABASE_QUERY_FAILED);
     }
   }
 }

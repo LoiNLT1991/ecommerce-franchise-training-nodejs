@@ -2,7 +2,6 @@ import { Transform, Type } from "class-transformer";
 import { IsBoolean, IsOptional, IsString, Matches } from "class-validator";
 import { MSG, REGEX } from "../../../core/constants";
 import { SearchPaginationRequestModel } from "../../../core/models";
-import { PaginationRequestModel } from "../../../core/models/pagination.model";
 
 export class SearchItemDto {
   @IsOptional()
@@ -31,10 +30,6 @@ export class SearchItemDto {
 }
 
 export class SearchPaginationItemDto extends SearchPaginationRequestModel<SearchItemDto> {
-  //   constructor(pageInfo: PaginationRequestModel, searchCondition: SearchItemDto) {
-  //     super(pageInfo, searchCondition);
-  //   }
-
   @Type(() => SearchItemDto)
   public searchCondition!: SearchItemDto;
 }

@@ -1,5 +1,4 @@
-import { ClientSession, Document, Model, UpdateWriteOpResult } from "mongoose";
-import { IError } from "../interfaces";
+import { ClientSession, Document, Model } from "mongoose";
 import { normalizeParam } from "../utils";
 
 export class BaseRepository<T extends Document> {

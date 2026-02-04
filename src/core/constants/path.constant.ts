@@ -5,6 +5,12 @@ export const API_PATH = {
   // roles
   ROLE: "/api/roles",
 
+  // audit logs
+  AUDIT_LOG: "/api/audit-logs",
+  AUDIT_LOG_ID: "/api/audit-logs/:id",
+  AUDIT_LOG_SEARCH: "/api/audit-logs/search",
+  AUDIT_LOG_SEARCH_BY_ENTITY: "/api/audit-logs/search-by-entity",
+
   // auth
   AUTH: "/api/auth",
   AUTH_REGISTER: "/register",

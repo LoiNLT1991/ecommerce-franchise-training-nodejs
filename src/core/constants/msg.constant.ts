@@ -3,6 +3,7 @@ export const MSG = {
 };
 
 export const MSG_BUSINESS = {
+  DATABASE_QUERY_FAILED: "Database query failed",
   ITEM_EXISTS: (field: string) => `${field} already exists`,
   ITEM_NOT_EXISTS: "Item does not exist",
   ITEM_NOT_FOUND: "Item not found",

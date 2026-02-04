@@ -10,6 +10,14 @@ import {
   normalizeName,
   toMinutes,
 } from "../../core/utils";
+import {
+  AUDIT_FIELDS,
+  AuditAction,
+  AuditEntityType,
+  buildAuditDiff,
+  IAuditLogger,
+  pickAuditSnapshot,
+} from "../audit-log";
 import { DataStoredInToken } from "../auth/auth.interface";
 import CreateFranchiseDto from "./dto/create.dto";
 import { SearchPaginationItemDto } from "./dto/search.dto";
@@ -25,7 +33,10 @@ type FranchiseTimeContext = {
 };
 
 export default class FranchiseService {
-  constructor(private readonly repo: FranchiseRepository) {}
+  constructor(
+    private readonly repo: FranchiseRepository,
+    private readonly auditLogger: IAuditLogger,
+  ) {}
 
   public async createItem(model: CreateFranchiseDto, loggedUser: DataStoredInToken): Promise<IFranchise> {
     await checkEmptyObject(model);
@@ -59,14 +70,25 @@ export default class FranchiseService {
       throw new HttpException(HttpStatus.BadRequest, "", errors);
     }
 
-    // TODO: log audit loggedUser info
-
-    // 4. Create record
-    return this.repo.create({
+    // 4. Create record (🔥 PHẢI CREATE TRƯỚC)
+    const createdFranchise = await this.repo.create({
       ...model,
       code: normalizedCode,
       name: normalizedName,
     });
+
+    // 5. Audit log
+    const snapshot = pickAuditSnapshot(createdFranchise, AUDIT_FIELDS.FRANCHISE);
+
+    await this.auditLogger.log({
+      entityType: AuditEntityType.FRANCHISE,
+      entityId: String(createdFranchise._id),
+      action: AuditAction.CREATE,
+      newData: snapshot,
+      changedBy: loggedUser.id,
+    });
+
+    return createdFranchise;
   }
 
   public async getItem(id: string): Promise<IFranchise> {
@@ -140,14 +162,29 @@ export default class FranchiseService {
       throw new HttpException(HttpStatus.BadRequest, "", errors);
     }
 
-    // TODO: log audit loggedUser info
-
     // 6. Update only changed fields
-    return this.repo.update(id, {
+    const updateItem = await this.repo.update(id, {
       ...model,
       ...(model.code && { code: newItem.code }),
       ...(model.name && { name: newItem.name }),
     });
+
+    // 7. Audit log
+    const { oldData, newData } = buildAuditDiff(currentItem, updateItem, AUDIT_FIELDS.FRANCHISE);
+
+    // Log only when have changed data
+    if (newData) {
+      await this.auditLogger.log({
+        entityType: AuditEntityType.FRANCHISE,
+        entityId: String(id),
+        action: AuditAction.UPDATE,
+        oldData,
+        newData,
+        changedBy: loggedUser.id,
+      });
+    }
+
+    return updateItem;
   }
 
   public async changeStatus(id: string, data: UpdateStatusDto, loggedUser: DataStoredInToken): Promise<void> {

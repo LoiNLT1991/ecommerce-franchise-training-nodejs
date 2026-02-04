@@ -1,5 +1,8 @@
 export const COLLECTION_NAME = {
     FRANCHISE: 'Franchise',
+    AUDIT_LOG: 'AuditLog',
+
+
     ROLE: 'Role',
     JOB: 'Job',
     DEPARTMENT: 'Department',
