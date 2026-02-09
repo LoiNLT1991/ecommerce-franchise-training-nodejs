@@ -1,18 +1,16 @@
-import { BaseRole, HttpStatus } from "../../core/enums";
+import { HttpStatus } from "../../core/enums";
 import { HttpException } from "../../core/exceptions";
-import { IError } from "../../core/interfaces";
 import { MailService, MailTemplate } from "../../core/services";
 import { checkEmptyObject, encodePassword, withTransaction } from "../../core/utils";
 import { createTokenVerifiedUser } from "../../core/utils/helpers";
-import { DataStoredInToken } from "../auth/auth.interface";
-import ChangeRoleDto from "./dto/changeRole.dto";
 import ChangeStatusDto from "./dto/changeStatus.dto";
 import CreateUserDto from "./dto/create.dto";
-import UpdateUserDto from "./dto/update.dto";
 import { IUser, IUserQuery, IUserValidation } from "./user.interface";
+import { UserRepository } from "./user.repository";
 
 export default class UserService {
   constructor(
+    private readonly repo: UserRepository,
     private readonly userValidation: IUserValidation,
     private readonly userQuery: IUserQuery,
     private readonly mailService: MailService,
@@ -29,14 +27,11 @@ export default class UserService {
       const password = await encodePassword(model.password);
       const token = createTokenVerifiedUser();
 
-      const role: BaseRole = (model.role as BaseRole) || BaseRole.USER;
-
       // 3. Create user
       const user = await this.userQuery.createUser(
         {
           ...model,
           password,
-          role,
           verification_token: token.verification_token,
           verification_token_expires: token.verification_token_expires,
         },
@@ -71,6 +66,10 @@ export default class UserService {
     return user;
   }
 
+  public async getItems(): Promise<IUser[]> {
+    return this.repo.findAll();
+  }
+
   public async changeStatus(model: ChangeStatusDto): Promise<void> {
     await checkEmptyObject(model);
 
@@ -96,68 +95,61 @@ export default class UserService {
     }
   }
 
-  public async changeRole(model: ChangeRoleDto, loggedUser: DataStoredInToken): Promise<void> {
-    await checkEmptyObject(model);
+//   public async updateUser(userId: string, model: UpdateUserDto, loggedUser: AuthUser): Promise<IUser> {
+//     await checkEmptyObject(model);
 
-    // 1. Get user
-    const user = await this.getUserById(model.user_id);
-    if (!user) {
-      throw new HttpException(HttpStatus.BadRequest, "User does not exist");
-    }
+//     // 1. Get target user
+//     const user = await this.getUserById(userId);
+//     if (!user) {
+//       throw new HttpException(HttpStatus.BadRequest, "User does not exist");
+//     }
 
-    // 2. Check change role
-    if (user.role === model.role) {
-      throw new HttpException(HttpStatus.BadRequest, `User role is already: ${model.role}`);
-    }
+//     // 2. Check email duplicate (exclude current user)
+//     if (model.email && model.email !== user.email) {
+//       await this.userValidation.validEmailUnique(model.email, user._id.toString());
+//     }
 
-    // 3. Check role User logged in
-    if (loggedUser.role === BaseRole.MANAGER && (model.role === BaseRole.ADMIN || model.role === BaseRole.MANAGER)) {
-      throw new HttpException(
-        HttpStatus.BadRequest,
-        "Cannot change role other user to Admin or Manager, please contact Admin!",
-      );
-    }
+//     // 3. Self update → luôn cho phép
+//     if (loggedUser.id === userId) {
+//       return this.userQuery.updateUser(userId, {
+//         ...model,
+//         updated_at: new Date(),
+//       });
+//     }
 
-    // 3. Update user via Query
-    const updatedUser = await this.userQuery.updateUser(user._id.toString(), {
-      role: model.role,
-      updated_at: new Date(),
-    });
+//     // 4. Phải có context nếu update user khác
+//     const context = loggedUser.context;
+//     if (!context) {
+//       throw new HttpException(HttpStatus.Forbidden, "Context not selected");
+//     }
 
-    if (!updatedUser) {
-      throw new HttpException(HttpStatus.BadRequest, "Update user role failed!");
-    }
-  }
+//     // 5. SUPER_ADMIN (GLOBAL) → update tất cả
+//     if (context.scope === RoleScope.GLOBAL && context.role === BaseRole.SUPER_ADMIN) {
+//       return this.userQuery.updateUser(userId, {
+//         ...model,
+//         updated_at: new Date(),
+//       });
+//     }
 
-  public async updateUser(userId: string, model: UpdateUserDto, loggedUser: DataStoredInToken): Promise<IUser> {
-    await checkEmptyObject(model);
+//     // 6. MANAGER (FRANCHISE) → chỉ update user cùng franchise
+//     if (context.scope === RoleScope.FRANCHISE && context.role === BaseRole.MANAGER) {
+//       const isSameFranchise = await this.userFranchiseRoleRepo.exists({
+//         user_id: userId,
+//         franchise_id: context.franchiseId,
+//         is_deleted: false,
+//       });
 
-    // 1. Get user
-    const user = await this.getUserById(userId);
-    if (!user) {
-      throw new HttpException(HttpStatus.BadRequest, "User does not exist");
-    }
+//       if (!isSameFranchise) {
+//         throw new HttpException(HttpStatus.Forbidden, "You can only update users in your franchise");
+//       }
 
-    // 2. Check role user
-    if (loggedUser.role !== BaseRole.ADMIN && loggedUser.role !== BaseRole.MANAGER && loggedUser.id !== userId) {
-      throw new HttpException(HttpStatus.BadRequest, "You don't have permission to update this user!");
-    }
+//       return this.userQuery.updateUser(userId, {
+//         ...model,
+//         updated_at: new Date(),
+//       });
+//     }
 
-    // 3 Check email duplicate (exclude current user)
-    if (model.email && model.email !== user.email) {
-      await this.userValidation.validEmailUnique(model.email, user._id.toString());
-    }
-
-    // 4. Update user via Query
-    const updatedUser = await this.userQuery.updateUser(user._id.toString(), {
-      ...model,
-      updated_at: new Date(),
-    });
-
-    if (!updatedUser) {
-      throw new HttpException(HttpStatus.BadRequest, "Update user info failed!");
-    }
-
-    return this.getUserById(userId);
-  }
+//     // 7. Còn lại → cấm
+//     throw new HttpException(HttpStatus.Forbidden, "You don't have permission to update this user");
+//   }
 }

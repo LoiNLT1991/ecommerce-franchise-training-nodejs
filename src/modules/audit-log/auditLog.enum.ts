@@ -11,17 +11,18 @@ export enum AuditLogFieldName {
 export enum AuditAction {
   CREATE = "CREATE",
   UPDATE = "UPDATE",
-  DELETE = "DELETE",
   SOFT_DELETE = "SOFT_DELETE",
   RESTORE = "RESTORE",
   CHANGE_STATUS = "CHANGE_STATUS",
   OTHER = "OTHER",
+  ASSIGN_ROLE_TO_USER = "ASSIGN_ROLE_TO_USER",
 }
 
 export enum AuditEntityType {
   FRANCHISE = "FRANCHISE",
   USER = "USER",
   ROLE = "ROLE",
+  USER_FRANCHISE_ROLE = "USER_FRANCHISE_ROLE",
   CATEGORY = "CATEGORY",
   PRODUCT = "PRODUCT",
   ORDER = "ORDER",

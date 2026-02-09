@@ -1,19 +1,20 @@
 import bcryptjs from "bcryptjs";
 import jwt from "jsonwebtoken";
-import { HttpStatus } from "../../core/enums";
+import { HttpStatus, RoleScope } from "../../core/enums";
 import { HttpException } from "../../core/exceptions";
+import { AuthUser, IUserContext } from "../../core/models";
 import { MailService, MailTemplate } from "../../core/services";
 import { checkEmptyObject, encodePassword, withTransaction } from "../../core/utils";
 import { createTokenVerifiedUser, generateRandomPassword } from "../../core/utils/helpers";
 import { IUser, IUserQuery, IUserValidation } from "../user";
+import { IUserFranchiseRoleQuery } from "../user-franchise-role";
 import { AUTH_CONFIG } from "./auth.config";
-import { DataStoredInToken } from "./auth.interface";
 import { LoginDto, RegisterDto } from "./dto/authCredential.dto";
-import { UserContext } from "./dto/authResponse.dto";
 import ChangePasswordDto from "./dto/changePassword.dto";
 
 export default class AuthService {
   constructor(
+    private readonly userContext: IUserFranchiseRoleQuery,
     private readonly userValidation: IUserValidation,
     private readonly userQuery: IUserQuery,
     private readonly mailService: MailService,
@@ -83,8 +84,8 @@ export default class AuthService {
     // 3. Update user via Query (business meaning)
     const updatedUser = await this.userQuery.updateUser(user._id.toString(), {
       is_verified: true,
-      verification_token: undefined,
-      verification_token_expires: undefined,
+      verification_token: null,
+      verification_token_expires: null,
       updated_at: new Date(),
     });
 
@@ -138,26 +139,74 @@ export default class AuthService {
     }
   }
 
-  public async getLoginUserInfo(userId: string): Promise<{ user: IUser; contexts: UserContext[] }> {
+  public async getLoginUserInfo(userId: string): Promise<{ user: IUser; roles: IUserContext[] }> {
     const user = await this.userQuery.getUserById(userId);
 
     if (!user) {
       throw new HttpException(HttpStatus.BadRequest, "User does not exist");
     }
 
-    // TODO: TEMP: build context từ user.role (phase hiện tại)
-    const contexts: UserContext[] = [
-      {
-        role: user.role,
-        scope: user.role === "ADMIN" ? "GLOBAL" : "FRANCHISE",
-        franchiseId: null,
-      },
-    ];
+    // 🔑 GET FULL CONTEXTS from userFranchiseRole
+    const roles = await this.userContext.getUserContexts(userId);
 
     return {
       user,
-      contexts,
+      roles,
     };
+  }
+
+  public async switchContext(franchiseId: string | null, userId: string) {
+    const user = await this.userQuery.getUserById(userId);
+
+    if (!user) {
+      throw new HttpException(HttpStatus.BadRequest, "User does not exist");
+    }
+
+    // 🔑 GET FULL CONTEXTS from userFranchiseRole
+    const contexts = await this.userContext.getUserContexts(userId);
+
+    let activeContext;
+    if (franchiseId === null) {
+      activeContext = contexts.find((c) => c.scope === RoleScope.GLOBAL);
+    } else {
+      activeContext = contexts.find((c) => c.scope === RoleScope.FRANCHISE && c.franchise_id === franchiseId);
+    }
+    if (!activeContext) {
+      throw new HttpException(HttpStatus.Forbidden, "You do not have permission for this context");
+    }
+
+    // 🔑 Issue token mới với ACTIVE CONTEXT
+    return this.createTokensWithContext(user, activeContext);
+  }
+
+  public async refreshToken(refreshToken: string): Promise<{ accessToken: string; refreshToken: string }> {
+    let payload: any;
+
+    // 1️⃣ Verify refresh token
+    try {
+      payload = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET!);
+    } catch (error) {
+      throw new HttpException(HttpStatus.Unauthorized, "Invalid or expired refresh token");
+    }
+
+    // 2️⃣ Get user
+    const user = await this.userQuery.getUserById(payload.id);
+    if (!user) {
+      throw new HttpException(HttpStatus.Unauthorized, "User does not exist");
+    }
+
+    // 3️⃣ Check token version (logout protection)
+    if (user.token_version !== payload.version) {
+      throw new HttpException(HttpStatus.Unauthorized, "Token has been revoked");
+    }
+
+    // 4️⃣ Important: restore context
+    if (payload.context) {
+      return this.createTokensWithContext(user, payload.context);
+    }
+
+    // 5️⃣ Generate new tokens -> if no context
+    return this.createBaseTokens(user);
   }
 
   public async forgotPassword(email: string): Promise<void> {
@@ -214,7 +263,7 @@ export default class AuthService {
     }
   }
 
-  public async changePassword(model: ChangePasswordDto, loggedUser: DataStoredInToken): Promise<void> {
+  public async changePassword(model: ChangePasswordDto, loggedUser: AuthUser): Promise<void> {
     await checkEmptyObject(model);
 
     const userId = loggedUser.id;
@@ -268,14 +317,35 @@ export default class AuthService {
       await user.save();
     }
 
-    return this.createTokens(user);
+    return this.createBaseTokens(user);
   }
 
-  private createTokens(user: IUser) {
+  private createBaseTokens(user: IUser) {
     const payload = {
-      id: user._id,
-      role: user.role,
+      id: user._id.toString(),
       version: user.token_version,
+    };
+
+    const accessToken = jwt.sign(payload, process.env.JWT_ACCESS_SECRET!, {
+      expiresIn: AUTH_CONFIG.ACCESS_TOKEN_EXPIRES_IN,
+    });
+
+    const refreshToken = jwt.sign(payload, process.env.JWT_REFRESH_SECRET!, {
+      expiresIn: AUTH_CONFIG.REFRESH_TOKEN_EXPIRES_IN,
+    });
+
+    return { accessToken, refreshToken };
+  }
+
+  private createTokensWithContext(user: IUser, context: IUserContext) {
+    const payload = {
+      id: user._id.toString(),
+      version: user.token_version,
+      context: {
+        role: context.role,
+        scope: context.scope,
+        franchiseId: context.franchise_id ?? null,
+      },
     };
 
     const accessToken = jwt.sign(payload, process.env.JWT_ACCESS_SECRET!, {

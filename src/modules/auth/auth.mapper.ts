@@ -1,7 +1,12 @@
+import { IUserContext } from "../../core/models";
 import { IUser } from "../user";
-import { AuthResponseDto, UserContext } from "./dto/authResponse.dto";
+import { AuthResponseDto } from "./dto/authResponse.dto";
 
-export const mapAuthToResponse = (user: IUser, contexts: UserContext[]): AuthResponseDto => {
+export const mapAuthToResponse = (
+  user: IUser,
+  roles: IUserContext[],
+  activeContext: IUserContext | null,
+): AuthResponseDto => {
   return {
     user: {
       id: user._id.toString(),
@@ -10,6 +15,7 @@ export const mapAuthToResponse = (user: IUser, contexts: UserContext[]): AuthRes
       name: user.name,
       avatar_url: user.avatar_url,
     },
-    contexts,
+    roles,
+    active_context: activeContext as IUserContext,
   };
 };

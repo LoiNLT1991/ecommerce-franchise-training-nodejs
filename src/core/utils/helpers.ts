@@ -75,14 +75,29 @@ export const toMinutes = (time: string) => {
   return h * 60 + m;
 };
 
+// export const formatItemsQuery = (
+//   query: Record<string, unknown>,
+//   items: Record<string, unknown>,
+// ): Record<string, unknown> => {
+//   for (const key in items) {
+//     if (items[key] !== undefined) {
+//       query[key] = items[key];
+//     }
+//   }
+//   return query;
+// };
+
 export const formatItemsQuery = (
   query: Record<string, unknown>,
   items: Record<string, unknown>,
 ): Record<string, unknown> => {
   for (const key in items) {
-    if (items[key] !== undefined) {
-      query[key] = items[key];
+    const value = items[key];
+
+    if (value !== undefined && value !== null && value !== "") {
+      query[key] = value;
     }
   }
+
   return query;
 };

@@ -2,8 +2,7 @@ export interface TokenData {
   token: string;
 }
 
-export interface DataStoredInToken {
+export interface BaseTokens {
   id: string;
-  role: string;
   version: number;
 }

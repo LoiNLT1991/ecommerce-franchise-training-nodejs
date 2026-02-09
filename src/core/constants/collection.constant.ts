@@ -1,9 +1,10 @@
 export const COLLECTION_NAME = {
     FRANCHISE: 'Franchise',
     AUDIT_LOG: 'AuditLog',
-
-
     ROLE: 'Role',
+    USER_FRANCHISE_ROLE: 'UserFranchiseRole',
+
+
     JOB: 'Job',
     DEPARTMENT: 'Department',
     USER: 'User',

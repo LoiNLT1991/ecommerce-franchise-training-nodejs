@@ -1,9 +1,17 @@
+export const GLOBAL_FRANCHISE_ID = "__GLOBAL__";
+
 export enum BaseRole {
+    SUPER_ADMIN = 'SUPER_ADMIN',
     ADMIN = 'ADMIN',
     MANAGER = 'MANAGER',
     STAFF = 'STAFF',
     SHIPPER = 'SHIPPER',
     USER = 'USER',
+}
+
+export enum RoleScope {
+  GLOBAL = "GLOBAL",
+  FRANCHISE = "FRANCHISE",
 }
 
 export enum BaseField {

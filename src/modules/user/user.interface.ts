@@ -3,19 +3,18 @@ import { BaseRole } from "../../core/enums";
 import { IBase } from "../../core/interfaces";
 import { UserFieldName } from "./user.enum";
 
-export type UserRole = BaseRole.ADMIN | BaseRole.MANAGER | BaseRole.STAFF | BaseRole.SHIPPER | BaseRole.USER;
+export type UserRole = BaseRole.SUPER_ADMIN | BaseRole.MANAGER | BaseRole.STAFF | BaseRole.SHIPPER | BaseRole.USER;
 export interface IUser extends Document, IBase {
   [UserFieldName.EMAIL]: string;
   [UserFieldName.PASSWORD]?: string;
   [UserFieldName.NAME]: string;
   [UserFieldName.PHONE]: string;
-  [UserFieldName.ROLE]: UserRole;
   [UserFieldName.AVATAR_URL]: string;
 
   // check verify
   [UserFieldName.IS_VERIFIED]?: boolean; // default false,
-  [UserFieldName.VERIFICATION_TOKEN]?: string; // default empty
-  [UserFieldName.VERIFICATION_TOKEN_EXPIRES]?: Date; // default new Date()
+  [UserFieldName.VERIFICATION_TOKEN]?: string | null; // default empty
+  [UserFieldName.VERIFICATION_TOKEN_EXPIRES]?: Date | null; // default new Date()
 
   // check login/logout
   [UserFieldName.TOKEN_VERSION]: number; // default 0

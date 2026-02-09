@@ -8,6 +8,14 @@ export class BaseRepository<T extends Document> {
     this.model = model;
   }
 
+  public async find(filter: Record<string, any> = {}): Promise<T[]> {
+    return this.model.find(filter).exec();
+  }
+
+  public async findOne(filter: Record<string, any>): Promise<T | null> {
+    return this.model.findOne(filter).exec();
+  }
+
   public async create(data: Partial<T>, session?: ClientSession): Promise<T> {
     const doc = new this.model(data);
     await doc.save(session ? { session } : undefined);

@@ -1,9 +1,4 @@
-// TODO: Consider moving UserContext to a separate file if it is used in multiple places.
-export interface UserContext {
-  role: string;
-  scope: "GLOBAL" | "FRANCHISE";
-  franchiseId: string | null;
-}
+import { IUserContext } from "../../../core/models";
 
 export interface AuthResponseDto {
   user: {
@@ -13,5 +8,6 @@ export interface AuthResponseDto {
     phone: string;
     avatar_url: string;
   };
-  contexts: UserContext[];
+  roles: IUserContext[];
+  active_context: IUserContext;
 }

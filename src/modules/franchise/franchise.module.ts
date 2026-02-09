@@ -1,22 +1,31 @@
 import { BaseModule } from "../../core/modules";
 import { AuditLogModule } from "../audit-log";
 import FranchiseController from "./franchise.controller";
+import { IFranchiseQuery } from "./franchise.interface";
 import { FranchiseRepository } from "./franchise.repository";
 import FranchiseRoute from "./franchise.route";
 import FranchiseService from "./franchise.service";
 
 export class FranchiseModule extends BaseModule<FranchiseRoute> {
-  private readonly repo: FranchiseRepository;
+  private readonly franchiseQuery: IFranchiseQuery;
 
   constructor() {
     super();
-    this.repo = new FranchiseRepository();
 
+    // Internal dependencies
     const auditLogModule = new AuditLogModule();
+    const repo = new FranchiseRepository();
 
-    const franchiseService = new FranchiseService(this.repo, auditLogModule.getAuditLogger());
-    const franchiseController = new FranchiseController(franchiseService);
+    // Core service and HTTP layer
+    const service = new FranchiseService(repo, auditLogModule.getAuditLogger());
+    const controller = new FranchiseController(service);
+    this.route = new FranchiseRoute(controller);
 
-    this.route = new FranchiseRoute(franchiseController);
+    // Expose ONLY interface
+    this.franchiseQuery = service;
+  }
+
+  public getFranchiseQuery(): IFranchiseQuery {
+    return this.franchiseQuery;
   }
 }

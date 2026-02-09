@@ -1,4 +1,4 @@
-export interface RoleResponseDto {
+export interface RoleSelectDto {
   key: string;
   value: string;
 }

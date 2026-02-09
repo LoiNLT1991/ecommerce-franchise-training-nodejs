@@ -1,5 +1,6 @@
 import { Types } from "mongoose";
 import { BaseField } from "../enums";
+import { SearchPaginationResponseModel } from "../models";
 
 export interface IBase {
   [BaseField.ID]: Types.ObjectId;
@@ -9,11 +10,11 @@ export interface IBase {
   [BaseField.IS_DELETED]?: boolean; // flag for soft delete, default is false
 }
 
-// export interface IBaseService<T, C, U, S> {
-//   create(model: C, user: DataStoredInToken): Promise<T>;
-//   getItems(model: S): Promise<SearchPaginationResponseModel<T>>;
-//   getItem(id: string): Promise<T>;
-//   update(id: string, model: U, user: DataStoredInToken): Promise<T>;
-//   delete(id: string): Promise<boolean>;
-//   findItemsWithKeyword(keyword: string): Promise<T[]>;
-// }
+export interface IBaseCrudService<T, CreateDto, UpdateDto, SearchDto> {
+  create(dto: CreateDto, userId: string): Promise<T>;
+  getItems(dto: SearchDto): Promise<SearchPaginationResponseModel<T>>;
+  getItem(id: string): Promise<T>;
+  update(id: string, dto: UpdateDto, userId: string): Promise<T>;
+  softDelete(id: string, userId: string): Promise<void>;
+  restore(id: string, userId: string): Promise<void>;
+}

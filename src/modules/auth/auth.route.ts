@@ -1,10 +1,11 @@
 import { Router } from "express";
 import { API_PATH } from "../../core/constants";
 import { IRoute } from "../../core/interfaces";
-import { authMiddleware, validationMiddleware } from "../../core/middleware";
+import { authMiddleware, requireContext, validationMiddleware } from "../../core/middleware";
 import AuthController from "./auth.controller";
 import { LoginDto, RegisterDto } from "./dto/authCredential.dto";
 import ChangePasswordDto from "./dto/changePassword.dto";
+import { SwitchContextDto } from "./dto/switchContext.dto";
 
 export default class AuthRoute implements IRoute {
   public path = API_PATH.AUTH;
@@ -77,7 +78,7 @@ export default class AuthRoute implements IRoute {
      *                       format: date-time
      */
     // POST domain:/api/auth/register - Register
-    this.router.post(this.path + API_PATH.AUTH_REGISTER, validationMiddleware(RegisterDto), this.authController.register);
+    this.router.post(API_PATH.AUTH_REGISTER, validationMiddleware(RegisterDto), this.authController.register);
 
     /**
      * @swagger
@@ -114,7 +115,7 @@ export default class AuthRoute implements IRoute {
      *                   example: null
      */
     // POST domain:/api/auth/verify-token -> Verify token for new user
-    this.router.post(this.path + API_PATH.AUTH_VERIFY_TOKEN, this.authController.verifyUserToken);
+    this.router.post(API_PATH.AUTH_VERIFY_TOKEN, this.authController.verifyUserToken);
 
     /**
      * @swagger
@@ -165,7 +166,7 @@ export default class AuthRoute implements IRoute {
      *                   example: User already verified or email not found
      */
     // POST domain:/api/auth/resend-token -> Resend Token via email
-    this.router.post(this.path + API_PATH.AUTH_RESEND_TOKEN, this.authController.resendToken);
+    this.router.post(API_PATH.AUTH_RESEND_TOKEN, this.authController.resendToken);
 
     /**
      * @swagger
@@ -278,11 +279,7 @@ export default class AuthRoute implements IRoute {
      *         description: User is blocked or deleted
      */
     // POST domain:/api/auth/login-swagger -> Login via swagger (return token)
-    this.router.post(
-      this.path + API_PATH.AUTH_LOGIN_SWAGGER,
-      validationMiddleware(LoginDto),
-      this.authController.loginForSwagger,
-    );
+    this.router.post(API_PATH.AUTH_LOGIN_SWAGGER, validationMiddleware(LoginDto), this.authController.loginForSwagger);
 
     /**
      * @swagger
@@ -322,6 +319,17 @@ export default class AuthRoute implements IRoute {
     // GET domain:/api/auth -> Login User Info
     this.router.get(this.path, authMiddleware(), this.authController.getLoginUserInfo);
 
+    // POST domain:/api/auth/switch-context -> Switch Context
+    this.router.post(
+      API_PATH.AUTH_SWITCH_CONTEXT,
+      authMiddleware(),
+      validationMiddleware(SwitchContextDto),
+      this.authController.switchContext,
+    );
+
+    // GET domain:/api/auth/refresh-token -> Refresh Token
+    this.router.get(API_PATH.AUTH_REFRESH_TOKEN, this.authController.refreshToken);
+
     /**
      * @swagger
      * /api/auth/logout:
@@ -355,7 +363,7 @@ export default class AuthRoute implements IRoute {
      *         description: Unauthorized (missing or invalid token)
      */
     // POST domain:/api/auth/logout -> Logout
-    this.router.post(this.path + API_PATH.AUTH_LOGOUT, authMiddleware(), this.authController.logout);
+    this.router.post(API_PATH.AUTH_LOGOUT, authMiddleware(), this.authController.logout);
 
     /**
      * @swagger
@@ -419,7 +427,7 @@ export default class AuthRoute implements IRoute {
      *                   example: Failed to send reset password email
      */
     // PUT domain:/api/auth/forgot-password -> Forgot password
-    this.router.put(this.path + API_PATH.AUTH_FORGOT_PASSWORD, this.authController.forgotPassword);
+    this.router.put(API_PATH.AUTH_FORGOT_PASSWORD, this.authController.forgotPassword);
 
     /**
      * @swagger
@@ -502,7 +510,7 @@ export default class AuthRoute implements IRoute {
      */
     // PUT domain:/api/auth/change-password -> Forgot password
     this.router.put(
-      this.path + API_PATH.AUTH_CHANGE_PASSWORD,
+      API_PATH.AUTH_CHANGE_PASSWORD,
       authMiddleware(),
       validationMiddleware(ChangePasswordDto),
       this.authController.changePassword,

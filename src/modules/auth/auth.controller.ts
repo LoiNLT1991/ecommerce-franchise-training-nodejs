@@ -1,5 +1,7 @@
 import { CookieOptions, NextFunction, Request, Response } from "express";
 import { HttpStatus } from "../../core/enums";
+import { HttpException } from "../../core/exceptions";
+import { AuthenticatedRequest } from "../../core/models";
 import { formatResponse } from "../../core/utils";
 import { IUser } from "../user";
 import { AUTH_CONFIG, TOKEN } from "./auth.config";
@@ -8,6 +10,7 @@ import AuthService from "./auth.service";
 import { RegisterDto } from "./dto/authCredential.dto";
 import { AuthResponseDto } from "./dto/authResponse.dto";
 import ChangePasswordDto from "./dto/changePassword.dto";
+import { SwitchContextDto } from "./dto/switchContext.dto";
 
 export default class AuthController {
   constructor(private readonly authService: AuthService) {}
@@ -46,14 +49,8 @@ export default class AuthController {
       const { accessToken, refreshToken } = tokens;
 
       // 🔥 Set cookies
-      res.cookie(TOKEN.ACCESS_TOKEN, accessToken, {
-        ...this.baseCookieOptions,
-        maxAge: AUTH_CONFIG.ACCESS_COOKIE_MAX_AGE,
-      });
-      res.cookie(TOKEN.REFRESH_TOKEN, refreshToken, {
-        ...this.baseCookieOptions,
-        maxAge: AUTH_CONFIG.REFRESH_COOKIE_MAX_AGE,
-      });
+      this.setAccessToken(res, accessToken);
+      this.setRefreshToken(res, refreshToken);
 
       res.status(HttpStatus.Success).json(formatResponse<null>(null));
     } catch (error) {
@@ -72,11 +69,10 @@ export default class AuthController {
 
   public logout = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      await this.authService.logout(req.user.id);
+      await this.authService.logout((req as AuthenticatedRequest).user.id);
 
-      // 🔥 Clear cookies
-      res.clearCookie(TOKEN.ACCESS_TOKEN, this.baseCookieOptions);
-      res.clearCookie(TOKEN.REFRESH_TOKEN, this.baseCookieOptions);
+      // ✅ Clear access token (path '/') + refresh token (path '/auth')
+      this.clearAuthCookies(res);
 
       return res.status(HttpStatus.Success).json(formatResponse<null>(null));
     } catch (error) {
@@ -86,9 +82,51 @@ export default class AuthController {
 
   public getLoginUserInfo = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { user, contexts } = await this.authService.getLoginUserInfo(req.user.id);
+      const authUser = (req as AuthenticatedRequest).user;
+      const { user, roles } = await this.authService.getLoginUserInfo((req as AuthenticatedRequest).user.id);
+      res
+        .status(HttpStatus.Success)
+        .json(formatResponse<AuthResponseDto>(mapAuthToResponse(user, roles, authUser.context ?? null)));
+    } catch (error) {
+      next(error);
+    }
+  };
 
-      res.status(HttpStatus.Success).json(formatResponse<AuthResponseDto>(mapAuthToResponse(user, contexts)));
+  public switchContext = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const payload: SwitchContextDto = req.body;
+      const franchiseId: string | null = payload.franchise_id === undefined ? null : payload.franchise_id;
+      const tokens = await this.authService.switchContext(franchiseId, (req as AuthenticatedRequest).user.id);
+      const { accessToken, refreshToken } = tokens;
+
+      // 3️⃣ Set lại cookies
+      this.setAccessToken(res, accessToken);
+      this.setRefreshToken(res, refreshToken);
+
+      return res.status(HttpStatus.Success).json(formatResponse<null>(null));
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  public refreshToken = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      // 1️⃣ Lấy refresh token từ COOKIE
+      const refreshToken = req.cookies[TOKEN.REFRESH_TOKEN];
+
+      if (!refreshToken) {
+        throw new HttpException(HttpStatus.Unauthorized, "Refresh token is missing");
+      }
+
+      // 2️⃣ Gọi service để verify + tạo token mới
+      const tokens = await this.authService.refreshToken(refreshToken);
+      const { accessToken, refreshToken: newRefreshToken } = tokens;
+
+      // 3️⃣ Set lại cookies
+      this.setAccessToken(res, accessToken);
+      this.setRefreshToken(res, newRefreshToken);
+
+      return res.status(HttpStatus.Success).json(formatResponse<null>(null));
     } catch (error) {
       next(error);
     }
@@ -106,7 +144,7 @@ export default class AuthController {
   public changePassword = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const model: ChangePasswordDto = req.body;
-      await this.authService.changePassword(model, req.user);
+      await this.authService.changePassword(model, (req as AuthenticatedRequest).user);
       res.status(HttpStatus.Success).json(formatResponse<null>(null));
     } catch (error) {
       next(error);
@@ -115,9 +153,45 @@ export default class AuthController {
 
   // ===== PRIVATE HELPERS =====
 
-  private readonly baseCookieOptions: CookieOptions = {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-  };
+  private readonly baseCookieOptions: CookieOptions =
+    process.env.NODE_ENV === "production"
+      ? {
+          httpOnly: true,
+          secure: true, // 🔴 BẮT BUỘC
+          sameSite: "none", // 🔴 BẮT BUỘC cho cross-domain
+          path: "/",
+        }
+      : {
+          httpOnly: true,
+          secure: false,
+          sameSite: "lax",
+          path: "/",
+        };
+
+  private setAccessToken(res: Response, token: string) {
+    res.cookie(TOKEN.ACCESS_TOKEN, token, {
+      ...this.baseCookieOptions,
+      maxAge: AUTH_CONFIG.ACCESS_COOKIE_MAX_AGE,
+    });
+  }
+
+  private setRefreshToken(res: Response, token: string, options?: { path?: string }) {
+    res.cookie(TOKEN.REFRESH_TOKEN, token, {
+      ...this.baseCookieOptions,
+      path: options?.path ?? "/",
+      maxAge: AUTH_CONFIG.REFRESH_COOKIE_MAX_AGE,
+    });
+  }
+
+  private clearAuthCookies(res: Response) {
+    res.clearCookie(TOKEN.ACCESS_TOKEN, {
+      ...this.baseCookieOptions,
+      path: "/",
+    });
+
+    res.clearCookie(TOKEN.REFRESH_TOKEN, {
+      ...this.baseCookieOptions,
+      path: "/",
+    });
+  }
 }

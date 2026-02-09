@@ -1,30 +1,22 @@
+import { Types } from "mongoose";
 import { MSG_BUSINESS } from "../../core/constants";
 import { HttpStatus } from "../../core/enums";
 import { HttpException } from "../../core/exceptions";
 import { IError } from "../../core/interfaces";
-import { SearchPaginationResponseModel } from "../../core/models";
+import { BaseCrudService } from "../../core/services";
 import {
-  checkEmptyObject,
-  formatSearchPaginationResponse,
-  normalizeCode,
-  normalizeName,
-  toMinutes,
+    checkEmptyObject,
+    normalizeCode,
+    normalizeName,
+    toMinutes
 } from "../../core/utils";
-import {
-  AUDIT_FIELDS,
-  AuditAction,
-  AuditEntityType,
-  buildAuditDiff,
-  IAuditLogger,
-  pickAuditSnapshot,
-} from "../audit-log";
-import { DataStoredInToken } from "../auth/auth.interface";
+import { AuditAction, AuditEntityType, buildAuditDiff, IAuditLogger, pickAuditSnapshot } from "../audit-log";
 import CreateFranchiseDto from "./dto/create.dto";
 import { SearchPaginationItemDto } from "./dto/search.dto";
 import UpdateFranchiseDto from "./dto/update.dto";
 import UpdateStatusDto from "./dto/updateStatus.dto";
 import { FranchiseFieldName } from "./franchise.enum";
-import { IFranchise } from "./franchise.interface";
+import { IFranchise, IFranchiseQuery, IFranchiseQueryResult } from "./franchise.interface";
 import { FranchiseRepository } from "./franchise.repository";
 
 type FranchiseTimeContext = {
@@ -32,21 +24,39 @@ type FranchiseTimeContext = {
   closed_at: string;
 };
 
-export default class FranchiseService {
+const AUDIT_FIELDS_FRANCHISE = [
+  "code",
+  "name",
+  "opened_at",
+  "closed_at",
+  "hotline",
+  "logo_url",
+  "address",
+  "is_active",
+] as readonly (keyof IFranchise)[];
+
+export default class FranchiseService
+  extends BaseCrudService<IFranchise, CreateFranchiseDto, UpdateFranchiseDto, SearchPaginationItemDto>
+  implements IFranchiseQuery
+{
+  private readonly franchiseRepo: FranchiseRepository;
+
   constructor(
-    private readonly repo: FranchiseRepository,
+    repo: FranchiseRepository,
     private readonly auditLogger: IAuditLogger,
-  ) {}
+  ) {
+    super(repo);
+    this.franchiseRepo = repo;
+  }
 
-  public async createItem(model: CreateFranchiseDto, loggedUser: DataStoredInToken): Promise<IFranchise> {
-    await checkEmptyObject(model);
-
-    const { code, name } = model;
-
-    const normalizedCode = normalizeCode(code);
-    const normalizedName = normalizeName(name);
+  // ===== Start CRUD =====
+  protected async beforeCreate(dto: CreateFranchiseDto, loggedUserId: string): Promise<void> {
+    await checkEmptyObject(dto);
 
     const errors: IError[] = [];
+
+    const normalizedCode = normalizeCode(dto.code);
+    const normalizedName = normalizeName(dto.name);
 
     // 1. Check unique code
     if (await this.repo.existsByField(FranchiseFieldName.CODE, normalizedCode)) {
@@ -56,91 +66,48 @@ export default class FranchiseService {
       });
     }
 
-    // 2. Check business rules (OPEN < CLOSE)
+    // 2. Business rules (OPEN < CLOSE)
     this.validateBusinessRules(
       {
-        opened_at: model.opened_at,
-        closed_at: model.closed_at,
+        opened_at: dto.opened_at,
+        closed_at: dto.closed_at,
       },
       errors,
     );
 
-    // 3. Check validation errors
     if (errors.length) {
       throw new HttpException(HttpStatus.BadRequest, "", errors);
     }
 
-    // 4. Create record (🔥 PHẢI CREATE TRƯỚC)
-    const createdFranchise = await this.repo.create({
-      ...model,
-      code: normalizedCode,
-      name: normalizedName,
-    });
+    // 3. Normalize data (mutate dto – OK trong service)
+    dto.code = normalizedCode;
+    dto.name = normalizedName;
+  }
 
-    // 5. Audit log
-    const snapshot = pickAuditSnapshot(createdFranchise, AUDIT_FIELDS.FRANCHISE);
+  protected async afterCreate(item: IFranchise, loggedUserId: string): Promise<void> {
+    const snapshot = pickAuditSnapshot(item, AUDIT_FIELDS_FRANCHISE);
 
     await this.auditLogger.log({
       entityType: AuditEntityType.FRANCHISE,
-      entityId: String(createdFranchise._id),
+      entityId: String(item._id),
       action: AuditAction.CREATE,
       newData: snapshot,
-      changedBy: loggedUser.id,
-    });
-
-    return createdFranchise;
-  }
-
-  public async getItem(id: string): Promise<IFranchise> {
-    const item = await this.repo.findById(id);
-    if (!item) {
-      throw new HttpException(HttpStatus.BadRequest, MSG_BUSINESS.ITEM_NOT_FOUND);
-    }
-    return item;
-  }
-
-  public async getItems(dataSearch: SearchPaginationItemDto): Promise<SearchPaginationResponseModel<IFranchise>> {
-    const { data, total } = await this.repo.getItems(dataSearch);
-    const { pageNum, pageSize } = dataSearch.pageInfo;
-
-    return formatSearchPaginationResponse(data, {
-      pageNum,
-      pageSize,
-      totalItems: total,
-      totalPages: Math.ceil(total / pageSize),
+      changedBy: loggedUserId,
     });
   }
 
-  public async updateItem(id: string, model: UpdateFranchiseDto, loggedUser: DataStoredInToken): Promise<IFranchise> {
-    await checkEmptyObject(model);
+  protected async beforeUpdate(current: IFranchise, dto: UpdateFranchiseDto, loggedUserId: string): Promise<void> {
+    await checkEmptyObject(dto);
 
     const errors: IError[] = [];
 
-    const currentItem = await this.repo.findById(id);
-    if (!currentItem) {
-      throw new HttpException(HttpStatus.NotFound, MSG_BUSINESS.ITEM_NOT_FOUND);
-    }
+    const nextCode = dto.code ? normalizeCode(dto.code) : current.code;
+    const nextName = dto.name ? normalizeName(dto.name) : current.name;
 
-    // 1. Merge data
-    const newItem = {
-      ...currentItem,
-      ...model,
-    };
-
-    // 2. Normalize if have updated
-    if (model.code) {
-      newItem.code = normalizeCode(model.code);
-    }
-
-    if (model.name) {
-      newItem.name = normalizeName(model.name);
-    }
-
-    // 3. Check unique code (exclude itself)
+    // 1. Unique code (exclude itself)
     if (
-      newItem.code &&
-      //   newItem.code !== currentItem.code &&
-      (await this.repo.existsByField(FranchiseFieldName.CODE, newItem.code, { excludeId: id }))
+      dto.code &&
+      (await this.repo.existsByField(FranchiseFieldName.CODE, nextCode, { excludeId: current._id.toString() }))
     ) {
       errors.push({
         field: FranchiseFieldName.CODE,
@@ -148,46 +115,67 @@ export default class FranchiseService {
       });
     }
 
-    // 4. Check business rules (OPEN < CLOSE)
+    // 2. Business rules
     this.validateBusinessRules(
       {
-        opened_at: newItem.opened_at,
-        closed_at: newItem.closed_at,
+        opened_at: dto.opened_at ?? current.opened_at,
+        closed_at: dto.closed_at ?? current.closed_at,
       },
       errors,
     );
 
-    // 5. Check validation errors
     if (errors.length) {
       throw new HttpException(HttpStatus.BadRequest, "", errors);
     }
 
-    // 6. Update only changed fields
-    const updateItem = await this.repo.update(id, {
-      ...model,
-      ...(model.code && { code: newItem.code }),
-      ...(model.name && { name: newItem.name }),
-    });
+    // 3. Normalize (mutate dto)
+    if (dto.code) dto.code = nextCode;
+    if (dto.name) dto.name = nextName;
+  }
 
-    // 7. Audit log
-    const { oldData, newData } = buildAuditDiff(currentItem, updateItem, AUDIT_FIELDS.FRANCHISE);
+  protected async afterUpdate(oldItem: IFranchise, newItem: IFranchise, loggedUserId: string): Promise<void> {
+    const { oldData, newData } = buildAuditDiff(oldItem, newItem, AUDIT_FIELDS_FRANCHISE);
 
-    // Log only when have changed data
-    if (newData) {
+    if (newData && Object.keys(newData).length > 0) {
       await this.auditLogger.log({
         entityType: AuditEntityType.FRANCHISE,
-        entityId: String(id),
+        entityId: String(oldItem._id),
         action: AuditAction.UPDATE,
         oldData,
         newData,
-        changedBy: loggedUser.id,
+        changedBy: loggedUserId,
       });
     }
-
-    return updateItem;
   }
 
-  public async changeStatus(id: string, data: UpdateStatusDto, loggedUser: DataStoredInToken): Promise<void> {
+  protected async afterDelete(item: IFranchise, loggedUserId: string): Promise<void> {
+    await this.auditLogger.log({
+      entityType: AuditEntityType.FRANCHISE,
+      entityId: String(item._id),
+      action: AuditAction.SOFT_DELETE,
+      oldData: { is_deleted: false },
+      newData: { is_deleted: true },
+      changedBy: loggedUserId,
+    });
+  }
+
+  protected async afterRestore(item: IFranchise, loggedUserId: string): Promise<void> {
+    await this.auditLogger.log({
+      entityType: AuditEntityType.FRANCHISE,
+      entityId: String(item._id),
+      action: AuditAction.RESTORE,
+      oldData: { is_deleted: true },
+      newData: { is_deleted: false },
+      changedBy: loggedUserId,
+    });
+  }
+
+  protected async doSearch(dto: SearchPaginationItemDto): Promise<{ data: IFranchise[]; total: number }> {
+    return this.franchiseRepo.getItems(dto);
+  }
+  // ===== END CRUD =====
+
+  public async changeStatus(id: string, data: UpdateStatusDto, loggedUserId: string): Promise<void> {
     const { is_active } = data;
 
     const currentItem = await this.repo.findById(id);
@@ -199,24 +187,38 @@ export default class FranchiseService {
       throw new HttpException(HttpStatus.BadRequest, MSG_BUSINESS.STATUS_NO_CHANGE);
     }
 
-    // TODO: log audit loggedUser info
+    // 1. Update status
     await this.repo.update(id, { is_active });
+
+    // 2. Audit log
+    await this.auditLogger.log({
+      entityType: AuditEntityType.FRANCHISE,
+      entityId: id,
+      action: AuditAction.CHANGE_STATUS,
+      oldData: { is_active: currentItem.is_active },
+      newData: { is_active },
+      changedBy: loggedUserId,
+    });
   }
 
-  public async softDeleteItem(id: string, loggedUser: DataStoredInToken): Promise<void> {
-    const currentItem = await this.repo.findById(id);
-    if (!currentItem) {
-      throw new HttpException(HttpStatus.NotFound, MSG_BUSINESS.ITEM_NOT_FOUND);
-    }
-    await this.repo.softDeleteById(id);
+  // Support for api get all franchises (no pagination, no filter)
+  public async getAllFranchises(): Promise<IFranchise[]> {
+    return this.repo.findAll();
   }
 
-  public async restoreItem(id: string, loggedUser: DataStoredInToken): Promise<IFranchise> {
-    const currentItem = await this.repo.findById(id, true);
-    if (!currentItem) {
-      throw new HttpException(HttpStatus.NotFound, MSG_BUSINESS.ITEM_NOT_FOUND_OR_RESTORED);
-    }
-    return this.repo.restoreById(id);
+  public async getByIds(ids: string[]): Promise<IFranchiseQueryResult[]> {
+    const objectIds = ids.map((id) => new Types.ObjectId(id));
+
+    const items = await this.repo.find({
+      _id: { $in: objectIds },
+      is_deleted: false,
+    });
+
+    return items.map((r) => ({
+      id: r._id.toString(),
+      code: r.code,
+      name: r.name,
+    }));
   }
 
   private validateBusinessRules(data: FranchiseTimeContext, errors: IError[]) {

@@ -12,3 +12,9 @@ export interface FranchiseResponseDto {
   created_at: string;
   updated_at: string;
 }
+
+export interface FranchiseSelectDto {
+  value: string;
+  code: string;
+  name: string;
+}

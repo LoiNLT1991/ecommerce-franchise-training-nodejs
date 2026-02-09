@@ -9,20 +9,24 @@ import UserService from "./user.service";
 import { UserValidation } from "./user.validation";
 
 export class UserModule extends BaseModule<UserRoute> {
-  private readonly userRepo: UserRepository;
   private readonly userValidation: UserValidation;
   private readonly userQuery: UserQuery;
 
   constructor() {
     super();
-    this.userRepo = new UserRepository();
-    this.userValidation = new UserValidation(this.userRepo);
-    this.userQuery = new UserQuery(this.userRepo);
 
+    // Initialize dependencies
     const mailService = new MailService();
-    const userService = new UserService(this.getUserValidation(), this.getUserQuery(), mailService);
-    const userController = new UserController(userService);
-    this.route = new UserRoute(userController);
+    const repo = new UserRepository();
+
+    // Initialize module components
+    this.userValidation = new UserValidation(repo);
+    this.userQuery = new UserQuery(repo);
+
+    // Core service and Http layer
+    const service = new UserService(repo, this.getUserValidation(), this.getUserQuery(), mailService);
+    const controller = new UserController(service);
+    this.route = new UserRoute(controller);
   }
 
   public getUserQuery(): IUserQuery {

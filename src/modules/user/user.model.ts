@@ -11,12 +11,6 @@ const UserSchemaEntity = new Schema({
   [UserFieldName.PASSWORD]: { type: String },
   [UserFieldName.NAME]: { type: String, default: "" },
   [UserFieldName.PHONE]: { type: String, default: "" },
-  [UserFieldName.ROLE]: {
-    type: String,
-    enum: UserRoles,
-    default: BaseRole.USER,
-    required: true,
-  },
   [UserFieldName.AVATAR_URL]: { type: String, default: "" },
 
   [UserFieldName.IS_VERIFIED]: { type: Boolean, default: false },

@@ -42,6 +42,14 @@ const options = {
         description: "Migrate related endpoints",
       },
       {
+        name: "AuditLog",
+        description: "AuditLog related endpoints",
+      },
+      {
+        name: "Auth",
+        description: "Auth related endpoints",
+      },
+      {
         name: "Franchise",
         description: "Franchise related endpoints",
       },
@@ -50,12 +58,12 @@ const options = {
         description: "Role related endpoints",
       },
       {
-        name: "Auth",
-        description: "Auth related endpoints",
-      },
-      {
         name: "User",
         description: "User related endpoints",
+      },
+      {
+        name: "UserFranchiseRole",
+        description: "UserFranchiseRole related endpoints",
       },
     ],
   },

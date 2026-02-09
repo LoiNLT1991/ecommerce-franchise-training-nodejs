@@ -1,5 +1,5 @@
 import { mapBaseResponse } from "../../core/mappers";
-import { FranchiseResponseDto } from "./dto/franchise.dto";
+import { FranchiseResponseDto, FranchiseSelectDto } from "./dto/item.dto";
 import { IFranchise } from "./franchise.interface";
 
 export const mapFranchiseToResponse = (item: IFranchise): FranchiseResponseDto => {
@@ -13,5 +13,13 @@ export const mapFranchiseToResponse = (item: IFranchise): FranchiseResponseDto =
     address: item.address,
     opened_at: item.opened_at,
     closed_at: item.closed_at,
+  };
+};
+
+export const mapFranchiseToSelect = (item: IFranchise): FranchiseSelectDto => {
+  return {
+    value: String(item._id),
+    code: item.code,
+    name: item.name,
   };
 };

@@ -1,19 +1,18 @@
 import { Router } from "express";
 import { API_PATH } from "../../core/constants";
-import { BaseRole } from "../../core/enums";
+import { BaseRole, RoleScope } from "../../core/enums";
 import { IRoute } from "../../core/interfaces";
-import { authMiddleware, roleGuard, validationMiddleware } from "../../core/middleware";
+import { authMiddleware, requireGlobalRole, requireMoreContext, validationMiddleware } from "../../core/middleware";
 import ChangeStatusDto from "./dto/changeStatus.dto";
 import CreateUserDto from "./dto/create.dto";
-import UserController from "./user.controller";
-import ChangeRoleDto from "./dto/changeRole.dto";
 import UpdateUserDto from "./dto/update.dto";
+import UserController from "./user.controller";
 
 export default class UserRoute implements IRoute {
   public path = API_PATH.USER;
   public router = Router();
 
-  constructor(private readonly userController: UserController) {
+  constructor(private readonly controller: UserController) {
     this.initializeRoutes();
   }
 
@@ -69,9 +68,20 @@ export default class UserRoute implements IRoute {
     this.router.post(
       this.path,
       authMiddleware(),
-      roleGuard([BaseRole.ADMIN]),
+      requireGlobalRole(),
       validationMiddleware(CreateUserDto),
-      this.userController.createItem,
+      this.controller.createItem,
+    );
+
+    // GET domain:/api/users/search - Get all users
+    this.router.get(
+      API_PATH.USER_SEARCH,
+      authMiddleware(),
+      requireMoreContext([
+        { scope: RoleScope.GLOBAL, roles: [BaseRole.SUPER_ADMIN, BaseRole.ADMIN] },
+        { scope: RoleScope.FRANCHISE, roles: [BaseRole.MANAGER] },
+      ]),
+      this.controller.getItems,
     );
 
     /**
@@ -147,32 +157,26 @@ export default class UserRoute implements IRoute {
      *                   example: User not found
      */
     // GET domain:/api/users/:id - Get user by id
-    this.router.get(this.path + "/:id", authMiddleware(), this.userController.getItem);
+    this.router.get(API_PATH.USER_ID, authMiddleware(), this.controller.getItem);
 
-    // PUT domain:/api/users/change-status -> Change user status (block/unBlock)
+    // PUT domain:/api/users/:id/change-status -> Change user status (block/unBlock)
     this.router.put(
-      this.path + API_PATH.USER_CHANGE_STATUS,
+      API_PATH.USER_CHANGE_STATUS,
       authMiddleware(),
-      roleGuard([BaseRole.ADMIN, BaseRole.MANAGER]),
+      requireMoreContext([
+        { scope: RoleScope.GLOBAL, roles: [BaseRole.SUPER_ADMIN, BaseRole.ADMIN] },
+        { scope: RoleScope.FRANCHISE, roles: [BaseRole.MANAGER] },
+      ]),
       validationMiddleware(ChangeStatusDto),
-      this.userController.changeStatus,
-    );
-
-    // PUT domain:/api/users/change-role -> Change user role
-    this.router.put(
-      this.path + API_PATH.USER_CHANGE_ROLE,
-      authMiddleware(),
-      roleGuard([BaseRole.ADMIN, BaseRole.MANAGER]),
-      validationMiddleware(ChangeRoleDto),
-      this.userController.changeRole,
+      this.controller.changeStatus,
     );
 
     // PUT domain:/api/users/:id -> Update user
-    this.router.put(
-      `${this.path}/:id`,
-      authMiddleware(),
-      validationMiddleware(UpdateUserDto),
-      this.userController.updateUser,
-    );
+    // this.router.put(
+    //   `${this.path}/:id`,
+    //   authMiddleware(),
+    //   validationMiddleware(UpdateUserDto),
+    //   this.controller.updateUser,
+    // );
   }
 }

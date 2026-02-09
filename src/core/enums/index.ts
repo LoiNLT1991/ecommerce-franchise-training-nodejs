@@ -1,4 +1,4 @@
+import { BaseField, BaseGroup, BaseRole, GLOBAL_FRANCHISE_ID, RoleScope } from "./base.enum";
 import { HttpStatus } from "./http.enum";
-import { BaseRole, BaseField, BaseGroup } from "./base.enum";
 
-export { HttpStatus, BaseRole, BaseField, BaseGroup };
+export { BaseField, BaseGroup, BaseRole, GLOBAL_FRANCHISE_ID, HttpStatus, RoleScope };
