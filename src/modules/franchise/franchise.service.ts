@@ -1,15 +1,10 @@
 import { Types } from "mongoose";
 import { MSG_BUSINESS } from "../../core/constants";
-import { HttpStatus } from "../../core/enums";
+import { BaseFieldName, HttpStatus } from "../../core/enums";
 import { HttpException } from "../../core/exceptions";
 import { IError } from "../../core/interfaces";
 import { BaseCrudService } from "../../core/services";
-import {
-    checkEmptyObject,
-    normalizeCode,
-    normalizeName,
-    toMinutes
-} from "../../core/utils";
+import { checkEmptyObject, normalizeCode, normalizeName, toMinutes } from "../../core/utils";
 import { AuditAction, AuditEntityType, buildAuditDiff, IAuditLogger, pickAuditSnapshot } from "../audit-log";
 import CreateFranchiseDto from "./dto/create.dto";
 import { SearchPaginationItemDto } from "./dto/search.dto";
@@ -24,15 +19,14 @@ type FranchiseTimeContext = {
   closed_at: string;
 };
 
-const AUDIT_FIELDS_FRANCHISE = [
-  "code",
-  "name",
-  "opened_at",
-  "closed_at",
-  "hotline",
-  "logo_url",
-  "address",
-  "is_active",
+const AUDIT_FIELDS_ITEM = [
+  BaseFieldName.CODE,
+  BaseFieldName.NAME,
+  FranchiseFieldName.OPENED_AT,
+  FranchiseFieldName.CLOSED_AT,
+  FranchiseFieldName.HOTLINE,
+  FranchiseFieldName.LOGO_URL,
+  FranchiseFieldName.ADDRESS,
 ] as readonly (keyof IFranchise)[];
 
 export default class FranchiseService
@@ -59,9 +53,9 @@ export default class FranchiseService
     const normalizedName = normalizeName(dto.name);
 
     // 1. Check unique code
-    if (await this.repo.existsByField(FranchiseFieldName.CODE, normalizedCode)) {
+    if (await this.repo.existsByField(BaseFieldName.CODE, normalizedCode)) {
       errors.push({
-        field: FranchiseFieldName.CODE,
+        field: BaseFieldName.CODE,
         message: MSG_BUSINESS.ITEM_EXISTS("Franchise code"),
       });
     }
@@ -79,13 +73,13 @@ export default class FranchiseService
       throw new HttpException(HttpStatus.BadRequest, "", errors);
     }
 
-    // 3. Normalize data (mutate dto – OK trong service)
+    // 3. Normalize data (mutate dto – OK service)
     dto.code = normalizedCode;
     dto.name = normalizedName;
   }
 
   protected async afterCreate(item: IFranchise, loggedUserId: string): Promise<void> {
-    const snapshot = pickAuditSnapshot(item, AUDIT_FIELDS_FRANCHISE);
+    const snapshot = pickAuditSnapshot(item, AUDIT_FIELDS_ITEM);
 
     await this.auditLogger.log({
       entityType: AuditEntityType.FRANCHISE,
@@ -107,10 +101,10 @@ export default class FranchiseService
     // 1. Unique code (exclude itself)
     if (
       dto.code &&
-      (await this.repo.existsByField(FranchiseFieldName.CODE, nextCode, { excludeId: current._id.toString() }))
+      (await this.repo.existsByField(BaseFieldName.CODE, nextCode, { excludeId: current._id.toString() }))
     ) {
       errors.push({
-        field: FranchiseFieldName.CODE,
+        field: BaseFieldName.CODE,
         message: MSG_BUSINESS.ITEM_EXISTS("Franchise code"),
       });
     }
@@ -134,7 +128,7 @@ export default class FranchiseService
   }
 
   protected async afterUpdate(oldItem: IFranchise, newItem: IFranchise, loggedUserId: string): Promise<void> {
-    const { oldData, newData } = buildAuditDiff(oldItem, newItem, AUDIT_FIELDS_FRANCHISE);
+    const { oldData, newData } = buildAuditDiff(oldItem, newItem, AUDIT_FIELDS_ITEM);
 
     if (newData && Object.keys(newData).length > 0) {
       await this.auditLogger.log({

@@ -3,8 +3,8 @@ import { MSG_BUSINESS } from "../../core/constants";
 import { HttpStatus } from "../../core/enums";
 import { HttpException } from "../../core/exceptions";
 import { BaseRepository } from "../../core/repository";
-import { IAuditLog } from "./auditLog.interface";
-import AuditLogSchema from "./auditLog.model";
+import { IAuditLog } from "./audit-log.interface";
+import AuditLogSchema from "./audit-log.model";
 import { SearchAuditLogByEntityDto, SearchAuditLogDto, SearchPaginationItemDto } from "./dto/search.dto";
 
 export class AuditLogRepository extends BaseRepository<IAuditLog> {

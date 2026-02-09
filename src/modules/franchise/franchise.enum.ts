@@ -1,6 +1,4 @@
 export enum FranchiseFieldName {
-  CODE = "code",
-  NAME = "name",
   HOTLINE = "hotline",
   LOGO_URL = "logo_url",
   ADDRESS = "address",

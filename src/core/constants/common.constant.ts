@@ -11,9 +11,14 @@ export const PAGINATION = {
   totalPages: 0,
 };
 
-export const BASE_ROLE_SYSTEM = [{ scope: RoleScope.GLOBAL, roles: [BaseRole.SUPER_ADMIN, BaseRole.ADMIN] }];
+export const SYSTEM_ADMIN_ROLES = [{ scope: RoleScope.GLOBAL, roles: [BaseRole.SUPER_ADMIN, BaseRole.ADMIN] }];
 
-export const BASE_ROLE_SYSTEM_AND_FRANCHISE = [
+export const SYSTEM_AND_FRANCHISE_MANAGER_ROLES = [
   { scope: RoleScope.GLOBAL, roles: [BaseRole.SUPER_ADMIN, BaseRole.ADMIN] },
   { scope: RoleScope.FRANCHISE, roles: [BaseRole.MANAGER] },
+];
+
+export const SYSTEM_AND_FRANCHISE_ALL_ROLES = [
+  { scope: RoleScope.GLOBAL, roles: [BaseRole.SUPER_ADMIN, BaseRole.ADMIN] },
+  { scope: RoleScope.FRANCHISE, roles: [BaseRole.MANAGER, BaseRole.STAFF] },
 ];

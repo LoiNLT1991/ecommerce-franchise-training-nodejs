@@ -5,8 +5,8 @@ import { HttpException } from "../../core/exceptions";
 import { BaseRepository } from "../../core/repository";
 import { formatItemsQuery } from "../../core/utils";
 import { SearchItemDto, SearchPaginationItemDto } from "./dto/search.dto";
-import { IUserFranchiseRole } from "./UserFranchiseRole.interface";
-import UserFranchiseRoleSchema from "./UserFranchiseRole.model";
+import { IUserFranchiseRole } from "./user-franchise-role.interface";
+import UserFranchiseRoleSchema from "./user-franchise-role.model";
 
 export class UserFranchiseRoleRepository extends BaseRepository<IUserFranchiseRole> {
   constructor() {

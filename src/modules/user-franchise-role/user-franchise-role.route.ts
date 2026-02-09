@@ -1,11 +1,11 @@
 import { Router } from "express";
-import { API_PATH, BASE_ROLE_SYSTEM, BASE_ROLE_SYSTEM_AND_FRANCHISE } from "../../core/constants";
+import { API_PATH, SYSTEM_ADMIN_ROLES, SYSTEM_AND_FRANCHISE_MANAGER_ROLES } from "../../core/constants";
 import { IRoute } from "../../core/interfaces";
 import { authMiddleware, requireMoreContext, validationMiddleware } from "../../core/middleware";
-import UserFranchiseRoleController from "./UserFranchiseRole.controller";
 import CreateUserFranchiseRoleDto from "./dto/create.dto";
 import { SearchPaginationItemDto } from "./dto/search.dto";
 import UpdateUserFranchiseRoleDto from "./dto/update.dto";
+import UserFranchiseRoleController from "./user-franchise-role.controller";
 
 export default class UserFranchiseRoleRoute implements IRoute {
   public path = API_PATH.USER_FRANCHISE_ROLE;
@@ -27,7 +27,7 @@ export default class UserFranchiseRoleRoute implements IRoute {
     this.router.post(
       this.path,
       authMiddleware(),
-      requireMoreContext(BASE_ROLE_SYSTEM),
+      requireMoreContext(SYSTEM_ADMIN_ROLES),
       validationMiddleware(CreateUserFranchiseRoleDto),
       this.controller.createItem,
     );
@@ -36,7 +36,7 @@ export default class UserFranchiseRoleRoute implements IRoute {
     this.router.get(
       API_PATH.USER_FRANCHISE_ROLE_ID,
       authMiddleware(),
-      requireMoreContext(BASE_ROLE_SYSTEM_AND_FRANCHISE),
+      requireMoreContext(SYSTEM_AND_FRANCHISE_MANAGER_ROLES),
       this.controller.getItem,
     );
 
@@ -44,7 +44,7 @@ export default class UserFranchiseRoleRoute implements IRoute {
     this.router.post(
       API_PATH.USER_FRANCHISE_ROLE_SEARCH,
       authMiddleware(),
-      requireMoreContext(BASE_ROLE_SYSTEM_AND_FRANCHISE),
+      requireMoreContext(SYSTEM_AND_FRANCHISE_MANAGER_ROLES),
       validationMiddleware(SearchPaginationItemDto, true, { enableImplicitConversion: false }),
       this.controller.getItems,
     );
@@ -53,7 +53,7 @@ export default class UserFranchiseRoleRoute implements IRoute {
     this.router.put(
       API_PATH.USER_FRANCHISE_ROLE_ID,
       authMiddleware(),
-      requireMoreContext(BASE_ROLE_SYSTEM),
+      requireMoreContext(SYSTEM_ADMIN_ROLES),
       validationMiddleware(UpdateUserFranchiseRoleDto),
       this.controller.updateItem,
     );
@@ -62,7 +62,7 @@ export default class UserFranchiseRoleRoute implements IRoute {
     this.router.delete(
       API_PATH.USER_FRANCHISE_ROLE_ID,
       authMiddleware(),
-      requireMoreContext(BASE_ROLE_SYSTEM),
+      requireMoreContext(SYSTEM_ADMIN_ROLES),
       this.controller.softDeleteItem,
     );
 
@@ -70,7 +70,7 @@ export default class UserFranchiseRoleRoute implements IRoute {
     this.router.patch(
       API_PATH.USER_FRANCHISE_ROLE_RESTORE,
       authMiddleware(),
-      requireMoreContext(BASE_ROLE_SYSTEM),
+      requireMoreContext(SYSTEM_ADMIN_ROLES),
       this.controller.restoreItem,
     );
 
@@ -78,7 +78,7 @@ export default class UserFranchiseRoleRoute implements IRoute {
     this.router.get(
       API_PATH.USER_FRANCHISE_ROLE_BY_USER_ID,
       authMiddleware(),
-      requireMoreContext(BASE_ROLE_SYSTEM_AND_FRANCHISE),
+      requireMoreContext(SYSTEM_AND_FRANCHISE_MANAGER_ROLES),
       this.controller.getAllRolesByUserId,
     );
   }

@@ -50,4 +50,17 @@ export const API_PATH = {
 
   // user franchise roles by user
   USER_FRANCHISE_ROLE_BY_USER_ID: "/api/user-franchise-roles/user/:userId",
+
+  // categories
+  CATEGORY: "/api/categories",
+  CATEGORY_SEARCH: "/api/categories/search",
+  CATEGORY_ID: "/api/categories/:id",
+  CATEGORY_RESTORE: "/api/categories/:id/restore",
+  CATEGORY_SELECT: "/api/categories/select",
+
+  // products
+  PRODUCT: "/api/products",
+  PRODUCT_SEARCH: "/api/products/search",
+  PRODUCT_ID: "/api/products/:id",
+  PRODUCT_RESTORE: "/api/products/:id/restore",
 };

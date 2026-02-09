@@ -1,4 +1,4 @@
-export interface FranchiseResponseDto {
+export interface FranchiseItemDto {
   id: string;
   code: string;
   name: string;

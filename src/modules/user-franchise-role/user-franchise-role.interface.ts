@@ -1,6 +1,6 @@
 import { Document } from "mongoose";
 import { IBase } from "../../core/interfaces";
-import { UserFranchiseRoleFieldName } from "./UserFranchiseRole.enum";
+import { UserFranchiseRoleFieldName } from "./user-franchise-role.enum";
 import { IUserContext } from "../../core/models";
 
 export interface IUserFranchiseRole extends Document, IBase {

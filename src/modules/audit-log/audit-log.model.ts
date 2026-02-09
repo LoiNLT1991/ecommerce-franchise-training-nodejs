@@ -1,8 +1,8 @@
 import mongoose, { HydratedDocument, Schema } from "mongoose";
 import { COLLECTION_NAME } from "../../core/constants";
 import { BaseModelFields } from "../../core/models";
-import { AuditAction, AuditLogFieldName } from "./auditLog.enum";
-import { IAuditLog } from "./auditLog.interface";
+import { AuditAction, AuditLogFieldName } from "./audit-log.enum";
+import { IAuditLog } from "./audit-log.interface";
 
 const AuditLogSchemaEntity = new Schema({
   [AuditLogFieldName.ENTITY_TYPE]: { type: String, required: true },

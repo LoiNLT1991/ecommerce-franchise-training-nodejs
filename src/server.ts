@@ -3,8 +3,10 @@ import App from "./app";
 import { validateEnv } from "./core/utils";
 import { AuditLogModule } from "./modules/audit-log";
 import { AuthModule } from "./modules/auth";
+import { CategoryModule } from "./modules/category";
 import { FranchiseModule } from "./modules/franchise";
 import { IndexModule } from "./modules/index";
+import { ProductModule } from "./modules/product";
 import { RoleModule } from "./modules/role";
 import { UserModule } from "./modules/user";
 import { UserFranchiseRoleModule } from "./modules/user-franchise-role";
@@ -19,6 +21,8 @@ const franchiseModule = new FranchiseModule();
 const roleModule = new RoleModule();
 const userModule = new UserModule();
 const userFranchiseRoleModule = new UserFranchiseRoleModule();
+const categoryModule = new CategoryModule();
+const productModule = new ProductModule();
 
 const routes = [
   indexModule.getRoute(),
@@ -28,6 +32,8 @@ const routes = [
   roleModule.getRoute(),
   userModule.getRoute(),
   userFranchiseRoleModule.getRoute(),
+  categoryModule.getRoute(),
+  productModule.getRoute(),
 ];
 const app = new App(routes);
 

@@ -1,11 +1,12 @@
 import { Document, Types } from "mongoose";
+import { BaseFieldName } from "../../core/enums";
 import { IBase } from "../../core/interfaces";
-import { FranchiseFieldName } from "./franchise.enum";
 import CreateFranchiseDto from "./dto/create.dto";
+import { FranchiseFieldName } from "./franchise.enum";
 
 export interface IFranchise extends Document, IBase {
-  [FranchiseFieldName.CODE]: string;
-  [FranchiseFieldName.NAME]: string;
+  [BaseFieldName.CODE]: string;
+  [BaseFieldName.NAME]: string;
   [FranchiseFieldName.HOTLINE]: string;
   [FranchiseFieldName.LOGO_URL]: string;
   [FranchiseFieldName.ADDRESS]: string;

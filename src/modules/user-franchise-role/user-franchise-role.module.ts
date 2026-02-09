@@ -3,11 +3,11 @@ import { AuditLogModule } from "../audit-log";
 import { FranchiseModule } from "../franchise";
 import { RoleModule } from "../role";
 import { UserModule } from "../user";
-import UserFranchiseRoleController from "./UserFranchiseRole.controller";
-import { IUserFranchiseRoleQuery } from "./UserFranchiseRole.interface";
-import { UserFranchiseRoleRepository } from "./UserFranchiseRole.repository";
-import UserFranchiseRoleRoute from "./UserFranchiseRole.route";
-import UserFranchiseRoleService from "./UserFranchiseRole.service";
+import UserFranchiseRoleController from "./user-franchise-role.controller";
+import { IUserFranchiseRoleQuery } from "./user-franchise-role.interface";
+import { UserFranchiseRoleRepository } from "./user-franchise-role.repository";
+import UserFranchiseRoleRoute from "./user-franchise-role.route";
+import UserFranchiseRoleService from "./user-franchise-role.service";
 
 export class UserFranchiseRoleModule extends BaseModule<UserFranchiseRoleRoute> {
   private readonly userContextProvider: IUserFranchiseRoleQuery;

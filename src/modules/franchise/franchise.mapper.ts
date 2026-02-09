@@ -1,8 +1,9 @@
 import { mapBaseResponse } from "../../core/mappers";
-import { FranchiseResponseDto, FranchiseSelectDto } from "./dto/item.dto";
+import { BaseItemSelectDto } from "../../core/models";
+import { FranchiseItemDto } from "./dto/item.dto";
 import { IFranchise } from "./franchise.interface";
 
-export const mapFranchiseToResponse = (item: IFranchise): FranchiseResponseDto => {
+export const mapItemToResponse = (item: IFranchise): FranchiseItemDto => {
   const base = mapBaseResponse(item);
   return {
     ...base,
@@ -16,7 +17,7 @@ export const mapFranchiseToResponse = (item: IFranchise): FranchiseResponseDto =
   };
 };
 
-export const mapFranchiseToSelect = (item: IFranchise): FranchiseSelectDto => {
+export const mapItemToSelect = (item: IFranchise): BaseItemSelectDto => {
   return {
     value: String(item._id),
     code: item.code,

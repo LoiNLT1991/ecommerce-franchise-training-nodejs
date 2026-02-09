@@ -1,4 +1,4 @@
-export { AuditAction, AuditEntityType } from "./auditLog.enum";
-export { IAuditLogger, IAuditLogPayload } from "./auditLog.interface";
-export * from "./auditLog.helper";
-export * from "./auditLog.module";
+export { AuditAction, AuditEntityType } from "./audit-log.enum";
+export { IAuditLogger, IAuditLogPayload } from "./audit-log.interface";
+export * from "./audit-log.helper";
+export * from "./audit-log.module";

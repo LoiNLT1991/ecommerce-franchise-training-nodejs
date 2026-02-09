@@ -1,6 +1,6 @@
 import { Document } from "mongoose";
 import { IBase } from "../../core/interfaces";
-import { AuditAction, AuditLogFieldName } from "./auditLog.enum";
+import { AuditAction, AuditLogFieldName } from "./audit-log.enum";
 
 export interface IAuditLog extends Document, IBase {
   [AuditLogFieldName.ENTITY_TYPE]: string;

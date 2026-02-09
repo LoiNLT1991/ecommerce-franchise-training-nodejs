@@ -29,3 +29,15 @@ export enum BaseGroup {
     GROUP_03 = 'group_03',
     GROUP_04 = 'group_04',
 }
+
+export enum BaseFieldName {
+    ID = "_id",
+    IS_ACTIVE = "is_active",
+    CREATED_AT = "created_at",
+    UPDATED_AT = "updated_at",
+    IS_DELETED = "is_deleted",
+    CODE = "code",
+    NAME = "name",
+    DESCRIPTION = "description",
+    SORT_ORDER = "sort_order",
+}

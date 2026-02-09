@@ -1,8 +1,8 @@
 import { NextFunction, Request, Response } from "express";
 import { HttpStatus } from "../../core/enums";
 import { formatPaginationResponse, formatResponse } from "../../core/utils";
-import { IAuditLog } from "./auditLog.interface";
-import AuditLogService from "./auditLog.service";
+import { IAuditLog } from "./audit-log.interface";
+import AuditLogService from "./audit-log.service";
 import { SearchAuditLogByEntityDto, SearchPaginationItemDto } from "./dto/search.dto";
 
 export default class AuditLogController {

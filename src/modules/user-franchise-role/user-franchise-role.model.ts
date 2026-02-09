@@ -2,8 +2,8 @@ import mongoose, { HydratedDocument, Schema } from "mongoose";
 import { COLLECTION_NAME } from "../../core/constants";
 import { GLOBAL_FRANCHISE_ID } from "../../core/enums";
 import { BaseModelFields } from "../../core/models";
-import { UserFranchiseRoleFieldName } from "./UserFranchiseRole.enum";
-import { IUserFranchiseRole } from "./UserFranchiseRole.interface";
+import { UserFranchiseRoleFieldName } from "./user-franchise-role.enum";
+import { IUserFranchiseRole } from "./user-franchise-role.interface";
 
 const UserFranchiseRoleSchemaEntity = new Schema({
   [UserFranchiseRoleFieldName.FRANCHISE_ID]: { type: String, default: GLOBAL_FRANCHISE_ID },

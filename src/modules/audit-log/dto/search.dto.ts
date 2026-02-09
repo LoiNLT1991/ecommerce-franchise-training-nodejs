@@ -2,7 +2,7 @@ import { Type } from "class-transformer";
 import { IsNumber, IsOptional, IsString } from "class-validator";
 import { SearchPaginationRequestModel } from "../../../core/models";
 import { SearchItemDto } from "../../franchise/dto/search.dto";
-import { AuditAction } from "../auditLog.enum";
+import { AuditAction } from "../audit-log.enum";
 
 export class SearchAuditLogDto {
   @IsOptional()

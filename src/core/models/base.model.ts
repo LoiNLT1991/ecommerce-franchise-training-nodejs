@@ -27,3 +27,9 @@ export interface IUserContext {
   scope: RoleScope; // GLOBAL | FRANCHISE
   franchise_id: string | null; // null if GLOBAL
 }
+
+export interface BaseItemSelectDto {
+  value: string;
+  code: string;
+  name: string;
+}

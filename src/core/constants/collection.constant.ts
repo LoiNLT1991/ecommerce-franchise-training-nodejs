@@ -3,6 +3,8 @@ export const COLLECTION_NAME = {
     AUDIT_LOG: 'AuditLog',
     ROLE: 'Role',
     USER_FRANCHISE_ROLE: 'UserFranchiseRole',
+    CATEGORY: 'Category',
+    PRODUCT: 'Product',
 
 
     JOB: 'Job',

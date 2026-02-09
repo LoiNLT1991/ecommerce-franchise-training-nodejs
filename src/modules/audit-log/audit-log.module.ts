@@ -1,9 +1,9 @@
 import { BaseModule } from "../../core/modules";
-import AuditLogController from "./auditLog.controller";
-import { IAuditLogger } from "./auditLog.interface";
-import { AuditLogRepository } from "./auditLog.repository";
-import AuditLogRoute from "./auditLog.route";
-import AuditLogService from "./auditLog.service";
+import AuditLogController from "./audit-log.controller";
+import { IAuditLogger } from "./audit-log.interface";
+import { AuditLogRepository } from "./audit-log.repository";
+import AuditLogRoute from "./audit-log.route";
+import AuditLogService from "./audit-log.service";
 
 export class AuditLogModule extends BaseModule<AuditLogRoute> {
   private readonly auditLogger: IAuditLogger;

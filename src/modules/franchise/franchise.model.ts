@@ -1,12 +1,13 @@
 import mongoose, { HydratedDocument, Schema } from "mongoose";
 import { COLLECTION_NAME } from "../../core/constants";
+import { BaseFieldName } from "../../core/enums";
 import { BaseModelFields } from "../../core/models";
 import { FranchiseFieldName } from "./franchise.enum";
 import { IFranchise } from "./franchise.interface";
 
 const FranchiseSchemaEntity = new Schema({
-  [FranchiseFieldName.CODE]: { type: String, unique: true, index: true },
-  [FranchiseFieldName.NAME]: { type: String, required: true },
+  [BaseFieldName.CODE]: { type: String, unique: true, index: true },
+  [BaseFieldName.NAME]: { type: String, required: true },
   [FranchiseFieldName.HOTLINE]: { type: String, default: "" },
   [FranchiseFieldName.LOGO_URL]: { type: String, default: "" },
   [FranchiseFieldName.ADDRESS]: { type: String, default: "" },

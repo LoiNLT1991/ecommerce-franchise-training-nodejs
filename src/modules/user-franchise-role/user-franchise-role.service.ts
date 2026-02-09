@@ -11,14 +11,15 @@ import { IUserQuery } from "../user/user.interface";
 import CreateUserFranchiseRoleDto from "./dto/create.dto";
 import { SearchPaginationItemDto } from "./dto/search.dto";
 import UpdateUserFranchiseRoleDto from "./dto/update.dto";
-import { IUserFranchiseRole, IUserFranchiseRoleQuery } from "./UserFranchiseRole.interface";
-import { UserFranchiseRoleRepository } from "./UserFranchiseRole.repository";
+import { UserFranchiseRoleFieldName } from "./user-franchise-role.enum";
+import { IUserFranchiseRole, IUserFranchiseRoleQuery } from "./user-franchise-role.interface";
+import { UserFranchiseRoleRepository } from "./user-franchise-role.repository";
 
-export const AUDIT_FIELDS_USER_FRANCHISE_ROLE = [
-  "franchise_id",
-  "role_id",
-  "user_id",
-  "note",
+export const AUDIT_FIELDS_ITEM = [
+  UserFranchiseRoleFieldName.FRANCHISE_ID,
+  UserFranchiseRoleFieldName.ROLE_ID,
+  UserFranchiseRoleFieldName.USER_ID,
+  UserFranchiseRoleFieldName.NOTE,
 ] as readonly (keyof IUserFranchiseRole)[];
 
 export default class UserFranchiseRoleService
@@ -97,7 +98,7 @@ export default class UserFranchiseRoleService
   }
 
   protected async afterCreate(item: IUserFranchiseRole, loggedUserId: string): Promise<void> {
-    const snapshot = pickAuditSnapshot(item, AUDIT_FIELDS_USER_FRANCHISE_ROLE);
+    const snapshot = pickAuditSnapshot(item, AUDIT_FIELDS_ITEM);
 
     await this.auditLogger.log({
       entityType: AuditEntityType.USER_FRANCHISE_ROLE,
@@ -138,7 +139,7 @@ export default class UserFranchiseRoleService
     newItem: IUserFranchiseRole,
     loggedUserId: string,
   ): Promise<void> {
-    const { oldData, newData } = buildAuditDiff(oldItem, newItem, AUDIT_FIELDS_USER_FRANCHISE_ROLE);
+    const { oldData, newData } = buildAuditDiff(oldItem, newItem, AUDIT_FIELDS_ITEM);
 
     if (newData && Object.keys(newData).length > 0) {
       await this.auditLogger.log({

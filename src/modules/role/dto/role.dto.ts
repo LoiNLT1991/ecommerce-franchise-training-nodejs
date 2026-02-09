@@ -1,6 +1,4 @@
-export interface RoleSelectDto {
-  value: string;
-  code: string;
-  name: string;
+import { BaseItemSelectDto } from "../../../core/models";
+export interface RoleSelectDto extends BaseItemSelectDto {
   scope: string;
 }

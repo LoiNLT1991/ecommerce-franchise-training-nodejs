@@ -1,2 +1,2 @@
-export { IUserFranchiseRoleQuery, IUserFranchiseRole } from "./UserFranchiseRole.interface";
-export { UserFranchiseRoleModule } from "./UserFranchiseRole.module";
+export { IUserFranchiseRoleQuery, IUserFranchiseRole } from "./user-franchise-role.interface";
+export { UserFranchiseRoleModule } from "./user-franchise-role.module";

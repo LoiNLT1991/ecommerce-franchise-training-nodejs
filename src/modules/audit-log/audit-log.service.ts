@@ -3,8 +3,8 @@ import { HttpStatus } from "../../core/enums";
 import { HttpException } from "../../core/exceptions";
 import { SearchPaginationResponseModel } from "../../core/models";
 import { formatSearchPaginationResponse } from "../../core/utils";
-import { IAuditLog, IAuditLogger, IAuditLogPayload } from "./auditLog.interface";
-import { AuditLogRepository } from "./auditLog.repository";
+import { IAuditLog, IAuditLogger, IAuditLogPayload } from "./audit-log.interface";
+import { AuditLogRepository } from "./audit-log.repository";
 import { SearchAuditLogByEntityDto, SearchPaginationItemDto } from "./dto/search.dto";
 
 export default class AuditLogService implements IAuditLogger {

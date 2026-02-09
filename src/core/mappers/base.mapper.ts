@@ -1,4 +1,5 @@
 import { Types } from "mongoose";
+import { BaseItemSelectDto } from "../models";
 
 export interface MongoBaseEntity {
   _id: Types.ObjectId;
@@ -15,5 +16,13 @@ export const mapBaseResponse = (entity: MongoBaseEntity) => {
     is_deleted: entity.is_deleted ?? false,
     created_at: entity.created_at?.toISOString() ?? "",
     updated_at: entity.updated_at?.toISOString() ?? "",
+  };
+};
+
+export const mapItemToSelect = <T extends { _id: any; code: string; name: string }>(item: T): BaseItemSelectDto => {
+  return {
+    value: String(item._id),
+    code: item.code,
+    name: item.name,
   };
 };

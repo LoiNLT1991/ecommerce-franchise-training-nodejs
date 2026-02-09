@@ -2,7 +2,7 @@ import { Router } from "express";
 import { API_PATH } from "../../core/constants";
 import { IRoute } from "../../core/interfaces";
 import { authMiddleware, validationMiddleware } from "../../core/middleware";
-import AuditLogController from "./auditLog.controller";
+import AuditLogController from "./audit-log.controller";
 import { SearchAuditLogByEntityDto, SearchPaginationItemDto } from "./dto/search.dto";
 
 export default class AuditLogRoute implements IRoute {
