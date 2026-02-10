@@ -1,11 +1,14 @@
 import { BaseModule } from "../../core/modules";
 import { AuditLogModule } from "../audit-log";
 import { ProductController } from "./product.controller";
+import { IProductQuery } from "./product.interface";
 import { ProductRepository } from "./product.repository";
 import ProductRoute from "./product.route";
 import { ProductService } from "./product.service";
 
 export class ProductModule extends BaseModule<ProductRoute> {
+  private readonly productQuery: IProductQuery;
+
   constructor() {
     super();
 
@@ -17,5 +20,11 @@ export class ProductModule extends BaseModule<ProductRoute> {
     const service = new ProductService(repo, auditLogModule.getAuditLogger());
     const controller = new ProductController(service);
     this.route = new ProductRoute(controller);
+
+    this.productQuery = service;
+  }
+
+  public getProductQuery(): IProductQuery {
+    return this.productQuery;
   }
 }

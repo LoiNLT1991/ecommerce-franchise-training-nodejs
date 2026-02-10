@@ -1,6 +1,5 @@
 import { ClientSession, Document, Model } from "mongoose";
 import { normalizeParam } from "../utils";
-
 export class BaseRepository<T extends Document> {
   protected model: Model<T>;
 

@@ -5,56 +5,45 @@ import { HttpStatus } from "../enums";
 import { HttpException } from "../exceptions";
 import { IError } from "../interfaces";
 
-// const validationMiddleware = (type: any, skipMissingProperties = false): RequestHandler => {
-//   return (req: Request, res: Response, next: NextFunction) => {
-//     validate(plainToInstance(type, req.body, { enableImplicitConversion: true }), { skipMissingProperties }).then(
-//       (errors: ValidationError[]) => {
-//         if (errors.length > 0) {
-//           let errorResults: IError[] = [];
+const sanitizeEmptyString = (obj: any): any => {
+  if (obj === null || obj === undefined) return obj;
 
-//           const extractConstraints = (error: ValidationError) => {
-//             if (error.constraints) {
-//               Object.values(error.constraints || {}).forEach((message) => {
-//                 errorResults.push({
-//                   message,
-//                   field: error.property,
-//                 });
-//               });
-//             }
-//             if (error.children && error.children.length > 0) {
-//               error.children.forEach((childError) => {
-//                 extractConstraints(childError);
-//               });
-//             }
-//           };
+  if (Array.isArray(obj)) {
+    return obj.map(sanitizeEmptyString);
+  }
 
-//           errors.forEach((error) => {
-//             extractConstraints(error);
-//           });
+  if (typeof obj === "object") {
+    const result: any = {};
+    for (const key of Object.keys(obj)) {
+      const value = obj[key];
+      if (value === "") {
+        result[key] = undefined;
+      } else {
+        result[key] = sanitizeEmptyString(value);
+      }
+    }
+    return result;
+  }
 
-//           next(new HttpException(HttpStatus.BadRequest, "", errorResults));
-//         } else {
-//           next();
-//         }
-//       },
-//     );
-//   };
-// };
+  return obj;
+};
 
 const validationMiddleware = (
   type: any,
   skipMissingProperties = false,
   options?: { enableImplicitConversion?: boolean },
 ): RequestHandler => {
-  return async (req: Request, res: Response, next: NextFunction) => {
-    const dto = plainToInstance(type, req.body, {
+  return async (req, res, next) => {
+    const sanitizedBody = sanitizeEmptyString(req.body);
+
+    const dto = plainToInstance(type, sanitizedBody, {
       enableImplicitConversion: options?.enableImplicitConversion ?? true,
     });
 
     const errors = await validate(dto, { skipMissingProperties });
 
     if (errors.length > 0) {
-      let errorResults: IError[] = [];
+      const errorResults: IError[] = [];
 
       const extractConstraints = (error: ValidationError) => {
         if (error.constraints) {
@@ -65,13 +54,10 @@ const validationMiddleware = (
             });
           });
         }
-        if (error.children?.length) {
-          error.children.forEach(extractConstraints);
-        }
+        error.children?.forEach(extractConstraints);
       };
 
       errors.forEach(extractConstraints);
-
       return next(new HttpException(HttpStatus.BadRequest, "", errorResults));
     }
 

@@ -1,5 +1,6 @@
 import { Types } from "mongoose";
 import { MSG_BUSINESS } from "../../core/constants";
+import { UpdateStatusDto } from "../../core/dtos";
 import { BaseFieldName, HttpStatus } from "../../core/enums";
 import { HttpException } from "../../core/exceptions";
 import { IError } from "../../core/interfaces";
@@ -9,7 +10,6 @@ import { AuditAction, AuditEntityType, buildAuditDiff, IAuditLogger, pickAuditSn
 import CreateFranchiseDto from "./dto/create.dto";
 import { SearchPaginationItemDto } from "./dto/search.dto";
 import UpdateFranchiseDto from "./dto/update.dto";
-import UpdateStatusDto from "./dto/updateStatus.dto";
 import { FranchiseFieldName } from "./franchise.enum";
 import { IFranchise, IFranchiseQuery, IFranchiseQueryResult } from "./franchise.interface";
 import { FranchiseRepository } from "./franchise.repository";

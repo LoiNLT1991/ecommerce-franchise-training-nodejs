@@ -37,6 +37,8 @@ tags:
     description: Franchise menu category endpoints
   - name: Category
     description: Category related endpoints
+  - name: Product Franchise
+    description: Product Franchise related endpoints
   - name: Product
     description: Product related endpoints
 paths:

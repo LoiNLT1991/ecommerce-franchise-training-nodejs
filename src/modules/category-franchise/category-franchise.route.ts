@@ -5,7 +5,7 @@ import { authMiddleware, requireMoreContext, validationMiddleware } from "../../
 import { CategoryFranchiseController } from "./category-franchise.controller";
 import CreateCategoryFranchiseDto from "./dto/create.dto";
 import { UpdateDisplayOrderItemDto, UpdateDisplayOrderItemsDto } from "./dto/updateDisplayOrder.dto";
-import UpdateStatusDto from "./dto/updateStatus.dto";
+import { UpdateStatusDto } from "../../core/dtos";
 
 export default class CategoryFranchiseRoute implements IRoute {
   public path = API_PATH.CATEGORY_FRANCHISE;

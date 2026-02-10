@@ -1,12 +1,12 @@
-import { IsNotEmpty, IsNumber, IsOptional, IsString } from "class-validator";
+import { IsMongoId, IsNotEmpty, IsNumber, IsOptional } from "class-validator";
 
 export default class UpdateCategoryFranchiseDto {
   @IsNotEmpty()
-  @IsString()
+  @IsMongoId()
   franchise_id: string;
 
   @IsNotEmpty()
-  @IsString()
+  @IsMongoId()
   category_id: string;
 
   @IsOptional()

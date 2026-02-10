@@ -72,4 +72,11 @@ export const API_PATH = {
   CATEGORY_FRANCHISE_CHANGE_DISPLAY_ORDER: "/api/category-franchises/display-order", // change display order of category-franchise
   CATEGORY_FRANCHISE_REORDER: "/api/category-franchises/reorder", // reorder categories of franchise
   GET_CATEGORIES_BY_FRANCHISE: "/api/category-franchises/franchise/:franchiseId", // get categories of franchise
+
+  // product franchises
+  PRODUCT_FRANCHISE: "/api/product-franchises",
+  PRODUCT_FRANCHISE_ID: "/api/product-franchises/:id",
+  PRODUCT_FRANCHISE_SEARCH: "/api/product-franchises/search",
+  PRODUCT_FRANCHISE_RESTORE: "/api/product-franchises/:id/restore",
+  PRODUCT_FRANCHISE_CHANGE_STATUS: "/api/product-franchises/:id/status",
 };

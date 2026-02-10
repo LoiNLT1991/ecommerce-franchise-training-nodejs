@@ -1,12 +1,12 @@
 export const GLOBAL_FRANCHISE_ID = "__GLOBAL__";
 
 export enum BaseRole {
-    SUPER_ADMIN = 'SUPER_ADMIN',
-    ADMIN = 'ADMIN',
-    MANAGER = 'MANAGER',
-    STAFF = 'STAFF',
-    SHIPPER = 'SHIPPER',
-    USER = 'USER',
+  SUPER_ADMIN = "SUPER_ADMIN",
+  ADMIN = "ADMIN",
+  MANAGER = "MANAGER",
+  STAFF = "STAFF",
+  SHIPPER = "SHIPPER",
+  USER = "USER",
 }
 
 export enum RoleScope {
@@ -15,29 +15,40 @@ export enum RoleScope {
 }
 
 export enum BaseField {
-    ID = 'id',
-    IS_ACTIVE = 'is_active',
-    CREATED_AT = 'created_at',
-    UPDATED_AT = 'updated_at',
-    IS_DELETED = 'is_deleted',
+  ID = "id",
+  IS_ACTIVE = "is_active",
+  CREATED_AT = "created_at",
+  UPDATED_AT = "updated_at",
+  IS_DELETED = "is_deleted",
 }
 
 export enum BaseGroup {
-    SYSTEM = 'system',
-    GROUP_01 = 'group_01',
-    GROUP_02 = 'group_02',
-    GROUP_03 = 'group_03',
-    GROUP_04 = 'group_04',
+  SYSTEM = "system",
+  GROUP_01 = "group_01",
+  GROUP_02 = "group_02",
+  GROUP_03 = "group_03",
+  GROUP_04 = "group_04",
 }
 
 export enum BaseFieldName {
-    ID = "_id",
-    IS_ACTIVE = "is_active",
-    CREATED_AT = "created_at",
-    UPDATED_AT = "updated_at",
-    IS_DELETED = "is_deleted",
-    CODE = "code",
-    NAME = "name",
-    DESCRIPTION = "description",
-    DISPLAY_ORDER = "display_order",
+  ID = "_id",
+  IS_ACTIVE = "is_active",
+  CREATED_AT = "created_at",
+  UPDATED_AT = "updated_at",
+  IS_DELETED = "is_deleted",
+  CODE = "code",
+  NAME = "name",
+  DESCRIPTION = "description",
+  DISPLAY_ORDER = "display_order",
+
+  // Collection Id
+  FRANCHISE_ID = "franchise_id",
+  USER_ID = "user_id",
+  ROLE_ID = "role_id",
+  CATEGORY_ID = "category_id",
+  PRODUCT_ID = "product_id",
+
+  // Other common fields
+  SIZE = "size",
+  PRICE_BASE = "price_base",
 }

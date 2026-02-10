@@ -5,7 +5,7 @@ import { formatResponse } from "../../core/utils";
 import { CategoryFranchiseService } from "./category-franchise.service";
 import CreateCategoryFranchiseDto from "./dto/create.dto";
 import { UpdateDisplayOrderItemDto, UpdateDisplayOrderItemsDto } from "./dto/updateDisplayOrder.dto";
-import UpdateStatusDto from "./dto/updateStatus.dto";
+import { UpdateStatusDto } from "../../core/dtos";
 
 export class CategoryFranchiseController {
   constructor(private readonly service: CategoryFranchiseService) {}

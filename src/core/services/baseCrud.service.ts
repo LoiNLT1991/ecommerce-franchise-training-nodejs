@@ -21,30 +21,13 @@ export abstract class BaseCrudService<T extends Document, CreateDto, UpdateDto, 
   protected async beforeRestore(item: T, loggedUserId: string): Promise<void> {}
   protected async afterRestore(item: T, loggedUserId: string): Promise<void> {}
 
-  // ===== CRUD (create/update/delete/restore) =====
-
+  // ===== CRUD (create/get/update/delete/restore) =====
   async create(dto: CreateDto, loggedUserId: string): Promise<T> {
     await this.beforeCreate(dto, loggedUserId);
     const item = await this.repo.create(dto as any);
     await this.afterCreate(item, loggedUserId);
     return item;
   }
-
-  // ===== SEARCH TEMPLATE =====
-  async getItems(searchDto: SearchDto): Promise<SearchPaginationResponseModel<T>> {
-    const { data, total } = await this.doSearch(searchDto);
-    const { pageNum, pageSize } = (searchDto as any).pageInfo;
-    return formatSearchPaginationResponse(data, {
-      pageNum,
-      pageSize,
-      totalItems: total,
-      totalPages: Math.ceil(total / pageSize),
-    });
-  }
-
-  // module MUST implement
-  protected abstract doSearch(searchDto: SearchDto): Promise<{ data: T[]; total: number }>;
-  // ===== END SEARCH TEMPLATE =====
 
   async getItem(id: string): Promise<T> {
     const item = await this.repo.findById(id);
@@ -78,6 +61,21 @@ export abstract class BaseCrudService<T extends Document, CreateDto, UpdateDto, 
     await this.repo.restoreById(id);
     await this.afterRestore(item, loggedUserId);
   }
-
   // ===== END CRUD =====
+
+  // ===== SEARCH TEMPLATE =====
+  async getItems(searchDto: SearchDto): Promise<SearchPaginationResponseModel<T>> {
+    const { data, total } = await this.doSearch(searchDto);
+    const { pageNum, pageSize } = (searchDto as any).pageInfo;
+    return formatSearchPaginationResponse(data, {
+      pageNum,
+      pageSize,
+      totalItems: total,
+      totalPages: Math.ceil(total / pageSize),
+    });
+  }
+
+  // module MUST implement
+  protected abstract doSearch(searchDto: SearchDto): Promise<{ data: T[]; total: number }>;
+  // ===== END SEARCH TEMPLATE =====
 }

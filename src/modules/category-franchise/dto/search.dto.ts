@@ -1,14 +1,14 @@
 import { Transform, Type } from "class-transformer";
-import { IsBoolean, IsOptional, IsString } from "class-validator";
+import { IsBoolean, IsMongoId, IsOptional } from "class-validator";
 import { SearchPaginationRequestModel } from "../../../core/models";
 
 export class SearchItemDto {
   @IsOptional()
-  @IsString()
+  @IsMongoId()
   public category_id?: string;
 
   @IsOptional()
-  @IsString()
+  @IsMongoId()
   public franchise_id?: string;
 
   @IsOptional()

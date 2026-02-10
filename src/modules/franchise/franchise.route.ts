@@ -1,11 +1,11 @@
 import { Router } from "express";
 import { API_PATH, SYSTEM_ADMIN_ROLES } from "../../core/constants";
+import { UpdateStatusDto } from "../../core/dtos";
 import { IRoute } from "../../core/interfaces";
 import { authMiddleware, requireMoreContext, validationMiddleware } from "../../core/middleware";
 import CreateFranchiseDto from "./dto/create.dto";
 import { SearchPaginationItemDto } from "./dto/search.dto";
 import UpdateFranchiseDto from "./dto/update.dto";
-import UpdateStatusDto from "./dto/updateStatus.dto";
 import FranchiseController from "./franchise.controller";
 
 export default class FranchiseRoute implements IRoute {

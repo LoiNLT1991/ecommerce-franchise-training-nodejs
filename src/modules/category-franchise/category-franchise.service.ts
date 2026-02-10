@@ -1,22 +1,22 @@
 import { MSG_BUSINESS } from "../../core/constants";
+import { UpdateStatusDto } from "../../core/dtos";
 import { BaseFieldName, HttpStatus } from "../../core/enums";
 import { HttpException } from "../../core/exceptions";
+import { IError } from "../../core/interfaces";
 import { checkEmptyObject } from "../../core/utils";
 import { AuditAction, AuditEntityType, IAuditLogger, pickAuditSnapshot } from "../audit-log";
 import { ICategoryQuery } from "../category";
 import { IFranchiseQuery } from "../franchise";
-import { CategoryFranchiseFieldName } from "./category-franchise.enum";
 import { ICategoryFranchise, ICategoryFranchisePopulated } from "./category-franchise.interface";
 import { mapItemToResponse } from "./category-franchise.mapper";
 import { CategoryFranchiseRepository } from "./category-franchise.repository";
 import CreateCategoryFranchiseDto from "./dto/create.dto";
 import { CategoryFranchiseItemDto } from "./dto/item.dto";
 import { UpdateDisplayOrderItemDto, UpdateDisplayOrderItemsDto } from "./dto/updateDisplayOrder.dto";
-import UpdateStatusDto from "./dto/updateStatus.dto";
 
 const AUDIT_FIELDS_ITEM = [
-  CategoryFranchiseFieldName.CATEGORY_ID,
-  CategoryFranchiseFieldName.FRANCHISE_ID,
+  BaseFieldName.CATEGORY_ID,
+  BaseFieldName.FRANCHISE_ID,
   BaseFieldName.DISPLAY_ORDER,
 ] as readonly (keyof ICategoryFranchise)[];
 
@@ -39,22 +39,37 @@ export class CategoryFranchiseService {
 
     const { franchise_id, category_id, display_order } = dto;
 
+    const errors: IError[] = [];
+
     // 1. Validate franchise exists
     const franchise = await this.franchiseQuery.getById(franchise_id);
     if (!franchise) {
-      throw new HttpException(HttpStatus.NotFound, MSG_BUSINESS.ITEM_NOT_FOUND_WITH_NAME("Franchise"));
+      errors.push({
+        field: BaseFieldName.FRANCHISE_ID,
+        message: MSG_BUSINESS.ITEM_NOT_FOUND_WITH_NAME("Franchise"),
+      });
     }
 
     // 2. Validate category exists
     const category = await this.categoryQuery.getById(category_id);
     if (!category) {
-      throw new HttpException(HttpStatus.NotFound, MSG_BUSINESS.ITEM_NOT_FOUND_WITH_NAME("Category"));
+      errors.push({
+        field: BaseFieldName.CATEGORY_ID,
+        message: MSG_BUSINESS.ITEM_NOT_FOUND_WITH_NAME("Category"),
+      });
     }
 
     // 3. Prevent duplicate
     const existed = await this.repo.findByCategoryAndFranchise(category_id, franchise_id);
     if (existed) {
-      throw new HttpException(HttpStatus.BadRequest, MSG_BUSINESS.ITEM_EXISTS("Category in franchise"));
+      errors.push({
+        field: BaseFieldName.CATEGORY_ID,
+        message: MSG_BUSINESS.ITEM_EXISTS("Category in franchise"),
+      });
+    }
+
+    if (errors.length) {
+      throw new HttpException(HttpStatus.BadRequest, "", errors);
     }
 
     // 4. Create mapping

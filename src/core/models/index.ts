@@ -1,5 +1,9 @@
-import { SearchPaginationRequestModel, SearchPaginationResponseModel } from "./searchPagination.model";
+import {
+  BaseSearchItemDto,
+  SearchPaginationRequestModel,
+  SearchPaginationResponseModel,
+} from "./searchPagination.model";
 
-export { SearchPaginationRequestModel, SearchPaginationResponseModel };
+export { BaseSearchItemDto, SearchPaginationRequestModel, SearchPaginationResponseModel };
 
 export * from "./base.model";

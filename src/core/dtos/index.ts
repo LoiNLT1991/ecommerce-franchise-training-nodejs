@@ -1,3 +1,5 @@
 import { BaseDto } from "./base.dto";
+import { BaseItemDto } from "./baseItem.dto";
+import UpdateStatusDto from "./updateStatus.dto";
 
-export { BaseDto };
+export { BaseDto, BaseItemDto, UpdateStatusDto };

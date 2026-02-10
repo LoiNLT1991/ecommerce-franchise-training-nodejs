@@ -11,6 +11,7 @@ import { RoleModule } from "./modules/role";
 import { UserModule } from "./modules/user";
 import { UserFranchiseRoleModule } from "./modules/user-franchise-role";
 import { CategoryFranchiseModule } from "./modules/category-franchise/category-franchise.module";
+import { ProductFranchiseModule } from "./modules/product-franchise";
 
 dotenv.config();
 validateEnv();
@@ -30,6 +31,7 @@ const productModule = new ProductModule();
 const userFranchiseRoleModule = new UserFranchiseRoleModule(userModule, roleModule, franchiseModule);
 const authModule = new AuthModule(userFranchiseRoleModule, userModule);
 const categoryFranchiseModule = new CategoryFranchiseModule(categoryModule, franchiseModule);
+const productFranchiseModule = new ProductFranchiseModule(productModule, franchiseModule);
 
 // ===== Register routes =====
 const routes = [
@@ -43,6 +45,7 @@ const routes = [
   categoryModule.getRoute(),
   productModule.getRoute(),
   categoryFranchiseModule.getRoute(),
+  productFranchiseModule.getRoute(),
 ];
 
 const app = new App(routes);

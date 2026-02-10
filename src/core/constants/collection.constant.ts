@@ -8,6 +8,8 @@ export const COLLECTION_NAME = {
 
     // Master Data
     CATEGORY_FRANCHISE: 'CategoryFranchise',
+    PRODUCT_FRANCHISE: 'ProductFranchise',
+    PRODUCT_CATEGORY_FRANCHISE: 'ProductCategoryFranchise',
 
 
     JOB: 'Job',

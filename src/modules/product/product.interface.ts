@@ -13,3 +13,7 @@ export interface IProduct extends Document, IBase {
   [ProductFieldName.MIN_PRICE]: number;
   [ProductFieldName.MAX_PRICE]: number;
 }
+
+export interface IProductQuery {
+  getById(id: string): Promise<IProduct | null>;
+}

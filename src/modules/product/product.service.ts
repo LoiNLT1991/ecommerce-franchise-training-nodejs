@@ -9,10 +9,10 @@ import CreateProductDto from "./dto/create.dto";
 import { SearchPaginationItemDto } from "./dto/search.dto";
 import UpdateProductDto from "./dto/update.dto";
 import { ProductFieldName } from "./product.enum";
-import { IProduct } from "./product.interface";
+import { IProduct, IProductQuery } from "./product.interface";
 import { ProductRepository } from "./product.repository";
 
-const AUDIT_FIELDS_PRODUCT = [
+const AUDIT_FIELDS_ITEM = [
   ProductFieldName.SKU,
   BaseFieldName.NAME,
   BaseFieldName.DESCRIPTION,
@@ -23,12 +23,10 @@ const AUDIT_FIELDS_PRODUCT = [
   ProductFieldName.MAX_PRICE,
 ] as readonly (keyof IProduct)[];
 
-export class ProductService extends BaseCrudService<
-  IProduct,
-  CreateProductDto,
-  UpdateProductDto,
-  SearchPaginationItemDto
-> {
+export class ProductService
+  extends BaseCrudService<IProduct, CreateProductDto, UpdateProductDto, SearchPaginationItemDto>
+  implements IProductQuery
+{
   private readonly productRepo: ProductRepository;
 
   constructor(
@@ -76,7 +74,7 @@ export class ProductService extends BaseCrudService<
   }
 
   protected async afterCreate(item: IProduct, loggedUserId: string): Promise<void> {
-    const snapshot = pickAuditSnapshot(item, AUDIT_FIELDS_PRODUCT);
+    const snapshot = pickAuditSnapshot(item, AUDIT_FIELDS_ITEM);
     await this.auditLogger.log({
       entityType: AuditEntityType.PRODUCT,
       entityId: String(item._id),
@@ -126,7 +124,7 @@ export class ProductService extends BaseCrudService<
   }
 
   protected async afterUpdate(oldItem: IProduct, newItem: IProduct, loggedUserId: string): Promise<void> {
-    const { oldData, newData } = buildAuditDiff(oldItem, newItem, AUDIT_FIELDS_PRODUCT);
+    const { oldData, newData } = buildAuditDiff(oldItem, newItem, AUDIT_FIELDS_ITEM);
 
     if (newData && Object.keys(newData).length > 0) {
       await this.auditLogger.log({
@@ -167,4 +165,8 @@ export class ProductService extends BaseCrudService<
   }
 
   // ===== End CRUD =====
+
+  public async getById(id: string): Promise<IProduct | null> {
+    return this.productRepo.findById(id);
+  }
 }
