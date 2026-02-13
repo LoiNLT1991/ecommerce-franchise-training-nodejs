@@ -1,5 +1,5 @@
 import { MSG_BUSINESS } from "../../core/constants";
-import { UpdateStatusDto } from "../../core/dtos";
+import { UpdateStatusDto } from "../../core/dto";
 import { BaseFieldName, HttpStatus } from "../../core/enums";
 import { HttpException } from "../../core/exceptions";
 import { IError } from "../../core/interfaces";
@@ -11,7 +11,7 @@ import { IProductQuery } from "../product";
 import { CreateProductFranchiseDto } from "./dto/create.dto";
 import { SearchPaginationItemDto } from "./dto/search.dto";
 import { UpdateProductFranchiseDto } from "./dto/update.dto";
-import { IProductFranchise } from "./product-franchise.interface";
+import { IProductFranchise, IProductFranchiseQuery } from "./product-franchise.interface";
 import { ProductFranchiseRepository } from "./product-franchise.repository";
 
 const AUDIT_FIELDS_ITEM = [
@@ -21,12 +21,15 @@ const AUDIT_FIELDS_ITEM = [
   BaseFieldName.PRICE_BASE,
 ] as readonly (keyof IProductFranchise)[];
 
-export class ProductFranchiseService extends BaseCrudService<
-  IProductFranchise,
-  CreateProductFranchiseDto,
-  UpdateProductFranchiseDto,
-  SearchPaginationItemDto
-> {
+export class ProductFranchiseService
+  extends BaseCrudService<
+    IProductFranchise,
+    CreateProductFranchiseDto,
+    UpdateProductFranchiseDto,
+    SearchPaginationItemDto
+  >
+  implements IProductFranchiseQuery
+{
   private readonly productFranchiseRepo: ProductFranchiseRepository;
 
   constructor(
@@ -75,11 +78,7 @@ export class ProductFranchiseService extends BaseCrudService<
     }
 
     // 4. Prevent duplicate (product + franchise + size)
-    const existed = await this.productFranchiseRepo.findByProductFranchiseAndSize(
-      product_id,
-      franchise_id,
-      size,
-    );
+    const existed = await this.productFranchiseRepo.findByProductFranchiseAndSize(product_id, franchise_id, size);
     if (existed) {
       errors.push({
         field: BaseFieldName.PRODUCT_ID,
@@ -136,7 +135,7 @@ export class ProductFranchiseService extends BaseCrudService<
         });
       } else {
         // 2.2 Get product to check range
-        const product = await this.productQuery.getById(current.product_id);
+        const product = await this.productQuery.getById(String(current.product_id));
         if (!product) {
           errors.push({
             field: BaseFieldName.PRODUCT_ID,
@@ -152,14 +151,14 @@ export class ProductFranchiseService extends BaseCrudService<
     // 3. If size updated → prevent duplicate (product + franchise + size)
     if (size !== undefined) {
       const normalizedSize = this.normalizeSize(size);
-      const currentNormalizedSize = this.normalizeSize(current.size);
+      const currentNormalizedSize = this.normalizeSize(String(current.size));
 
       // 3.1 Validate size format
       if (normalizedSize !== currentNormalizedSize) {
         const existed = await this.productFranchiseRepo.findByProductFranchiseAndSize(
-          current.product_id,
-          current.franchise_id,
-          normalizedSize,
+          String(current.product_id),
+          String(current.franchise_id),
+          normalizedSize ?? null,
           { excludeId: String(current._id) },
         );
 
@@ -251,6 +250,11 @@ export class ProductFranchiseService extends BaseCrudService<
       newData: { is_active },
       changedBy: loggedUserId,
     });
+  }
+
+  // Support for IProductFranchiseQuery
+  public async getById(id: string): Promise<IProductFranchise | null> {
+    return this.repo.findById(id);
   }
 
   // ==== Validation helpers =====

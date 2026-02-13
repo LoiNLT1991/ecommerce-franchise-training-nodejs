@@ -11,7 +11,8 @@
     "generate:swagger": "node src/swaggerConfig.ts",
     "lint": "eslint . --ext .ts",
     "lint-and-fix": "eslint . --ext .ts --fix",
-    "gen:module": "plop"
+    "gen:module": "plop",
+    "migrate": "ts-node -r dotenv/config -r tsconfig-paths/register src/migrations/migrate.ts"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",

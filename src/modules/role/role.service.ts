@@ -55,7 +55,15 @@ export default class RoleService implements IRoleQuery {
     }));
   }
 
-  public async getRoleById(id: string): Promise<IRole | null> {
-    return this.repo.findById(id);
+  public async getRoleById(id: string): Promise<RoleQueryResult | null> {
+    const role = await this.repo.findById(id);
+
+    if (!role) return null;
+
+    return {
+      id: role._id.toString(),
+      code: role.code,
+      scope: role.scope,
+    };
   }
 }

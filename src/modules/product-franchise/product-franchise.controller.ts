@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { BaseCrudController } from "../../core/controller";
-import { UpdateStatusDto } from "../../core/dtos";
+import { UpdateStatusDto } from "../../core/dto";
 import { HttpStatus } from "../../core/enums";
 import { AuthenticatedRequest } from "../../core/models";
 import { formatResponse } from "../../core/utils";

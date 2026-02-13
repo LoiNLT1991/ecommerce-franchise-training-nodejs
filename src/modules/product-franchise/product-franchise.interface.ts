@@ -1,23 +1,16 @@
-import { Document } from "mongoose";
+import { Document, Types } from "mongoose";
 import { BaseFieldName } from "../../core/enums";
 import { IBase } from "../../core/interfaces";
 
 export interface IProductFranchise extends Document, IBase {
-  [BaseFieldName.PRODUCT_ID]: string;
+  [BaseFieldName.PRODUCT_ID]: Types.ObjectId;
   product_name: string;
-  [BaseFieldName.FRANCHISE_ID]: string;
+  [BaseFieldName.FRANCHISE_ID]: Types.ObjectId;
   franchise_name: string;
-  [BaseFieldName.SIZE]: string;
+  [BaseFieldName.SIZE]?: string | null;
   [BaseFieldName.PRICE_BASE]: number;
 }
 
-export interface IProductFranchisePopulated extends Omit<IProductFranchise, "product_id" | "franchise_id"> {
-  product_id: {
-    _id: string;
-    name: string;
-  };
-  franchise_id: {
-    _id: string;
-    name: string;
-  };
+export interface IProductFranchiseQuery {
+  getById(id: string): Promise<IProductFranchise | null>;
 }

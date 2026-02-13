@@ -1,16 +1,16 @@
-import { IsNotEmpty, IsOptional, IsString } from "class-validator";
+import { IsMongoId, IsNotEmpty, IsOptional, IsString } from "class-validator";
 
 export default class CreateUserFranchiseRoleDto {
   @IsNotEmpty()
-  @IsString()
+  @IsMongoId()
   user_id: string;
 
   @IsNotEmpty()
-  @IsString()
+  @IsMongoId()
   role_id: string;
 
   @IsOptional()
-  @IsString()
+  @IsMongoId()
   franchise_id?: string | null; // null = GLOBAL
 
   @IsOptional()

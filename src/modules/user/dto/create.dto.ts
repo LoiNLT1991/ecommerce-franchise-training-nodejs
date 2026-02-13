@@ -1,5 +1,5 @@
 import { IsEmail, IsNotEmpty, MinLength } from "class-validator";
-import { BaseDto } from "../../../core/dtos";
+import { BaseDto } from "../../../core/dto";
 import { PASSWORD_LENGTH_MIN } from "../../../core/constants";
 
 export default class CreateUserDto extends BaseDto {

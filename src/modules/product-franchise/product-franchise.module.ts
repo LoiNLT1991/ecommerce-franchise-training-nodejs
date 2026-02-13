@@ -3,11 +3,14 @@ import { AuditLogModule } from "../audit-log";
 import { FranchiseModule } from "../franchise";
 import { ProductModule } from "../product";
 import ProductFranchiseController from "./product-franchise.controller";
+import { IProductFranchiseQuery } from "./product-franchise.interface";
 import { ProductFranchiseRepository } from "./product-franchise.repository";
 import ProductFranchiseRoute from "./product-franchise.route";
 import { ProductFranchiseService } from "./product-franchise.service";
 
 export class ProductFranchiseModule extends BaseModule<ProductFranchiseRoute> {
+  private readonly productFranchiseQuery: IProductFranchiseQuery;
+
   constructor(productModule: ProductModule, franchiseModule: FranchiseModule) {
     super();
 
@@ -24,5 +27,11 @@ export class ProductFranchiseModule extends BaseModule<ProductFranchiseRoute> {
 
     const controller = new ProductFranchiseController(service);
     this.route = new ProductFranchiseRoute(controller);
+
+    this.productFranchiseQuery = service;
   }
+
+    public getProductFranchiseQuery(): IProductFranchiseQuery {
+      return this.productFranchiseQuery;
+    }
 }

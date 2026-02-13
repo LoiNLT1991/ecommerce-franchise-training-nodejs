@@ -128,7 +128,20 @@ export default class AuthService {
   }
 
   public async login(model: LoginDto): Promise<{ accessToken: string; refreshToken: string }> {
-    return this.validateLogin(model);
+    const { user, tokens } = await this.validateLogin(model);
+
+    const contexts = await this.userContext.getUserContexts(String(user._id));
+
+    if (contexts.length === 1) {
+      // ✅ AUTO SET DEFAULT CONTEXT
+      const activeContext = contexts[0];
+
+      const tokens = await this.createTokensWithContext(user, activeContext);
+
+      return tokens;
+    }
+
+    return tokens;
   }
 
   public async logout(userId: string): Promise<void> {
@@ -317,7 +330,10 @@ export default class AuthService {
       await user.save();
     }
 
-    return this.createBaseTokens(user);
+    return {
+      user,
+      tokens: this.createBaseTokens(user),
+    };
   }
 
   private createBaseTokens(user: IUser) {

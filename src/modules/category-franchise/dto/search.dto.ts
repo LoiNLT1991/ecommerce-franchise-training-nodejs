@@ -1,25 +1,15 @@
-import { Transform, Type } from "class-transformer";
-import { IsBoolean, IsMongoId, IsOptional } from "class-validator";
-import { SearchPaginationRequestModel } from "../../../core/models";
+import { Type } from "class-transformer";
+import { IsMongoId, IsOptional } from "class-validator";
+import { BaseSearchItemDto, SearchPaginationRequestModel } from "../../../core/models";
 
-export class SearchItemDto {
-  @IsOptional()
-  @IsMongoId()
-  public category_id?: string;
-
+export class SearchItemDto extends BaseSearchItemDto {
   @IsOptional()
   @IsMongoId()
   public franchise_id?: string;
 
   @IsOptional()
-  @Transform(({ value }) => (value === "" ? undefined : value === "true" ? true : value === "false" ? false : value))
-  @IsBoolean()
-  is_active?: boolean;
-
-  @IsOptional()
-  @IsBoolean()
-  @Transform(({ value }) => (value === "" ? undefined : value === "true" ? true : value === "false" ? false : value))
-  public is_deleted?: boolean;
+  @IsMongoId()
+  public category_id?: string;
 }
 
 export class SearchPaginationItemDto extends SearchPaginationRequestModel<SearchItemDto> {

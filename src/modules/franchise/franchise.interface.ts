@@ -15,7 +15,7 @@ export interface IFranchise extends Document, IBase {
 }
 
 export interface IFranchiseQueryResult {
-  id: Types.ObjectId | string;
+  id: string;
   code: string;
   name: string;
 }

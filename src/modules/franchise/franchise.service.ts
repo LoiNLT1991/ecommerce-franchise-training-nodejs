@@ -1,6 +1,6 @@
 import { Types } from "mongoose";
 import { MSG_BUSINESS } from "../../core/constants";
-import { UpdateStatusDto } from "../../core/dtos";
+import { UpdateStatusDto } from "../../core/dto";
 import { BaseFieldName, HttpStatus } from "../../core/enums";
 import { HttpException } from "../../core/exceptions";
 import { IError } from "../../core/interfaces";
@@ -201,10 +201,9 @@ export default class FranchiseService
   }
 
   public async getByIds(ids: string[]): Promise<IFranchiseQueryResult[]> {
-    const objectIds = ids.map((id) => new Types.ObjectId(id));
 
     const items = await this.repo.find({
-      _id: { $in: objectIds },
+      _id: { $in: ids },
       is_deleted: false,
     });
 

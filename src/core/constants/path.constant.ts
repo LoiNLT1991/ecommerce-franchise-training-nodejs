@@ -67,6 +67,7 @@ export const API_PATH = {
   // category franchises
   CATEGORY_FRANCHISE: "/api/category-franchises", // assign categories to franchise
   CATEGORY_FRANCHISE_ID: "/api/category-franchises/:id", // get, update, delete category-franchise by id
+  CATEGORY_FRANCHISE_SEARCH: "/api/category-franchises/search",
   CATEGORY_FRANCHISE_RESTORE: "/api/category-franchises/:id/restore", // restore category-franchise by id
   CATEGORY_FRANCHISE_CHANGE_STATUS: "/api/category-franchises/:id/status", // change status of category-franchise
   CATEGORY_FRANCHISE_CHANGE_DISPLAY_ORDER: "/api/category-franchises/display-order", // change display order of category-franchise
@@ -79,4 +80,13 @@ export const API_PATH = {
   PRODUCT_FRANCHISE_SEARCH: "/api/product-franchises/search",
   PRODUCT_FRANCHISE_RESTORE: "/api/product-franchises/:id/restore",
   PRODUCT_FRANCHISE_CHANGE_STATUS: "/api/product-franchises/:id/status",
+
+  // product category franchises
+  PRODUCT_CATEGORY_FRANCHISE: "/api/product-category-franchises",
+  PRODUCT_CATEGORY_FRANCHISE_ID: "/api/product-category-franchises/:id",
+  PRODUCT_CATEGORY_FRANCHISE_SEARCH: "/api/product-category-franchises/search",
+  PRODUCT_CATEGORY_FRANCHISE_RESTORE: "/api/product-category-franchises/:id/restore",
+  PRODUCT_CATEGORY_FRANCHISE_CHANGE_STATUS: "/api/product-category-franchises/:id/status",
+  PRODUCT_CATEGORY_FRANCHISE_REORDER: "/api/product-category-franchises/reorder", // reorder product by category of franchise
+  GET_PRODUCTS_BY_CATEGORY: "/api/product-category-franchises/:categoryId", // get product by category of franchise
 };

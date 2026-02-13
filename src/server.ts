@@ -4,14 +4,15 @@ import { validateEnv } from "./core/utils";
 import { AuditLogModule } from "./modules/audit-log";
 import { AuthModule } from "./modules/auth";
 import { CategoryModule } from "./modules/category";
+import { CategoryFranchiseModule } from "./modules/category-franchise";
 import { FranchiseModule } from "./modules/franchise";
 import { IndexModule } from "./modules/index";
 import { ProductModule } from "./modules/product";
+import { ProductCategoryFranchiseModule } from "./modules/product-category-franchise";
+import { ProductFranchiseModule } from "./modules/product-franchise";
 import { RoleModule } from "./modules/role";
 import { UserModule } from "./modules/user";
 import { UserFranchiseRoleModule } from "./modules/user-franchise-role";
-import { CategoryFranchiseModule } from "./modules/category-franchise/category-franchise.module";
-import { ProductFranchiseModule } from "./modules/product-franchise";
 
 dotenv.config();
 validateEnv();
@@ -32,6 +33,11 @@ const userFranchiseRoleModule = new UserFranchiseRoleModule(userModule, roleModu
 const authModule = new AuthModule(userFranchiseRoleModule, userModule);
 const categoryFranchiseModule = new CategoryFranchiseModule(categoryModule, franchiseModule);
 const productFranchiseModule = new ProductFranchiseModule(productModule, franchiseModule);
+const productCategoryFranchiseModule = new ProductCategoryFranchiseModule(
+  franchiseModule,
+  categoryFranchiseModule,
+  productFranchiseModule,
+);
 
 // ===== Register routes =====
 const routes = [
@@ -46,6 +52,7 @@ const routes = [
   productModule.getRoute(),
   categoryFranchiseModule.getRoute(),
   productFranchiseModule.getRoute(),
+  productCategoryFranchiseModule.getRoute(),
 ];
 
 const app = new App(routes);

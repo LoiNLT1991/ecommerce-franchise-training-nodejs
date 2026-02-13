@@ -1,12 +1,12 @@
-import { IsNotEmpty, IsOptional, IsString } from "class-validator";
+import { IsMongoId, IsNotEmpty, IsOptional, IsString } from "class-validator";
 
 export default class UpdateUserFranchiseRoleDto {
   @IsNotEmpty()
-  @IsString()
+  @IsMongoId()
   role_id: string;
 
   @IsOptional()
-  @IsString()
+  @IsMongoId()
   note?: string;
 
   constructor(role_id: string, note?: string) {

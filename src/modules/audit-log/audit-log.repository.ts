@@ -48,7 +48,10 @@ export class AuditLogRepository extends BaseRepository<IAuditLog> {
           old_data: 1,
           new_data: 1,
           note: 1,
+          is_active: 1,
+          is_deleted: 1,
           created_at: 1,
+          updated_at: 1,
           changed_by: {
             id: "$changed_by",
             name: "$user.name",
@@ -128,7 +131,10 @@ export class AuditLogRepository extends BaseRepository<IAuditLog> {
             entity_id: 1,
             action: 1,
             note: 1,
+            is_active: 1,
+            is_deleted: 1,
             created_at: 1,
+            updated_at: 1,
             old_data: 1,
             new_data: 1,
             changed_by: {
@@ -196,7 +202,10 @@ export class AuditLogRepository extends BaseRepository<IAuditLog> {
           entity_id: 1,
           action: 1,
           note: 1,
+          is_active: 1,
+          is_deleted: 1,
           created_at: 1,
+          updated_at: 1,
           old_data: 1,
           new_data: 1,
           changed_by: {

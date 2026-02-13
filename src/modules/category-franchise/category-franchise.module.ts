@@ -3,11 +3,14 @@ import { AuditLogModule } from "../audit-log";
 import { CategoryModule } from "../category";
 import { FranchiseModule } from "../franchise";
 import { CategoryFranchiseController } from "./category-franchise.controller";
+import { ICategoryFranchiseQuery } from "./category-franchise.interface";
 import { CategoryFranchiseRepository } from "./category-franchise.repository";
 import CategoryFranchiseRoute from "./category-franchise.route";
 import { CategoryFranchiseService } from "./category-franchise.service";
 
 export class CategoryFranchiseModule extends BaseModule<CategoryFranchiseRoute> {
+  private readonly categoryFranchiseQuery: ICategoryFranchiseQuery;
+
   constructor(categoryModule: CategoryModule, franchiseModule: FranchiseModule) {
     super();
 
@@ -23,5 +26,11 @@ export class CategoryFranchiseModule extends BaseModule<CategoryFranchiseRoute> 
     const service = new CategoryFranchiseService(repo, categoryQuery, franchiseQuery, auditLogModule.getAuditLogger());
     const controller = new CategoryFranchiseController(service);
     this.route = new CategoryFranchiseRoute(controller);
+
+    this.categoryFranchiseQuery = service;
+  }
+
+  public getCategoryFranchiseQuery(): ICategoryFranchiseQuery {
+    return this.categoryFranchiseQuery;
   }
 }

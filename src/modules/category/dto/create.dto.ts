@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsOptional, IsString } from "class-validator";
+import { IsMongoId, IsNotEmpty, IsOptional, IsString } from "class-validator";
 
 export default class CreateCategoryDto {
   @IsNotEmpty()
@@ -14,7 +14,7 @@ export default class CreateCategoryDto {
   description?: string;
 
   @IsOptional()
-  @IsString()
+  @IsMongoId()
   parent_id?: string;
 
   constructor(code: string, name: string, description?: string, parent_id?: string) {

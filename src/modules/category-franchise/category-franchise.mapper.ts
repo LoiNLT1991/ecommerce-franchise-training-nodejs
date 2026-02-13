@@ -1,15 +1,15 @@
 import { mapBaseResponse } from "../../core/mappers";
-import { ICategoryFranchisePopulated } from "./category-franchise.interface";
+import { ICategoryFranchise } from "./category-franchise.interface";
 import { CategoryFranchiseItemDto } from "./dto/item.dto";
 
-export const mapItemToResponse = (item: ICategoryFranchisePopulated): CategoryFranchiseItemDto => {
+export const mapItemToResponse = (item: ICategoryFranchise): CategoryFranchiseItemDto => {
   const base = mapBaseResponse(item);
   return {
     ...base,
-    category_id: item.category_id?._id,
-    category_name: item.category_id?.name,
-    franchise_id: item.franchise_id?._id,
-    franchise_name: item.franchise_id?.name,
+    category_id: String(item.category_id),
+    category_name: item.category_name,
+    franchise_id: String(item.franchise_id),
+    franchise_name: item.franchise_name,
     display_order: item.display_order,
   };
 };

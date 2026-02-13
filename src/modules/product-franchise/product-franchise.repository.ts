@@ -16,13 +16,13 @@ export class ProductFranchiseRepository extends BaseRepository<IProductFranchise
   public async findByProductFranchiseAndSize(
     productId: string,
     franchiseId: string,
-    size: string,
+    size: string | null,
     options?: { excludeId?: string },
   ): Promise<IProductFranchise | null> {
     const query: any = {
       product_id: productId,
       franchise_id: franchiseId,
-      size,
+      size: size ?? null,
       is_deleted: false,
     };
 
@@ -35,10 +35,7 @@ export class ProductFranchiseRepository extends BaseRepository<IProductFranchise
 
   // A: CRUD methods...
   public async getItems(model: SearchPaginationItemDto): Promise<{ data: IProductFranchise[]; total: number }> {
-    const searchCondition = {
-      ...new SearchItemDto(),
-      ...model.searchCondition,
-    };
+    const searchCondition = { ...new SearchItemDto(), ...model.searchCondition };
 
     const { product_id, franchise_id, size, price_from, price_to, is_active, is_deleted } = searchCondition;
 
@@ -113,7 +110,9 @@ export class ProductFranchiseRepository extends BaseRepository<IProductFranchise
                   size: 1,
                   price_base: 1,
                   is_active: 1,
+                  is_deleted: 1,
                   created_at: 1,
+                  updated_at: 1,
 
                   // 🔥 add fields
                   product_name: "$product.name",

@@ -64,60 +64,48 @@ export class UserFranchiseRoleRepository extends BaseRepository<IUserFranchiseRo
         total: result[0].total[0]?.count || 0,
       };
     } catch (error) {
+      console.error(error);
       throw new HttpException(HttpStatus.BadRequest, MSG_BUSINESS.DATABASE_QUERY_FAILED);
     }
   }
 
   private buildQueryPipeline(matchQuery: Record<string, any>): PipelineStage[] {
     return [
-      // 1. Filter
+      // 1️⃣ Filter
       { $match: matchQuery },
 
-      // 2. Lookup related data
+      // 2️⃣ Lookup related data
       {
         $lookup: {
           from: "franchises",
-          let: {
-            franchiseId: {
-              $cond: [
-                {
-                  $regexMatch: {
-                    input: "$franchise_id",
-                    regex: /^[a-f0-9]{24}$/i,
-                  },
-                },
-                { $toObjectId: "$franchise_id" },
-                null,
-              ],
-            },
-          },
-          pipeline: [{ $match: { $expr: { $eq: ["$_id", "$$franchiseId"] } } }, { $project: { code: 1, name: 1 } }],
+          localField: "franchise_id",
+          foreignField: "_id",
           as: "franchise",
         },
       },
       {
         $lookup: {
           from: "users",
-          let: { userId: { $toObjectId: "$user_id" } },
-          pipeline: [{ $match: { $expr: { $eq: ["$_id", "$$userId"] } } }, { $project: { name: 1, email: 1 } }],
+          localField: "user_id",
+          foreignField: "_id",
           as: "user",
         },
       },
       {
         $lookup: {
           from: "roles",
-          let: { roleId: { $toObjectId: "$role_id" } },
-          pipeline: [{ $match: { $expr: { $eq: ["$_id", "$$roleId"] } } }, { $project: { code: 1, name: 1 } }],
+          localField: "role_id",
+          foreignField: "_id",
           as: "role",
         },
       },
 
-      // 3. Unwind arrays
+      // 3️⃣ Unwind
       { $unwind: { path: "$franchise", preserveNullAndEmptyArrays: true } },
       { $unwind: { path: "$user", preserveNullAndEmptyArrays: true } },
       { $unwind: { path: "$role", preserveNullAndEmptyArrays: true } },
 
-      // 4. Project desired fields
+      // 4️⃣ Project
       {
         $project: {
           franchise_id: 1,
@@ -133,6 +121,7 @@ export class UserFranchiseRoleRepository extends BaseRepository<IUserFranchiseRo
           role_name: "$role.name",
 
           note: 1,
+          is_active: 1,
           is_deleted: 1,
           created_at: 1,
           updated_at: 1,

@@ -5,7 +5,8 @@ import { authMiddleware, requireMoreContext, validationMiddleware } from "../../
 import { CategoryFranchiseController } from "./category-franchise.controller";
 import CreateCategoryFranchiseDto from "./dto/create.dto";
 import { UpdateDisplayOrderItemDto, UpdateDisplayOrderItemsDto } from "./dto/updateDisplayOrder.dto";
-import { UpdateStatusDto } from "../../core/dtos";
+import { UpdateStatusDto } from "../../core/dto";
+import { SearchPaginationItemDto } from "./dto/search.dto";
 
 export default class CategoryFranchiseRoute implements IRoute {
   public path = API_PATH.CATEGORY_FRANCHISE;
@@ -23,17 +24,36 @@ export default class CategoryFranchiseRoute implements IRoute {
      *     description: Franchise menu category endpoints
      */
 
+    // GET /api/category-franchises/franchise/:franchiseId -> get categories by franchise
+    this.router.get(API_PATH.GET_CATEGORIES_BY_FRANCHISE, authMiddleware(), this.controller.getByFranchise);
+
     // POST /api/category-franchises -> add category to franchise
     this.router.post(
       this.path,
       authMiddleware(),
       requireMoreContext(SYSTEM_AND_FRANCHISE_MANAGER_ROLES),
       validationMiddleware(CreateCategoryFranchiseDto),
-      this.controller.addCategory,
+      this.controller.createItem,
     );
 
-    // GET /api/category-franchises/franchise/:franchiseId -> get categories by franchise
-    this.router.get(API_PATH.GET_CATEGORIES_BY_FRANCHISE, authMiddleware(), this.controller.getByFranchise);
+    // POST domain:/api/category-franchises/search - Search product category franchises
+    this.router.post(
+      API_PATH.CATEGORY_FRANCHISE_SEARCH,
+      authMiddleware(),
+      requireMoreContext(SYSTEM_AND_FRANCHISE_MANAGER_ROLES),
+      validationMiddleware(SearchPaginationItemDto, true, {
+        enableImplicitConversion: false,
+      }),
+      this.controller.getItems,
+    );
+
+    // GET domain:/api/category-franchises/:id - Get detail
+    this.router.get(
+      API_PATH.CATEGORY_FRANCHISE_ID,
+      authMiddleware(),
+      requireMoreContext(SYSTEM_AND_FRANCHISE_MANAGER_ROLES),
+      this.controller.getItem,
+    );
 
     // PATCH /api/category-franchises/:id/status -> change status
     this.router.patch(
@@ -67,7 +87,7 @@ export default class CategoryFranchiseRoute implements IRoute {
       API_PATH.CATEGORY_FRANCHISE_ID,
       authMiddleware(),
       requireMoreContext(SYSTEM_AND_FRANCHISE_MANAGER_ROLES),
-      this.controller.remove,
+      this.controller.softDeleteItem,
     );
 
     // PATCH /api/category-franchises/:id/restore -> restore category from franchise
@@ -75,7 +95,7 @@ export default class CategoryFranchiseRoute implements IRoute {
       API_PATH.CATEGORY_FRANCHISE_RESTORE,
       authMiddleware(),
       requireMoreContext(SYSTEM_ADMIN_ROLES),
-      this.controller.restore,
+      this.controller.restoreItem,
     );
   }
 }

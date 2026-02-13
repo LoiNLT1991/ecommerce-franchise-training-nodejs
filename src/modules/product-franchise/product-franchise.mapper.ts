@@ -6,11 +6,11 @@ export const mapItemToResponse = (item: IProductFranchise): ProductFranchiseItem
   const base = mapBaseResponse(item);
   return {
     ...base,
-    product_id: item.product_id,
+    product_id: String(item.product_id),
     product_name: item.product_name,
-    franchise_id: item.franchise_id,
+    franchise_id: String(item.franchise_id),
     franchise_name: item.franchise_name,
-    size: item.size,
+    size: item.size ?? "",
     price_base: item.price_base,
   };
 };

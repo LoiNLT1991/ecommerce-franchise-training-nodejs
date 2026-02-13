@@ -1,5 +1,6 @@
-import { ClientSession, Document, Model } from "mongoose";
+import { ClientSession, Document, Model, Types } from "mongoose";
 import { normalizeParam } from "../utils";
+
 export class BaseRepository<T extends Document> {
   protected model: Model<T>;
 
@@ -22,7 +23,9 @@ export class BaseRepository<T extends Document> {
   }
 
   public async findById(id: string, is_deleted = false): Promise<T | null> {
-    const doc = await this.model.findOne({ _id: id, is_deleted });
+    const objectId = new Types.ObjectId(id);
+
+    const doc = await this.model.findOne({ _id: objectId, is_deleted });
     return doc ? this.toObject(doc) : null;
   }
 
@@ -32,8 +35,10 @@ export class BaseRepository<T extends Document> {
   }
 
   public async update(id: string, data: Partial<T>, session?: ClientSession): Promise<T> {
+    const objectId = new Types.ObjectId(id);
+
     const updatedDoc = await this.model.findOneAndUpdate(
-      { _id: id, is_deleted: false },
+      { _id: objectId, is_deleted: false },
       { ...data, updated_at: new Date() },
       { new: true, session },
     );
@@ -47,8 +52,10 @@ export class BaseRepository<T extends Document> {
 
   // delete flag logic
   public async softDeleteById(id: string): Promise<void> {
+    const objectId = new Types.ObjectId(id);
+
     const result = await this.model.updateOne(
-      { _id: id, is_deleted: false },
+      { _id: objectId, is_deleted: false },
       { is_deleted: true, updated_at: new Date() },
     );
 
@@ -59,8 +66,10 @@ export class BaseRepository<T extends Document> {
 
   // restore flag logic
   public async restoreById(id: string): Promise<T> {
+    const objectId = new Types.ObjectId(id);
+
     const doc = await this.model.findOneAndUpdate(
-      { _id: id, is_deleted: true },
+      { _id: objectId, is_deleted: true },
       { is_deleted: false, updated_at: new Date() },
       { new: true },
     );
@@ -107,7 +116,8 @@ export class BaseRepository<T extends Document> {
     };
 
     if (options?.excludeId) {
-      query._id = { $ne: options.excludeId };
+      const objectId = new Types.ObjectId(options.excludeId);
+      query._id = { $ne: objectId };
     }
 
     const count = await this.model.countDocuments(query);

@@ -1,5 +1,6 @@
+import { Types } from "mongoose";
 import { MSG_BUSINESS } from "../../core/constants";
-import { GLOBAL_FRANCHISE_ID, HttpStatus, RoleScope } from "../../core/enums";
+import { BaseFieldName, GLOBAL_FRANCHISE_ID, HttpStatus, RoleScope } from "../../core/enums";
 import { HttpException } from "../../core/exceptions";
 import { IUserContext } from "../../core/models";
 import { BaseCrudService } from "../../core/services";
@@ -11,15 +12,15 @@ import { IUserQuery } from "../user/user.interface";
 import CreateUserFranchiseRoleDto from "./dto/create.dto";
 import { SearchPaginationItemDto } from "./dto/search.dto";
 import UpdateUserFranchiseRoleDto from "./dto/update.dto";
-import { UserFranchiseRoleFieldName } from "./user-franchise-role.enum";
 import { IUserFranchiseRole, IUserFranchiseRoleQuery } from "./user-franchise-role.interface";
 import { UserFranchiseRoleRepository } from "./user-franchise-role.repository";
+import { ObjectId } from "mongodb";
 
 export const AUDIT_FIELDS_ITEM = [
-  UserFranchiseRoleFieldName.FRANCHISE_ID,
-  UserFranchiseRoleFieldName.ROLE_ID,
-  UserFranchiseRoleFieldName.USER_ID,
-  UserFranchiseRoleFieldName.NOTE,
+  BaseFieldName.FRANCHISE_ID,
+  BaseFieldName.ROLE_ID,
+  BaseFieldName.USER_ID,
+  BaseFieldName.NOTE,
 ] as readonly (keyof IUserFranchiseRole)[];
 
 export default class UserFranchiseRoleService
@@ -116,7 +117,9 @@ export default class UserFranchiseRoleService
   ): Promise<void> {
     await checkEmptyObject(dto);
 
-    if (!dto.role_id || dto.role_id === current.role_id) {
+    const roleId = new ObjectId(dto.role_id);
+
+    if (!dto.role_id || roleId.equals(current.role_id)) {
       throw new HttpException(HttpStatus.BadRequest, MSG_BUSINESS.NO_DATA_TO_UPDATE);
     }
 
@@ -155,7 +158,8 @@ export default class UserFranchiseRoleService
 
   protected async beforeDelete(item: IUserFranchiseRole, loggedUserId: string): Promise<void> {
     // Prevent user from removing own global role
-    if (item.user_id === loggedUserId && item.franchise_id === GLOBAL_FRANCHISE_ID) {
+    const userId = new ObjectId(item.user_id);
+    if (userId.equals(new ObjectId(loggedUserId)) && item.franchise_id === GLOBAL_FRANCHISE_ID) {
       throw new HttpException(HttpStatus.BadRequest, MSG_BUSINESS.CANNOT_REMOVE_OWN_GLOBAL_ROLE);
     }
   }
@@ -173,7 +177,7 @@ export default class UserFranchiseRoleService
 
   protected async beforeRestore(item: IUserFranchiseRole, _loggedUserId: string): Promise<void> {
     const existing = await this.userFranchiseRoleRepo.findOne({
-      user_id: item.user_id,
+      user_id: new ObjectId(item.user_id),
       franchise_id: item.franchise_id,
       is_deleted: false,
     });
@@ -219,7 +223,7 @@ export default class UserFranchiseRoleService
   public async getUserContexts(userId: string): Promise<IUserContext[]> {
     // 1️⃣ Lấy tất cả assignment của user
     const assignments = await this.userFranchiseRoleRepo.find({
-      user_id: userId,
+      user_id: new Types.ObjectId(userId),
       is_deleted: false,
     });
 
@@ -229,7 +233,7 @@ export default class UserFranchiseRoleService
 
     // 2️⃣ Lấy role detail
     const roleIds = [...new Set(assignments.map((a) => a.role_id))];
-    const roles = await this.roleQuery.getByIds(roleIds);
+    const roles = await this.roleQuery.getByIds(roleIds.map((id) => id.toString()));
     const roleMap = new Map(roles.map((r) => [r.id, r]));
 
     // 3️⃣ Lấy franchise_id cần join (chỉ FRANCHISE scope)
@@ -240,14 +244,16 @@ export default class UserFranchiseRoleService
     ];
 
     // 4️⃣ Query franchise 1 lần
-    const franchises = franchiseIds.length ? await this.franchiseQuery.getByIds(franchiseIds) : [];
+    const franchises = franchiseIds.length
+      ? await this.franchiseQuery.getByIds(franchiseIds.map((id) => id.toString()))
+      : [];
 
     const franchiseMap = new Map(franchises.map((f) => [f.id, f.name]));
 
     // 5️⃣ Build user contexts
     return assignments
       .map((a) => {
-        const role = roleMap.get(a.role_id);
+        const role = roleMap.get(a.role_id.toString());
         if (!role) return null;
 
         const isGlobal = role.scope === RoleScope.GLOBAL;
@@ -255,8 +261,8 @@ export default class UserFranchiseRoleService
         return {
           role: role.code,
           scope: role.scope,
-          franchise_id: isGlobal ? null : a.franchise_id,
-          franchise_name: isGlobal ? null : (franchiseMap.get(a.franchise_id!) ?? null),
+          franchise_id: isGlobal ? null : String(a.franchise_id),
+          franchise_name: isGlobal ? null : (franchiseMap.get(String(a.franchise_id)) ?? null),
         };
       })
       .filter(Boolean) as IUserContext[];

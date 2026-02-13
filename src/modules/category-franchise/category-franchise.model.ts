@@ -5,12 +5,12 @@ import { BaseModelFields } from "../../core/models";
 import { ICategoryFranchise } from "./category-franchise.interface";
 
 const CategoryFranchiseSchemaEntity = new Schema({
-  category_id: {
+  [BaseFieldName.CATEGORY_ID]: {
     type: mongoose.Schema.Types.ObjectId,
     ref: COLLECTION_NAME.CATEGORY,
     required: true,
   },
-  franchise_id: {
+  [BaseFieldName.FRANCHISE_ID]: {
     type: mongoose.Schema.Types.ObjectId,
     ref: COLLECTION_NAME.FRANCHISE,
     required: true,
@@ -22,10 +22,10 @@ const CategoryFranchiseSchemaEntity = new Schema({
 
 CategoryFranchiseSchemaEntity.index(
   {
-    category_id: 1,
-    franchise_id: 1,
+    [BaseFieldName.CATEGORY_ID]: 1,
+    [BaseFieldName.FRANCHISE_ID]: 1,
   },
-  { unique: true },
+  { unique: true, partialFilterExpression: { is_deleted: false } },
 );
 
 export type CategoryFranchiseDocument = HydratedDocument<ICategoryFranchise>;

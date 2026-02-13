@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsNumber, IsOptional, IsString } from "class-validator";
+import { IsMongoId, IsNotEmpty, IsNumber, IsOptional, IsString } from "class-validator";
 
 export default class UpdateCategoryDto {
   @IsNotEmpty()
@@ -14,7 +14,7 @@ export default class UpdateCategoryDto {
   description?: string;
 
   @IsOptional()
-  @IsString()
+  @IsMongoId()
   parent_id?: string;
 
   constructor(code: string, name: string, description?: string, parent_id?: string) {

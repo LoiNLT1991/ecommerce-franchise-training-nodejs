@@ -38,7 +38,7 @@ export class UserValidation implements IUserValidation {
     }
 
     // check status user
-    if (user.is_active || user.is_deleted) {
+    if (!user.is_active || user.is_deleted) {
       const reason = user.is_active
         ? "locked. Please contact admin via mail to activate!"
         : "deleted. Please contact admin via mail for assistance!";

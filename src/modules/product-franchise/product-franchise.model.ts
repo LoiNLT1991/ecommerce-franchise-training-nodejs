@@ -5,29 +5,29 @@ import { BaseModelFields } from "../../core/models";
 import { IProductFranchise } from "./product-franchise.interface";
 
 const ProductFranchiseSchemaEntity = new Schema({
-  product_id: {
+  [BaseFieldName.PRODUCT_ID]: {
     type: mongoose.Schema.Types.ObjectId,
     ref: COLLECTION_NAME.PRODUCT,
     required: true,
   },
-  franchise_id: {
+  [BaseFieldName.FRANCHISE_ID]: {
     type: mongoose.Schema.Types.ObjectId,
     ref: COLLECTION_NAME.FRANCHISE,
     required: true,
   },
-  [BaseFieldName.SIZE]: { type: String, required: true },
   [BaseFieldName.PRICE_BASE]: { type: Number, required: true, min: 0 },
+  [BaseFieldName.SIZE]: { type: String, required: false, default: null },
 
   ...BaseModelFields,
 });
 
 ProductFranchiseSchemaEntity.index(
   {
-    product_id: 1,
-    franchise_id: 1,
-    size: 1
+    [BaseFieldName.PRODUCT_ID]: 1,
+    [BaseFieldName.FRANCHISE_ID]: 1,
+    [BaseFieldName.SIZE]: 1,
   },
-  { unique: true },
+  { unique: true, partialFilterExpression: { is_deleted: false } },
 );
 
 export type ProductFranchiseDocument = HydratedDocument<IProductFranchise>;

@@ -1,17 +1,16 @@
-import { Document, Types } from "mongoose";
+import { Document } from "mongoose";
 import { BaseFieldName, RoleScope } from "../../core/enums";
 import { IBase } from "../../core/interfaces";
-import { RoleFieldName } from "./role.enum";
 
 export interface IRole extends Document, IBase {
   [BaseFieldName.CODE]: string;
   [BaseFieldName.NAME]: string;
   [BaseFieldName.DESCRIPTION]?: string;
-  [RoleFieldName.SCOPE]: RoleScope;
+  [BaseFieldName.SCOPE]: RoleScope;
 }
 
 export interface RoleQueryResult {
-  id: Types.ObjectId | string;
+  id: string;
   code: string;
   scope: RoleScope;
 }

@@ -2,9 +2,9 @@ import { Document } from "mongoose";
 import { MSG_BUSINESS } from "../constants";
 import { HttpStatus } from "../enums";
 import { HttpException } from "../exceptions";
-import { BaseRepository } from "../repository";
 import { SearchPaginationResponseModel } from "../models";
-import { formatSearchPaginationResponse } from "../utils";
+import { BaseRepository } from "../repository";
+import { formatSearchPaginationResponse, toObjectId } from "../utils";
 
 export abstract class BaseCrudService<T extends Document, CreateDto, UpdateDto, SearchDto> {
   protected constructor(protected readonly repo: BaseRepository<T>) {}

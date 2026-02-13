@@ -1,4 +1,4 @@
-export const GLOBAL_FRANCHISE_ID = "__GLOBAL__";
+export const GLOBAL_FRANCHISE_ID = null;
 
 export enum BaseRole {
   SUPER_ADMIN = "SUPER_ADMIN",
@@ -40,6 +40,7 @@ export enum BaseFieldName {
   NAME = "name",
   DESCRIPTION = "description",
   DISPLAY_ORDER = "display_order",
+  SCOPE = "scope", // GLOBAL/FRANCHISE
 
   // Collection Id
   FRANCHISE_ID = "franchise_id",
@@ -47,8 +48,12 @@ export enum BaseFieldName {
   ROLE_ID = "role_id",
   CATEGORY_ID = "category_id",
   PRODUCT_ID = "product_id",
+  CATEGORY_FRANCHISE_ID = "category_franchise_id",
+  PRODUCT_FRANCHISE_ID = "product_franchise_id",
+  PRODUCT_CATEGORY_FRANCHISE_ID = "product_category_franchise_id",
 
   // Other common fields
   SIZE = "size",
   PRICE_BASE = "price_base",
+  NOTE = "note",
 }

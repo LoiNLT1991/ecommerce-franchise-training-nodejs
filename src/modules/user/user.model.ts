@@ -1,8 +1,6 @@
 import mongoose, { HydratedDocument, Schema } from "mongoose";
 import { COLLECTION_NAME } from "../../core/constants";
-import { BaseRole } from "../../core/enums";
 import { BaseModelFields } from "../../core/models";
-import { UserRoles } from "./user.constant";
 import { UserFieldName } from "./user.enum";
 import { IUser } from "./user.interface";
 

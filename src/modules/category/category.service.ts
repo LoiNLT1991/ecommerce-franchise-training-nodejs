@@ -3,7 +3,7 @@ import { BaseFieldName, HttpStatus } from "../../core/enums";
 import { HttpException } from "../../core/exceptions";
 import { IError } from "../../core/interfaces";
 import { BaseCrudService } from "../../core/services";
-import { checkEmptyObject, normalizeCode, normalizeName } from "../../core/utils";
+import { checkEmptyObject, normalizeCode, normalizeName, toObjectId } from "../../core/utils";
 import { AuditAction, AuditEntityType, buildAuditDiff, IAuditLogger, pickAuditSnapshot } from "../audit-log";
 import { CategoryFieldName } from "./category.enum";
 import { ICategory, ICategoryQuery } from "./category.interface";
@@ -102,7 +102,7 @@ export class CategoryService
           field: CategoryFieldName.PARENT_ID,
           message: "Category cannot be its own parent",
         });
-      } else if (dto.parent_id !== current.parent_id) {
+      } else if (toObjectId(dto.parent_id) !== current.parent_id) {
         await this.validateParentCategory(dto.parent_id, errors);
       }
     }

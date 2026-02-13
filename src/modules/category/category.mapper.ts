@@ -9,7 +9,7 @@ export const mapItemToResponse = (item: ICategory): CategoryItemDto => {
     code: item.code,
     name: item.name,
     description: item.description,
-    parent_id: item.parent_id,
+    parent_id: String(item.parent_id),
     parent_name: item.parent_name,
   };
 };

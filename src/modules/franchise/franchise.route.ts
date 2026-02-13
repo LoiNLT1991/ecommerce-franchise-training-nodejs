@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { API_PATH, SYSTEM_ADMIN_ROLES } from "../../core/constants";
-import { UpdateStatusDto } from "../../core/dtos";
+import { UpdateStatusDto } from "../../core/dto";
 import { IRoute } from "../../core/interfaces";
 import { authMiddleware, requireMoreContext, validationMiddleware } from "../../core/middleware";
 import CreateFranchiseDto from "./dto/create.dto";

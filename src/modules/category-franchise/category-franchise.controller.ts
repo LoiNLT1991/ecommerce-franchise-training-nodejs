@@ -5,24 +5,26 @@ import { formatResponse } from "../../core/utils";
 import { CategoryFranchiseService } from "./category-franchise.service";
 import CreateCategoryFranchiseDto from "./dto/create.dto";
 import { UpdateDisplayOrderItemDto, UpdateDisplayOrderItemsDto } from "./dto/updateDisplayOrder.dto";
-import { UpdateStatusDto } from "../../core/dtos";
+import { UpdateStatusDto } from "../../core/dto";
+import { BaseCrudController } from "../../core";
+import { ICategoryFranchise } from "./category-franchise.interface";
+import UpdateCategoryFranchiseDto from "./dto/update.dto";
+import { SearchPaginationItemDto } from "./dto/search.dto";
+import { CategoryFranchiseItemDto } from "./dto/item.dto";
+import { mapItemToResponse } from "./category-franchise.mapper";
 
-export class CategoryFranchiseController {
-  constructor(private readonly service: CategoryFranchiseService) {}
+export class CategoryFranchiseController extends BaseCrudController<
+  ICategoryFranchise,
+  CreateCategoryFranchiseDto,
+  UpdateCategoryFranchiseDto,
+  SearchPaginationItemDto,
+  CategoryFranchiseItemDto,
+  CategoryFranchiseService
+> {
 
-  /**
-   * Add category to franchise
-   */
-  public addCategory = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const payload: CreateCategoryFranchiseDto = req.body;
-      const userId = (req as AuthenticatedRequest).user.id;
-      const item = await this.service.addCategoryToFranchise(payload, userId);
-      res.status(HttpStatus.Created).json(formatResponse(item));
-    } catch (error) {
-      next(error);
-    }
-  };
+  constructor(service: CategoryFranchiseService) {
+    super(service, mapItemToResponse);
+  }
 
   /**
    * Get categories by franchise
@@ -75,34 +77,6 @@ export class CategoryFranchiseController {
       const payload: UpdateDisplayOrderItemsDto = req.body;
       const userId = (req as AuthenticatedRequest).user.id;
       await this.service.reorderCategories(payload, userId);
-      res.status(HttpStatus.Success).json(formatResponse<null>(null));
-    } catch (error) {
-      next(error);
-    }
-  };
-
-  /**
-   * Remove category from franchise
-   */
-  public remove = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const { id } = req.params;
-      const userId = (req as AuthenticatedRequest).user.id;
-      await this.service.softDeleteItem(id, userId);
-      res.status(HttpStatus.Success).json(formatResponse<null>(null));
-    } catch (error) {
-      next(error);
-    }
-  };
-
-  /**
-   * Restore category to franchise
-   */
-  public restore = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const { id } = req.params;
-      const userId = (req as AuthenticatedRequest).user.id;
-      await this.service.restoreItem(id, userId);
       res.status(HttpStatus.Success).json(formatResponse<null>(null));
     } catch (error) {
       next(error);

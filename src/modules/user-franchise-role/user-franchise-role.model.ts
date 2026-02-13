@@ -1,26 +1,66 @@
 import mongoose, { HydratedDocument, Schema } from "mongoose";
 import { COLLECTION_NAME } from "../../core/constants";
-import { GLOBAL_FRANCHISE_ID } from "../../core/enums";
+import { BaseFieldName } from "../../core/enums";
 import { BaseModelFields } from "../../core/models";
-import { UserFranchiseRoleFieldName } from "./user-franchise-role.enum";
 import { IUserFranchiseRole } from "./user-franchise-role.interface";
 
-const UserFranchiseRoleSchemaEntity = new Schema({
-  [UserFranchiseRoleFieldName.FRANCHISE_ID]: { type: String, default: GLOBAL_FRANCHISE_ID },
-  [UserFranchiseRoleFieldName.ROLE_ID]: { type: mongoose.Schema.Types.ObjectId, ref: COLLECTION_NAME.ROLE,required: true },
-  [UserFranchiseRoleFieldName.USER_ID]: { type: mongoose.Schema.Types.ObjectId, ref: COLLECTION_NAME.USER, required: true },
-  [UserFranchiseRoleFieldName.NOTE]: { type: String, required: false },
+const UserFranchiseRoleSchemaEntity = new Schema(
+  {
+    [BaseFieldName.FRANCHISE_ID]: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: COLLECTION_NAME.FRANCHISE,
+      required: false,
+      index: true,
+    },
 
-  ...BaseModelFields,
-});
+    [BaseFieldName.ROLE_ID]: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: COLLECTION_NAME.ROLE,
+      required: true,
+      index: true,
+    },
+
+    [BaseFieldName.USER_ID]: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: COLLECTION_NAME.USER,
+      required: true,
+      index: true,
+    },
+
+    [BaseFieldName.NOTE]: {
+      type: String,
+      required: false,
+    },
+
+    ...BaseModelFields,
+  },
+  { timestamps: true },
+);
 
 UserFranchiseRoleSchemaEntity.index(
   {
-    user_id: 1,
-    role_id: 1,
-    franchise_id: 1,
+    [BaseFieldName.USER_ID]: 1,
+    [BaseFieldName.ROLE_ID]: 1,
   },
-  { unique: true },
+  {
+    unique: true,
+    partialFilterExpression: {
+      franchise_id: { $exists: false },
+      is_deleted: false,
+    },
+  },
+);
+
+UserFranchiseRoleSchemaEntity.index(
+  {
+    [BaseFieldName.USER_ID]: 1,
+    [BaseFieldName.ROLE_ID]: 1,
+    [BaseFieldName.FRANCHISE_ID]: 1,
+  },
+  {
+    unique: true,
+    partialFilterExpression: { is_deleted: false },
+  },
 );
 
 export type UserFranchiseRoleDocument = HydratedDocument<IUserFranchiseRole>;

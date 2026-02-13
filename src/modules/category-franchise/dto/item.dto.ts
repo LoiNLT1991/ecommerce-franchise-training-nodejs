@@ -1,4 +1,4 @@
-import { BaseItemDto } from "../../../core/dtos";
+import { BaseItemDto } from "../../../core/dto";
 
 export interface CategoryFranchiseItemDto extends BaseItemDto {
   category_id: string;

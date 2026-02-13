@@ -3,7 +3,7 @@ import { API_PATH, SYSTEM_ADMIN_ROLES, SYSTEM_AND_FRANCHISE_ALL_ROLES, SYSTEM_AN
 import { IRoute } from "../../core/interfaces";
 import ProductFranchiseController from "./product-franchise.controller";
 import { authMiddleware, requireMoreContext, validationMiddleware } from "../../core/middleware";
-import { UpdateStatusDto } from "../../core/dtos";
+import { UpdateStatusDto } from "../../core/dto";
 import { CreateProductFranchiseDto } from "./dto/create.dto";
 import { SearchPaginationItemDto } from "./dto/search.dto";
 import { UpdateProductFranchiseDto } from "./dto/update.dto";
