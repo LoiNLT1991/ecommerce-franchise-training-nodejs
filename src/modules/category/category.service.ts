@@ -154,13 +154,13 @@ export class CategoryService
   }
 
   protected async doSearch(dto: SearchPaginationItemDto): Promise<{ data: ICategory[]; total: number }> {
-    return this.categoryRepo.getItems(dto);
+    return this.categoryRepo.getItems(dto); 
   }
   // ===== End CRUD =====
 
   // Validate parent category existence
   private async validateParentCategory(parentId: string, errors: IError[]) {
-    const parent = await this.categoryRepo.findOne({ _id: parentId, is_deleted: false });
+    const parent = await this.repo.findOne({ _id: parentId, is_deleted: false });
     if (!parent) {
       errors.push({
         field: CategoryFieldName.PARENT_ID,

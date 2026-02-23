@@ -1,12 +1,13 @@
 export const GLOBAL_FRANCHISE_ID = null;
 
 export enum BaseRole {
-  SUPER_ADMIN = "SUPER_ADMIN",
-  ADMIN = "ADMIN",
-  MANAGER = "MANAGER",
-  STAFF = "STAFF",
-  SHIPPER = "SHIPPER",
-  USER = "USER",
+  SUPER_ADMIN = "SUPER_ADMIN", // SYSTEM / GLOBAL
+  ADMIN = "ADMIN", // SYSTEM / GLOBAL
+
+  MANAGER = "MANAGER", // FRANCHISE
+  STAFF = "STAFF", // FRANCHISE
+  SHIPPER = "SHIPPER", // FRANCHISE
+  USER = "USER", // FRANCHISE
 }
 
 export enum RoleScope {

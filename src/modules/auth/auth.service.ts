@@ -215,6 +215,7 @@ export default class AuthService {
 
     // 4️⃣ Important: restore context
     if (payload.context) {
+      payload.context.franchise_id = payload.context.franchiseId;
       return this.createTokensWithContext(user, payload.context);
     }
 

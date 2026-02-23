@@ -1,6 +1,6 @@
 import { IUser, UserResponseDto } from "../user";
 
-export const mapUserToResponse = (user: IUser): UserResponseDto => {
+export const mapItemToResponse = (user: IUser): UserResponseDto => {
   return {
     id: user._id.toString(),
     email: user.email,

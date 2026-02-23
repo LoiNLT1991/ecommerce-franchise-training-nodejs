@@ -24,15 +24,15 @@ export class ProductCategoryFranchiseRepository extends BaseRepository<IProductC
     let joinMatch: Record<string, any> = {};
 
     if (franchise_id) {
-      joinMatch["categoryFranchise.franchise_id"] = franchise_id;
+      joinMatch["categoryFranchise.franchise_id"] = new Types.ObjectId(franchise_id);
     }
 
     if (product_id) {
-      joinMatch["product._id"] = product_id;
+      joinMatch["product._id"] = new Types.ObjectId(product_id);
     }
 
     if (category_id) {
-      joinMatch["category._id"] = category_id;
+      joinMatch["category._id"] = new Types.ObjectId(category_id);
     }
 
     try {

@@ -73,8 +73,8 @@ export default class UserRoute implements IRoute {
       this.controller.createItem,
     );
 
-    // GET domain:/api/users/search - Get all users
-    this.router.get(
+    // POST domain:/api/users/search - Get all users
+    this.router.post(
       API_PATH.USER_SEARCH,
       authMiddleware(),
       requireMoreContext([

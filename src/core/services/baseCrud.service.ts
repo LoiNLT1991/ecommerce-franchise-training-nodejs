@@ -4,7 +4,7 @@ import { HttpStatus } from "../enums";
 import { HttpException } from "../exceptions";
 import { SearchPaginationResponseModel } from "../models";
 import { BaseRepository } from "../repository";
-import { formatSearchPaginationResponse, toObjectId } from "../utils";
+import { formatSearchPaginationResponse } from "../utils";
 
 export abstract class BaseCrudService<T extends Document, CreateDto, UpdateDto, SearchDto> {
   protected constructor(protected readonly repo: BaseRepository<T>) {}
