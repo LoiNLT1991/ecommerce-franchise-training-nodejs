@@ -1,20 +1,30 @@
-import { HttpStatus } from "../../core/enums";
+import { ObjectId } from "mongodb";
+import { ACCOUNT_DEFAULT, MSG_BUSINESS, UpdateStatusDto } from "../../core";
+import { BaseFieldName, HttpStatus } from "../../core/enums";
 import { HttpException } from "../../core/exceptions";
 import { BaseCrudService, MailService, MailTemplate } from "../../core/services";
 import { checkEmptyObject, encodePassword, withTransaction } from "../../core/utils";
 import { createTokenVerifiedUser } from "../../core/utils/helpers";
-import ChangeStatusDto from "./dto/changeStatus.dto";
+import { AuditAction, AuditEntityType, buildAuditDiff, IAuditLogger, pickAuditSnapshot } from "../audit-log";
 import CreateUserDto from "./dto/create.dto";
 import { SearchPaginationItemDto } from "./dto/search.dto";
 import UpdateUserDto from "./dto/update.dto";
 import { IUser, IUserQuery, IUserValidation } from "./user.interface";
 import { UserRepository } from "./user.repository";
 
+export const AUDIT_FIELDS_ITEM = [
+  BaseFieldName.EMAIL,
+  BaseFieldName.NAME,
+  BaseFieldName.PHONE,
+  BaseFieldName.AVATAR_URL,
+] as readonly (keyof IUser)[];
+
 export default class UserService extends BaseCrudService<IUser, CreateUserDto, UpdateUserDto, SearchPaginationItemDto> {
   private readonly userRepo: UserRepository;
 
   constructor(
     repo: UserRepository,
+    private readonly auditLogger: IAuditLogger,
     private readonly userValidation: IUserValidation,
     private readonly userQuery: IUserQuery,
     private readonly mailService: MailService,
@@ -23,7 +33,12 @@ export default class UserService extends BaseCrudService<IUser, CreateUserDto, U
     this.userRepo = repo;
   }
 
-  public async createUser(model: CreateUserDto, originDomain?: string | undefined): Promise<IUser> {
+  // ===== Start CRUD =====
+  public async createUser(
+    model: CreateUserDto,
+    loggedUserId: string,
+    originDomain?: string | undefined,
+  ): Promise<IUser> {
     await checkEmptyObject(model);
 
     const result = await withTransaction(async (session) => {
@@ -62,8 +77,91 @@ export default class UserService extends BaseCrudService<IUser, CreateUserDto, U
       throw new HttpException(HttpStatus.InternalServerError, "Failed to send verification email");
     }
 
+    // 5. Audit log
+    const snapshot = pickAuditSnapshot(user, AUDIT_FIELDS_ITEM);
+
+    await this.auditLogger.log({
+      entityType: AuditEntityType.USER,
+      entityId: String(user._id),
+      action: AuditAction.CREATE,
+      newData: snapshot,
+      changedBy: loggedUserId,
+    });
+
     return user;
   }
+
+  protected async beforeUpdate(current: IUser, dto: UpdateUserDto, _loggedUserId: string): Promise<void> {
+    await checkEmptyObject(dto);
+
+    // 1. Validate email if changed
+    if (dto.email) {
+      if (dto.email !== current.email) {
+        await this.userValidation.validEmailUnique(dto.email);
+      }
+    }
+
+    // 2. Check if there's any change
+    const hasChange = (Object.keys(dto) as (keyof UpdateUserDto)[]).some((key) => dto[key] !== current[key]);
+
+    if (!hasChange) {
+      throw new HttpException(HttpStatus.BadRequest, MSG_BUSINESS.NO_DATA_TO_UPDATE);
+    }
+  }
+
+  protected async afterUpdate(oldItem: IUser, newItem: IUser, loggedUserId: string): Promise<void> {
+    const { oldData, newData } = buildAuditDiff(oldItem, newItem, AUDIT_FIELDS_ITEM);
+
+    if (newData && Object.keys(newData).length > 0) {
+      await this.auditLogger.log({
+        entityType: AuditEntityType.USER,
+        entityId: String(oldItem._id),
+        action: AuditAction.UPDATE,
+        oldData,
+        newData,
+        changedBy: loggedUserId,
+      });
+    }
+  }
+
+  protected async beforeDelete(item: IUser, loggedUserId: string): Promise<void> {
+    // Prevent user from removing own account default
+    if (item._id.equals(new ObjectId(loggedUserId))) {
+      throw new HttpException(HttpStatus.BadRequest, MSG_BUSINESS.CANNOT_REMOVE_OWN_ACCOUNT);
+    }
+
+    // Prevent user from removing default account
+    if (ACCOUNT_DEFAULT.includes(item.email)) {
+      throw new HttpException(HttpStatus.BadRequest, MSG_BUSINESS.CANNOT_REMOVE_DEFAULT_ACCOUNT);
+    }
+  }
+
+  protected async afterDelete(item: IUser, loggedUserId: string): Promise<void> {
+    await this.auditLogger.log({
+      entityType: AuditEntityType.USER,
+      entityId: String(item._id),
+      action: AuditAction.SOFT_DELETE,
+      oldData: { is_deleted: false },
+      newData: { is_deleted: true },
+      changedBy: loggedUserId,
+    });
+  }
+
+  protected async afterRestore(item: IUser, loggedUserId: string): Promise<void> {
+    await this.auditLogger.log({
+      entityType: AuditEntityType.USER,
+      entityId: String(item._id),
+      action: AuditAction.RESTORE,
+      oldData: { is_deleted: true },
+      newData: { is_deleted: false },
+      changedBy: loggedUserId,
+    });
+  }
+
+  protected async doSearch(dto: SearchPaginationItemDto): Promise<{ data: IUser[]; total: number }> {
+    return this.userRepo.getItems(dto);
+  }
+  // ===== END CRUD =====
 
   public async getUserById(id: string): Promise<IUser> {
     const user = await this.userQuery.getUserById(id);
@@ -73,32 +171,41 @@ export default class UserService extends BaseCrudService<IUser, CreateUserDto, U
     return user;
   }
 
-  protected async doSearch(dto: SearchPaginationItemDto): Promise<{ data: IUser[]; total: number }> {
-    return this.userRepo.getItems(dto);
-  }
-
-  public async changeStatus(model: ChangeStatusDto): Promise<void> {
-    await checkEmptyObject(model);
+  public async changeStatus(id: string, model: UpdateStatusDto, loggedUserId: string): Promise<void> {
+    const { is_active } = model;
 
     // 1. Get user
-    const user = await this.getUserById(model.user_id);
-    if (!user) {
-      throw new HttpException(HttpStatus.BadRequest, "User does not exist");
+    const currentItem = await this.repo.findById(id);
+    if (!currentItem) {
+      throw new HttpException(HttpStatus.NotFound, MSG_BUSINESS.ITEM_NOT_FOUND);
     }
 
-    // 2. Check change status
-    if (user.is_active === model.status) {
-      throw new HttpException(HttpStatus.BadRequest, `User status is same as before`);
+    // 2. Prevent user from changing own status
+    if (currentItem._id.equals(new ObjectId(loggedUserId))) {
+      throw new HttpException(HttpStatus.BadRequest, MSG_BUSINESS.CANNOT_CHANGE_OWN_STATUS);
     }
 
-    // 3. Update user via Query
-    const updatedUser = await this.userQuery.updateUser(user._id.toString(), {
-      is_active: model.status,
-      updated_at: new Date(),
+    // 3. Prevent changing status of default account
+    if (ACCOUNT_DEFAULT.includes(currentItem.email)) {
+      throw new HttpException(HttpStatus.BadRequest, MSG_BUSINESS.CANNOT_CHANGE_DEFAULT_ACCOUNT_STATUS);
+    }
+
+    // 4. Check change status
+    if (currentItem.is_active === is_active) {
+      throw new HttpException(HttpStatus.BadRequest, MSG_BUSINESS.STATUS_NO_CHANGE);
+    }
+
+    // 5. Update status
+    await this.repo.update(id, { is_active });
+
+    // 6. Audit log
+    await this.auditLogger.log({
+      entityType: AuditEntityType.USER,
+      entityId: id,
+      action: AuditAction.CHANGE_STATUS,
+      oldData: { is_active: currentItem.is_active },
+      newData: { is_active },
+      changedBy: loggedUserId,
     });
-
-    if (!updatedUser) {
-      throw new HttpException(HttpStatus.BadRequest, "Update user status failed!");
-    }
   }
 }

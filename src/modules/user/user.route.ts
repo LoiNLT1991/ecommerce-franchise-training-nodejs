@@ -1,12 +1,11 @@
 import { Router } from "express";
-import { API_PATH } from "../../core/constants";
-import { BaseRole, RoleScope } from "../../core/enums";
+import { API_PATH, SYSTEM_ADMIN_ROLES, SYSTEM_AND_FRANCHISE_MANAGER_ROLES } from "../../core/constants";
 import { IRoute } from "../../core/interfaces";
-import { authMiddleware, requireGlobalRole, requireMoreContext, validationMiddleware } from "../../core/middleware";
-import ChangeStatusDto from "./dto/changeStatus.dto";
+import { authMiddleware, requireMoreContext, validationMiddleware } from "../../core/middleware";
 import CreateUserDto from "./dto/create.dto";
 import UpdateUserDto from "./dto/update.dto";
 import UserController from "./user.controller";
+import { UpdateStatusDto } from "../../core";
 
 export default class UserRoute implements IRoute {
   public path = API_PATH.USER;
@@ -23,6 +22,15 @@ export default class UserRoute implements IRoute {
      *   - name: User
      *     description: User related endpoints
      */
+
+    // PATCH domain:/api/users/:id/status -> Change user status (block/unBlock)
+    this.router.patch(
+      API_PATH.USER_CHANGE_STATUS,
+      authMiddleware(),
+      requireMoreContext(SYSTEM_ADMIN_ROLES),
+      validationMiddleware(UpdateStatusDto),
+      this.controller.changeStatus,
+    );
 
     /**
      * @swagger
@@ -64,23 +72,20 @@ export default class UserRoute implements IRoute {
      *       403:
      *         description: Forbidden - only admin can create user
      */
-    // POST domain:/api/users - Create user
+    // POST domain:/api/users - Create item
     this.router.post(
       this.path,
       authMiddleware(),
-      requireGlobalRole(),
+      requireMoreContext(SYSTEM_ADMIN_ROLES),
       validationMiddleware(CreateUserDto),
       this.controller.createItem,
     );
 
-    // POST domain:/api/users/search - Get all users
+    // POST domain:/api/users/search - Search items with pagination
     this.router.post(
       API_PATH.USER_SEARCH,
       authMiddleware(),
-      requireMoreContext([
-        { scope: RoleScope.GLOBAL, roles: [BaseRole.SUPER_ADMIN, BaseRole.ADMIN] },
-        { scope: RoleScope.FRANCHISE, roles: [BaseRole.MANAGER] },
-      ]),
+      requireMoreContext(SYSTEM_AND_FRANCHISE_MANAGER_ROLES),
       this.controller.getItems,
     );
 
@@ -156,27 +161,31 @@ export default class UserRoute implements IRoute {
      *                   type: string
      *                   example: User not found
      */
-    // GET domain:/api/users/:id - Get user by id
+    // GET domain:/api/users/:id - Get item
     this.router.get(API_PATH.USER_ID, authMiddleware(), this.controller.getItem);
 
-    // PUT domain:/api/users/:id/change-status -> Change user status (block/unBlock)
+    // PUT domain:/api/users/:id - Update item
     this.router.put(
-      API_PATH.USER_CHANGE_STATUS,
+      API_PATH.USER_ID,
       authMiddleware(),
-      requireMoreContext([
-        { scope: RoleScope.GLOBAL, roles: [BaseRole.SUPER_ADMIN, BaseRole.ADMIN] },
-        { scope: RoleScope.FRANCHISE, roles: [BaseRole.MANAGER] },
-      ]),
-      validationMiddleware(ChangeStatusDto),
-      this.controller.changeStatus,
+      validationMiddleware(UpdateUserDto),
+      this.controller.updateItem,
     );
 
-    // PUT domain:/api/users/:id -> Update user
-    // this.router.put(
-    //   `${this.path}/:id`,
-    //   authMiddleware(),
-    //   validationMiddleware(UpdateUserDto),
-    //   this.controller.updateUser,
-    // );
+    // DELETE domain:/api/users/:id - Soft delete item
+    this.router.delete(
+      API_PATH.USER_ID,
+      authMiddleware(),
+      requireMoreContext(SYSTEM_ADMIN_ROLES),
+      this.controller.softDeleteItem,
+    );
+
+    // PATCH domain:/api/users/:id/restore - Restore soft deleted item
+    this.router.patch(
+      API_PATH.USER_RESTORE,
+      authMiddleware(),
+      requireMoreContext(SYSTEM_ADMIN_ROLES),
+      this.controller.restoreItem,
+    );
   }
 }

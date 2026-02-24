@@ -39,6 +39,10 @@ export enum BaseFieldName {
   IS_DELETED = "is_deleted",
   CODE = "code",
   NAME = "name",
+  EMAIL = "email",
+  PHONE = "phone",
+  AVATAR_URL = "avatar_url",
+  PASSWORD = "password",
   DESCRIPTION = "description",
   DISPLAY_ORDER = "display_order",
   SCOPE = "scope", // GLOBAL/FRANCHISE

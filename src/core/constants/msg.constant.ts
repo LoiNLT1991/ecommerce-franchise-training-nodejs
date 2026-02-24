@@ -22,4 +22,8 @@ export const MSG_BUSINESS = {
   CANNOT_REMOVE_OWN_GLOBAL_ROLE: "Cannot remove your own global role",
   USER_ALREADY_HAS_ROLE_IN_FRANCHISE: "User already has a role in this franchise",
   ITEMS_NOT_FOUND: "Some items were not found",
+  CANNOT_REMOVE_OWN_ACCOUNT: "Cannot remove your own account",
+  CANNOT_REMOVE_DEFAULT_ACCOUNT: "Cannot remove default account",
+  CANNOT_CHANGE_OWN_STATUS: "Cannot change your own status",
+  CANNOT_CHANGE_DEFAULT_ACCOUNT_STATUS: "Cannot change status of default account",
 };

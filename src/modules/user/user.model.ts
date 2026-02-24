@@ -3,13 +3,14 @@ import { COLLECTION_NAME } from "../../core/constants";
 import { BaseModelFields } from "../../core/models";
 import { UserFieldName } from "./user.enum";
 import { IUser } from "./user.interface";
+import { BaseFieldName } from "../../core";
 
 const UserSchemaEntity = new Schema({
-  [UserFieldName.EMAIL]: { type: String, unique: true, index: true },
-  [UserFieldName.PASSWORD]: { type: String },
-  [UserFieldName.NAME]: { type: String, default: "" },
-  [UserFieldName.PHONE]: { type: String, default: "" },
-  [UserFieldName.AVATAR_URL]: { type: String, default: "" },
+  [BaseFieldName.EMAIL]: { type: String, unique: true, index: true },
+  [BaseFieldName.PASSWORD]: { type: String },
+  [BaseFieldName.NAME]: { type: String, default: "" },
+  [BaseFieldName.PHONE]: { type: String, default: "" },
+  [BaseFieldName.AVATAR_URL]: { type: String, default: "" },
 
   [UserFieldName.IS_VERIFIED]: { type: Boolean, default: false },
   [UserFieldName.VERIFICATION_TOKEN]: { type: String },

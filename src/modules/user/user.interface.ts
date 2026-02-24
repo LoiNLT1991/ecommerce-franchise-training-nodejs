@@ -1,15 +1,15 @@
 import { ClientSession, Document } from "mongoose";
-import { BaseRole } from "../../core/enums";
+import { BaseFieldName, BaseRole } from "../../core/enums";
 import { IBase } from "../../core/interfaces";
 import { UserFieldName } from "./user.enum";
 
 export type UserRole = BaseRole.SUPER_ADMIN | BaseRole.MANAGER | BaseRole.STAFF | BaseRole.SHIPPER | BaseRole.USER;
 export interface IUser extends Document, IBase {
-  [UserFieldName.EMAIL]: string;
-  [UserFieldName.PASSWORD]?: string;
-  [UserFieldName.NAME]: string;
-  [UserFieldName.PHONE]: string;
-  [UserFieldName.AVATAR_URL]: string;
+  [BaseFieldName.EMAIL]: string;
+  [BaseFieldName.PASSWORD]?: string;
+  [BaseFieldName.NAME]: string;
+  [BaseFieldName.PHONE]: string;
+  [BaseFieldName.AVATAR_URL]: string;
 
   // check verify
   [UserFieldName.IS_VERIFIED]?: boolean; // default false,

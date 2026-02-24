@@ -38,7 +38,8 @@ export const API_PATH = {
   USER: "/api/users",
   USER_ID: "/api/users/:id",
   USER_SEARCH: "/api/users/search",
-  USER_CHANGE_STATUS: "/api/users/:id/change-status",
+  USER_CHANGE_STATUS: "/api/users/:id/status",
+  USER_RESTORE: "/api/users/:id/restore",
   USER_CHANGE_ROLE: "/api/users/:id/change-role",
   USER_ROLES: "/api/users/:id/roles",
 

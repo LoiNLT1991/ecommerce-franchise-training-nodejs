@@ -210,7 +210,6 @@ export default class UserFranchiseRoleService
     }
     return item;
   }
-
   // ===== END CRUD =====
 
   // Get all franchise roles of a user by userId
