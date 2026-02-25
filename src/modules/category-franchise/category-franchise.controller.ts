@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { HttpStatus } from "../../core/enums";
-import { AuthenticatedRequest } from "../../core/models";
+import { AuthenticatedUserRequest } from "../../core/models";
 import { formatResponse } from "../../core/utils";
 import { CategoryFranchiseService } from "./category-franchise.service";
 import CreateCategoryFranchiseDto from "./dto/create.dto";
@@ -47,7 +47,7 @@ export class CategoryFranchiseController extends BaseCrudController<
     try {
       const { id } = req.params;
       const payload: UpdateStatusDto = req.body;
-      const userId = (req as AuthenticatedRequest).user.id;
+      const userId = (req as AuthenticatedUserRequest).user.id;
       await this.service.changeStatus(id, payload, userId);
       res.status(HttpStatus.Success).json(formatResponse<null>(null));
     } catch (error) {
@@ -61,7 +61,7 @@ export class CategoryFranchiseController extends BaseCrudController<
   public changeDisplayOrder = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const payload: UpdateDisplayOrderItemDto = req.body;
-      const userId = (req as AuthenticatedRequest).user.id;
+      const userId = (req as AuthenticatedUserRequest).user.id;
       await this.service.changeDisplayOrderItem(payload, userId);
       res.status(HttpStatus.Success).json(formatResponse<null>(null));
     } catch (error) {
@@ -75,7 +75,7 @@ export class CategoryFranchiseController extends BaseCrudController<
   public reorder = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const payload: UpdateDisplayOrderItemsDto = req.body;
-      const userId = (req as AuthenticatedRequest).user.id;
+      const userId = (req as AuthenticatedUserRequest).user.id;
       await this.service.reorderCategories(payload, userId);
       res.status(HttpStatus.Success).json(formatResponse<null>(null));
     } catch (error) {

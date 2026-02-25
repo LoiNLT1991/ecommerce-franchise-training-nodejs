@@ -3,7 +3,7 @@ import { BaseFieldName, HttpStatus } from "../../core/enums";
 import { HttpException } from "../../core/exceptions";
 import { IError } from "../../core/interfaces";
 import { BaseCrudService } from "../../core/services";
-import { checkEmptyObject, normalizeCode, normalizeName } from "../../core/utils";
+import { checkEmptyObject, normalizeCode, normalizeText } from "../../core/utils";
 import { AuditAction, AuditEntityType, buildAuditDiff, IAuditLogger, pickAuditSnapshot } from "../audit-log";
 import CreateProductDto from "./dto/create.dto";
 import { SearchPaginationItemDto } from "./dto/search.dto";
@@ -46,7 +46,7 @@ export class ProductService
 
     // 1. Normalize
     const normalizedSKU = normalizeCode(dto.SKU);
-    const normalizedName = normalizeName(dto.name);
+    const normalizedName = normalizeText(dto.name);
 
     // 2. Check unique SKU
     if (await this.repo.existsByField(ProductFieldName.SKU, normalizedSKU)) {
@@ -90,7 +90,7 @@ export class ProductService
     const errors: IError[] = [];
 
     const nextSKU = dto.SKU ? normalizeCode(dto.SKU) : current.SKU;
-    const nextName = dto.name ? normalizeName(dto.name) : current.name;
+    const nextName = dto.name ? normalizeText(dto.name) : current.name;
 
     // 1. Unique SKU (exclude itself)
     if (

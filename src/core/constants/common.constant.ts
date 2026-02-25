@@ -14,6 +14,7 @@ export const ACCOUNT_DEFAULT = [
 ]
 
 export const PASSWORD_LENGTH_MIN = 8;
+export const PHONE_LENGTH_MIN = 10;
 
 export const PAGINATION = {
   pageNum: 1,

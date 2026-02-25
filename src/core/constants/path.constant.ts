@@ -52,6 +52,23 @@ export const API_PATH = {
   // user franchise roles by user
   USER_FRANCHISE_ROLE_BY_USER_ID: "/api/user-franchise-roles/user/:userId",
 
+  // customer auth
+  CUSTOMER_AUTH: "/api/customer-auth",
+  CUSTOMER_AUTH_LOGOUT: "/api/customer-auth/logout",
+  CUSTOMER_AUTH_REFRESH_TOKEN: "/api/customer-auth/refresh-token",
+  CUSTOMER_AUTH_VERIFY_TOKEN: "/api/customer-auth/verify-token",
+  CUSTOMER_AUTH_RESEND_TOKEN: "/api/customer-auth/resend-token",
+  CUSTOMER_AUTH_FORGOT_PASSWORD: "/api/customer-auth/forgot-password",
+  CUSTOMER_AUTH_CHANGE_PASSWORD: "/api/customer-auth/change-password",
+
+  // customer
+  CUSTOMER: "/api/customers",
+  CUSTOMER_ID: "/api/customers/:id",
+  CUSTOMER_SEARCH: "/api/customers/search",
+  CUSTOMER_CHANGE_STATUS: "/api/customers/:id/status",
+  CUSTOMER_RESTORE: "/api/customers/:id/restore",
+  CUSTOMER_REGISTER: "/api/customers/register",
+
   // categories
   CATEGORY: "/api/categories",
   CATEGORY_SEARCH: "/api/categories/search",

@@ -1,9 +1,8 @@
 import mongoose, { HydratedDocument, Schema } from "mongoose";
+import { BaseFieldName } from "../../core";
 import { COLLECTION_NAME } from "../../core/constants";
 import { BaseModelFields } from "../../core/models";
-import { UserFieldName } from "./user.enum";
 import { IUser } from "./user.interface";
-import { BaseFieldName } from "../../core";
 
 const UserSchemaEntity = new Schema({
   [BaseFieldName.EMAIL]: { type: String, unique: true, index: true },
@@ -12,12 +11,12 @@ const UserSchemaEntity = new Schema({
   [BaseFieldName.PHONE]: { type: String, default: "" },
   [BaseFieldName.AVATAR_URL]: { type: String, default: "" },
 
-  [UserFieldName.IS_VERIFIED]: { type: Boolean, default: false },
-  [UserFieldName.VERIFICATION_TOKEN]: { type: String },
-  [UserFieldName.VERIFICATION_TOKEN_EXPIRES]: { type: Date },
-  [UserFieldName.TOKEN_VERSION]: { type: Number, default: 0 },
+  [BaseFieldName.IS_VERIFIED]: { type: Boolean, default: false },
+  [BaseFieldName.VERIFICATION_TOKEN]: { type: String },
+  [BaseFieldName.VERIFICATION_TOKEN_EXPIRES]: { type: Date },
+  [BaseFieldName.TOKEN_VERSION]: { type: Number, default: 0 },
 
-  [UserFieldName.LAST_RESET_PASSWORD_AT]: { type: Date, default: Date.now },
+  [BaseFieldName.LAST_RESET_PASSWORD_AT]: { type: Date, default: Date.now },
 
   ...BaseModelFields,
 });

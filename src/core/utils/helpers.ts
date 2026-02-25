@@ -49,7 +49,7 @@ export const encodePassword = async (password: string) => {
   return hashedPassword;
 };
 
-export const createTokenVerifiedUser = () => {
+export const createTokenVerified = () => {
   return {
     verification_token: crypto.randomBytes(16).toString("hex"),
     verification_token_expires: new Date(Date.now() + 1000 * 60 * 60 * 24), // 24 hours

@@ -1,7 +1,7 @@
 import { CookieOptions, NextFunction, Request, Response } from "express";
 import { HttpStatus } from "../../core/enums";
 import { HttpException } from "../../core/exceptions";
-import { AuthenticatedRequest } from "../../core/models";
+import { AuthenticatedUserRequest } from "../../core/models";
 import { formatResponse } from "../../core/utils";
 import { IUser } from "../user";
 import { AUTH_CONFIG, TOKEN } from "./auth.config";
@@ -69,7 +69,7 @@ export default class AuthController {
 
   public logout = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      await this.authService.logout((req as AuthenticatedRequest).user.id);
+      await this.authService.logout((req as AuthenticatedUserRequest).user.id);
 
       // ✅ Clear access token (path '/') + refresh token (path '/auth')
       this.clearAuthCookies(res);
@@ -82,8 +82,8 @@ export default class AuthController {
 
   public getLoginUserInfo = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const authUser = (req as AuthenticatedRequest).user;
-      const { user, roles } = await this.authService.getLoginUserInfo((req as AuthenticatedRequest).user.id);
+      const authUser = (req as AuthenticatedUserRequest).user;
+      const { user, roles } = await this.authService.getLoginUserInfo((req as AuthenticatedUserRequest).user.id);
       res
         .status(HttpStatus.Success)
         .json(formatResponse<AuthResponseDto>(mapAuthToResponse(user, roles, authUser.context ?? null)));
@@ -96,7 +96,7 @@ export default class AuthController {
     try {
       const payload: SwitchContextDto = req.body;
       const franchiseId: string | null = payload.franchise_id === undefined ? null : payload.franchise_id;
-      const tokens = await this.authService.switchContext(franchiseId, (req as AuthenticatedRequest).user.id);
+      const tokens = await this.authService.switchContext(franchiseId, (req as AuthenticatedUserRequest).user.id);
       const { accessToken, refreshToken } = tokens;
 
       // 3️⃣ Set lại cookies
@@ -144,7 +144,7 @@ export default class AuthController {
   public changePassword = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const model: ChangePasswordDto = req.body;
-      await this.authService.changePassword(model, (req as AuthenticatedRequest).user);
+      await this.authService.changePassword(model, (req as AuthenticatedUserRequest).user);
       res.status(HttpStatus.Success).json(formatResponse<null>(null));
     } catch (error) {
       next(error);

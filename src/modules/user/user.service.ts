@@ -1,10 +1,10 @@
 import { ObjectId } from "mongodb";
-import { ACCOUNT_DEFAULT, MSG_BUSINESS, UpdateStatusDto } from "../../core";
+import { ACCOUNT_DEFAULT, IError, MSG_BUSINESS, UpdateStatusDto } from "../../core";
 import { BaseFieldName, HttpStatus } from "../../core/enums";
 import { HttpException } from "../../core/exceptions";
 import { BaseCrudService, MailService, MailTemplate } from "../../core/services";
-import { checkEmptyObject, encodePassword, withTransaction } from "../../core/utils";
-import { createTokenVerifiedUser } from "../../core/utils/helpers";
+import { checkEmptyObject, encodePassword, normalizeText, withTransaction } from "../../core/utils";
+import { createTokenVerified } from "../../core/utils/helpers";
 import { AuditAction, AuditEntityType, buildAuditDiff, IAuditLogger, pickAuditSnapshot } from "../audit-log";
 import CreateUserDto from "./dto/create.dto";
 import { SearchPaginationItemDto } from "./dto/search.dto";
@@ -34,7 +34,8 @@ export default class UserService extends BaseCrudService<IUser, CreateUserDto, U
   }
 
   // ===== Start CRUD =====
-  public async createUser(
+  // Override createItem to include user ID and Origin header
+  public async createItem(
     model: CreateUserDto,
     loggedUserId: string,
     originDomain?: string | undefined,
@@ -42,17 +43,32 @@ export default class UserService extends BaseCrudService<IUser, CreateUserDto, U
     await checkEmptyObject(model);
 
     const result = await withTransaction(async (session) => {
-      // 1. Validate email
-      await this.userValidation.validEmailUnique(model.email);
+      const errors: IError[] = [];
 
-      // 2. Prepare data
+      // 1. Normalize
+      const normalizedName = normalizeText(model.name);
+
+      // 2. Validate email
+      if (await this.repo.existsByField(BaseFieldName.EMAIL, model.email)) {
+        errors.push({
+          field: BaseFieldName.EMAIL,
+          message: MSG_BUSINESS.ITEM_EXISTS(`User with Email: '${model.email}'`),
+        });
+      }
+
+      if (errors.length) {
+        throw new HttpException(HttpStatus.BadRequest, "", errors);
+      }
+
+      // 3. Prepare data
       const password = await encodePassword(model.password);
-      const token = createTokenVerifiedUser();
+      const token = createTokenVerified();
 
-      // 3. Create user
+      // 4. Create user
       const user = await this.userQuery.createUser(
         {
           ...model,
+          name: normalizedName,
           password,
           verification_token: token.verification_token,
           verification_token_expires: token.verification_token_expires,
@@ -94,11 +110,20 @@ export default class UserService extends BaseCrudService<IUser, CreateUserDto, U
   protected async beforeUpdate(current: IUser, dto: UpdateUserDto, _loggedUserId: string): Promise<void> {
     await checkEmptyObject(dto);
 
+    const errors: IError[] = [];
+
     // 1. Validate email if changed
-    if (dto.email) {
-      if (dto.email !== current.email) {
-        await this.userValidation.validEmailUnique(dto.email);
+    if (dto.email !== current.email) {
+      if (await this.repo.existsByField(BaseFieldName.EMAIL, dto.email, { excludeId: current._id.toString() })) {
+        errors.push({
+          field: BaseFieldName.EMAIL,
+          message: MSG_BUSINESS.ITEM_EXISTS(`User with Email: '${dto.email}'`),
+        });
       }
+    }
+
+    if (errors.length) {
+      throw new HttpException(HttpStatus.BadRequest, "", errors);
     }
 
     // 2. Check if there's any change

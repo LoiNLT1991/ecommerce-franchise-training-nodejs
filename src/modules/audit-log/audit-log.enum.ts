@@ -23,6 +23,7 @@ export enum AuditEntityType {
   FRANCHISE = "FRANCHISE",
   USER = "USER",
   ROLE = "ROLE",
+  CUSTOMER = "CUSTOMER",
   CATEGORY = "CATEGORY",
   PRODUCT = "PRODUCT",
   ORDER = "ORDER",

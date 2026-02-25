@@ -1,11 +1,12 @@
 import bcryptjs from "bcryptjs";
 import jwt from "jsonwebtoken";
-import { HttpStatus, RoleScope } from "../../core/enums";
+import { ACCOUNT_DEFAULT } from "../../core";
+import { BaseFieldName, HttpStatus, RoleScope } from "../../core/enums";
 import { HttpException } from "../../core/exceptions";
-import { AuthUser, IUserContext } from "../../core/models";
+import { UserAuthPayload, IUserContext } from "../../core/models";
 import { MailService, MailTemplate } from "../../core/services";
 import { checkEmptyObject, encodePassword, withTransaction } from "../../core/utils";
-import { createTokenVerifiedUser, generateRandomPassword } from "../../core/utils/helpers";
+import { createTokenVerified, generateRandomPassword } from "../../core/utils/helpers";
 import { IUser, IUserQuery, IUserValidation } from "../user";
 import { IUserFranchiseRoleQuery } from "../user-franchise-role";
 import { AUTH_CONFIG } from "./auth.config";
@@ -15,9 +16,9 @@ import ChangePasswordDto from "./dto/changePassword.dto";
 export default class AuthService {
   constructor(
     private readonly userContext: IUserFranchiseRoleQuery,
+    private readonly mailService: MailService,
     private readonly userValidation: IUserValidation,
     private readonly userQuery: IUserQuery,
-    private readonly mailService: MailService,
   ) {}
 
   public async register(model: RegisterDto, originDomain?: string | undefined): Promise<IUser> {
@@ -29,7 +30,7 @@ export default class AuthService {
 
       // 2. Prepare data
       const password = await encodePassword(model.password);
-      const token = createTokenVerifiedUser();
+      const token = createTokenVerified();
 
       // 3. Create user
       const user = await this.userQuery.createUser(
@@ -62,32 +63,15 @@ export default class AuthService {
     return user;
   }
 
-  public async verifyUserToken(verifiedToken: string): Promise<void> {
-    // 1. Validate format token
-    await this.userValidation.validUserToken(verifiedToken);
+  public async verifyUserToken(token: string): Promise<void> {
+    // 1. Get user by token
+    const user = await this.userQuery.getUserByToken(token);
 
-    // 2. Get user
-    const user = await this.userQuery.getUserByToken(verifiedToken);
-
-    if (!user) {
-      throw new HttpException(HttpStatus.BadRequest, "Token is not valid");
-    }
-
-    if (!user.verification_token_expires) {
-      throw new HttpException(HttpStatus.BadRequest, "Token expiration is missing");
-    }
-
-    if (Date.now() > user.verification_token_expires.getTime()) {
-      throw new HttpException(HttpStatus.BadRequest, "Token is expired!");
-    }
+    // 2. Verify token
+    await this.verifyToken(user, BaseFieldName.VERIFICATION_TOKEN_EXPIRES);
 
     // 3. Update user via Query (business meaning)
-    const updatedUser = await this.userQuery.updateUser(user._id.toString(), {
-      is_verified: true,
-      verification_token: null,
-      verification_token_expires: null,
-      updated_at: new Date(),
-    });
+    const updatedUser = await this.userQuery.updateUserTokenVersion(user!._id.toString());
 
     if (!updatedUser) {
       throw new HttpException(HttpStatus.BadRequest, "Verify user token failed");
@@ -102,7 +86,7 @@ export default class AuthService {
     }
 
     // 2. Create verification token
-    const token = createTokenVerifiedUser();
+    const token = createTokenVerified();
 
     // 3. Update user via Query
     const updatedUser = await this.userQuery.updateUser(user._id.toString(), {
@@ -229,14 +213,14 @@ export default class AuthService {
     // 1. Get user
     const user = await this.userQuery.getUserByEmail(email);
 
-    if (!user || user.is_deleted || user.is_active || !user.is_verified) {
+    if (!user || user.is_deleted || !user.is_active || !user.is_verified) {
       throw new HttpException(HttpStatus.BadRequest, "User does not exist or is not eligible for password reset");
     }
 
     // Optional: block default admin
-    // if (user.email === ADMIN_EMAIL) {
-    //   throw new HttpException(HttpStatus.BadRequest, "Cannot reset password for default admin account");
-    // }
+    if (ACCOUNT_DEFAULT.includes(user.email)) {
+      throw new HttpException(HttpStatus.BadRequest, "Cannot reset password for default admin account");
+    }
 
     // 2. 🔒 COOL_DOWN CHECK
     if (user.last_reset_password_at) {
@@ -277,7 +261,7 @@ export default class AuthService {
     }
   }
 
-  public async changePassword(model: ChangePasswordDto, loggedUser: AuthUser): Promise<void> {
+  public async changePassword(model: ChangePasswordDto, loggedUser: UserAuthPayload): Promise<void> {
     await checkEmptyObject(model);
 
     const userId = loggedUser.id;
@@ -290,9 +274,9 @@ export default class AuthService {
     }
 
     // Optional: block default admin
-    // if (user.email === ADMIN_EMAIL) {
-    //   throw new HttpException(HttpStatus.BadRequest, "Cannot change password for admin account default.");
-    // }
+    if (ACCOUNT_DEFAULT.includes(user.email) && loggedUser.id !== user._id.toString()) {
+      throw new HttpException(HttpStatus.BadRequest, "Cannot change password for admin account default.");
+    }
 
     // 2. Check old_password match
     const isMatchPassword = await bcryptjs.compare(model.old_password, user.password!);
@@ -316,7 +300,6 @@ export default class AuthService {
   }
 
   // ===== PRIVATE HELPERS =====
-
   private async validateLogin(model: LoginDto) {
     const user = await this.userQuery.getUserByEmail(model.email);
 
@@ -374,5 +357,37 @@ export default class AuthService {
     });
 
     return { accessToken, refreshToken };
+  }
+
+  private async verifyToken<T>(entity: T | null, expireField: keyof T) {
+    if (!entity) throw new Error("Token not valid");
+
+    if (!entity[expireField]) throw new Error("Missing expiration");
+
+    if (Date.now() > new Date(entity[expireField] as any).getTime()) {
+      throw new Error("Token expired");
+    }
+  }
+
+  public async checkAndGenNewPassword(lastResetPasswordAt: Date | null | undefined): Promise<string> {
+    const COOL_DOWN_MINUTES = 10;
+
+    // 1. 🔒 COOL_DOWN CHECK
+    if (lastResetPasswordAt instanceof Date) {
+      const diff = Date.now() - lastResetPasswordAt.getTime();
+
+      if (diff < COOL_DOWN_MINUTES * 60 * 1000) {
+        throw new HttpException(
+          HttpStatus.TooManyRequests,
+          `Please wait ${COOL_DOWN_MINUTES} minutes before requesting another password reset`,
+        );
+      }
+    }
+
+    // 2. Generate new password
+    const generateNewPassword = generateRandomPassword(10);
+    const newPassword = await encodePassword(generateNewPassword);
+
+    return newPassword;
   }
 }

@@ -1,6 +1,6 @@
 import { IsEmail, IsNotEmpty, MinLength } from "class-validator";
 
-export default class AuthCredentialDto {
+export default class LoginDto {
   @IsNotEmpty()
   @IsEmail()
   public email: string;
@@ -14,6 +14,3 @@ export default class AuthCredentialDto {
     this.password = password;
   }
 }
-
-export class RegisterDto extends AuthCredentialDto {}
-export class LoginDto extends AuthCredentialDto {}

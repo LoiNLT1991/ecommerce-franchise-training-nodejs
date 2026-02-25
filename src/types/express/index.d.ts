@@ -9,6 +9,7 @@ declare global {
         id: string;
         context: IUserContext | null;
         version: number;
+        type: "user" | "customer";
       };
     }
   }

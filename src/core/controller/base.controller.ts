@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { HttpStatus } from "../enums";
 import { IBaseCrudService } from "../interfaces";
-import { AuthenticatedRequest } from "../models";
+import { AuthenticatedUserRequest } from "../models";
 import { formatPaginationResponse, formatResponse } from "../utils";
 
 export abstract class BaseCrudController<
@@ -22,7 +22,7 @@ export abstract class BaseCrudController<
 
   createItem = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const item = await this.service.create(req.body, (req as AuthenticatedRequest).user.id);
+      const item = await this.service.create(req.body, (req as AuthenticatedUserRequest).user.id);
       res.status(HttpStatus.Success).json(formatResponse(this.mapToResponse(item)));
     } catch (error) {
       next(error);
@@ -52,7 +52,7 @@ export abstract class BaseCrudController<
 
   updateItem = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const item = await this.service.update(req.params.id, req.body, (req as AuthenticatedRequest).user.id);
+      const item = await this.service.update(req.params.id, req.body, (req as AuthenticatedUserRequest).user.id);
       res.status(HttpStatus.Success).json(formatResponse(this.mapToResponse(item)));
     } catch (error) {
       next(error);
@@ -61,7 +61,7 @@ export abstract class BaseCrudController<
 
   softDeleteItem = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      await this.service.softDelete(req.params.id, (req as AuthenticatedRequest).user.id);
+      await this.service.softDelete(req.params.id, (req as AuthenticatedUserRequest).user.id);
       res.status(HttpStatus.Success).json(formatResponse(null));
     } catch (error) {
       next(error);
@@ -70,7 +70,7 @@ export abstract class BaseCrudController<
 
   restoreItem = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      await this.service.restore(req.params.id, (req as AuthenticatedRequest).user.id);
+      await this.service.restore(req.params.id, (req as AuthenticatedUserRequest).user.id);
       res.status(HttpStatus.Success).json(formatResponse(null));
     } catch (error) {
       next(error);

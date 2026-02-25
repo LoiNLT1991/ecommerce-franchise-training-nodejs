@@ -7,7 +7,11 @@ import AuthRoute from "./auth.route";
 import AuthService from "./auth.service";
 
 export class AuthModule extends BaseModule<AuthRoute> {
-  constructor(userFranchiseRoleModule: UserFranchiseRoleModule, userModule: UserModule) {
+
+  constructor(
+    userFranchiseRoleModule: UserFranchiseRoleModule,
+    userModule: UserModule,
+  ) {
     super();
 
     // ===== External domain dependencies =====
@@ -19,7 +23,7 @@ export class AuthModule extends BaseModule<AuthRoute> {
     const mailService = new MailService();
 
     // Core service and HTTP layer
-    const service = new AuthService(userContext, userValidation, userQuery, mailService);
+    const service = new AuthService(userContext, mailService, userValidation, userQuery);
     const controller = new AuthController(service);
     this.route = new AuthRoute(controller);
   }

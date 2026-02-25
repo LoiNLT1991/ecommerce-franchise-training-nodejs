@@ -25,6 +25,14 @@ export class UserQuery implements IUserQuery {
     return isFull ? this.userRepo.findUserByIdWithPassword(id) : this.userRepo.findUserById(id);
   }
 
+  public async updateUserTokenVersion(id: string, session?: ClientSession): Promise<IUser | null> {
+    return this.userRepo.findByIdAndUpdate(
+      id,
+      { is_verified: true, verification_token: null, verification_token_expires: null, updated_at: new Date() },
+      { new: true, session },
+    );
+  }
+
   // user when logout
   public async increaseTokenVersion(userId: string): Promise<IUser | null> {
     return this.userRepo.findByIdAndUpdate(userId, { $inc: { token_version: 1 } }, { new: true });

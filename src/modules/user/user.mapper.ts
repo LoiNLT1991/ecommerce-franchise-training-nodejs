@@ -1,16 +1,15 @@
-import { IUser, UserResponseDto } from "../user";
+import { mapBaseResponse } from "../../core";
+import { IUser, UserItemDto } from "../user";
 
-export const mapItemToResponse = (user: IUser): UserResponseDto => {
+export const mapItemToResponse = (item: IUser): UserItemDto => {
+  const { ...base } = mapBaseResponse(item);
+
   return {
-    id: user._id.toString(),
-    email: user.email,
-    name: user.name,
-    phone: user.phone,
-    avatar_url: user.avatar_url,
-    is_active: user.is_active ?? true,
-    is_deleted: user.is_deleted ?? false,
-    created_at: user.created_at?.toISOString() ?? "",
-    updated_at: user.updated_at?.toISOString() ?? "",
-    is_verified: user.is_verified ?? false,
+    ...base,
+    email: item.email,
+    name: item.name,
+    phone: item.phone,
+    avatar_url: item.avatar_url,
+    is_verified: item.is_verified ?? false,
   };
 };

@@ -3,7 +3,7 @@ import { BaseFieldName, HttpStatus } from "../../core/enums";
 import { HttpException } from "../../core/exceptions";
 import { IError } from "../../core/interfaces";
 import { BaseCrudService } from "../../core/services";
-import { checkEmptyObject, normalizeCode, normalizeName, toObjectId } from "../../core/utils";
+import { checkEmptyObject, normalizeCode, normalizeText, toObjectId } from "../../core/utils";
 import { AuditAction, AuditEntityType, buildAuditDiff, IAuditLogger, pickAuditSnapshot } from "../audit-log";
 import { CategoryFieldName } from "./category.enum";
 import { ICategory, ICategoryQuery } from "./category.interface";
@@ -40,7 +40,7 @@ export class CategoryService
     const errors: IError[] = [];
 
     const normalizedCode = normalizeCode(dto.code);
-    const normalizedName = normalizeName(dto.name);
+    const normalizedName = normalizeText(dto.name);
 
     // 1. Check unique code
     if (await this.repo.existsByField(BaseFieldName.CODE, normalizedCode)) {
@@ -81,7 +81,7 @@ export class CategoryService
     const errors: IError[] = [];
 
     const nextCode = dto.code ? normalizeCode(dto.code) : current.code;
-    const nextName = dto.name ? normalizeName(dto.name) : current.name;
+    const nextName = dto.name ? normalizeText(dto.name) : current.name;
 
     // 1. Unique code (exclude itself)
     if (

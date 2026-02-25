@@ -3,7 +3,7 @@ import { UserFranchiseRoleResponseDto } from "./dto/item.dto";
 import { IUserFranchiseRole } from "./user-franchise-role.interface";
 
 export const mapItemToResponse = (item: IUserFranchiseRole): UserFranchiseRoleResponseDto => {
-  const { is_active, ...base } = mapBaseResponse(item);
+  const { ...base } = mapBaseResponse(item);
   return {
     ...base,
     franchise_id: String(item.franchise_id),

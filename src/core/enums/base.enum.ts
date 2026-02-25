@@ -46,6 +46,7 @@ export enum BaseFieldName {
   DESCRIPTION = "description",
   DISPLAY_ORDER = "display_order",
   SCOPE = "scope", // GLOBAL/FRANCHISE
+  ADDRESS = "address",
 
   // Collection Id
   FRANCHISE_ID = "franchise_id",
@@ -71,6 +72,13 @@ export enum BaseFieldName {
   TYPE = "type",
   CHANGE = "change",
   REASON = "reason",
-  CREATED_BY = "created_by"
+  CREATED_BY = "created_by",
 
+  // Add more fields as needed
+  IS_VERIFIED = "is_verified",
+  VERIFICATION_TOKEN = "verification_token",
+  VERIFICATION_TOKEN_EXPIRES = "verification_token_expires",
+  TOKEN_VERSION = "token_version",
+
+  LAST_RESET_PASSWORD_AT = "last_reset_password_at",
 }

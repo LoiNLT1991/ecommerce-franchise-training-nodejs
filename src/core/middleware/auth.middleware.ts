@@ -2,70 +2,12 @@ import { RequestHandler } from "express";
 import jwt, { JsonWebTokenError, TokenExpiredError } from "jsonwebtoken";
 import UserSchema from "../../modules/user/user.model";
 import { BaseRole, HttpStatus, RoleScope } from "../enums";
-import { AuthUser } from "../models";
+import { UserAuthPayload } from "../models";
 
 export interface AuthContext {
   scope: RoleScope;
   roles: BaseRole[];
 }
-
-export const authMiddleware = (): RequestHandler => {
-  return async (req, res, next) => {
-    let token = req.cookies?.access_token;
-    const authHeader = req.headers["authorization"];
-
-    if (!token && authHeader?.startsWith("Bearer ")) {
-      token = authHeader.split(" ")[1];
-    }
-
-    if (!token) {
-      if (req.cookies?.refresh_token) {
-        return res.status(HttpStatus.Unauthorized).json(formatResponse("ACCESS_TOKEN_EXPIRED"));
-      }
-
-      return res
-        .status(HttpStatus.Unauthorized)
-        .json(formatResponse("You are not logged in. Please log in to continue!"));
-    }
-
-    try {
-      const payload = jwt.verify(token, process.env.JWT_ACCESS_SECRET!) as AuthUser;
-
-      const isValidUser = await UserSchema.exists({
-        _id: payload.id,
-        is_deleted: false,
-        is_verified: true,
-        token_version: payload.version,
-      });
-
-      if (!isValidUser) {
-        return res.status(HttpStatus.Unauthorized).json(formatResponse("Invalid token"));
-      }
-
-      const user: AuthUser = {
-        id: payload.id,
-        context: payload.context,
-        version: payload.version,
-      };
-
-      req.user = user;
-      next();
-    } catch (err) {
-      // 2️⃣ Token hết hạn
-      if (err instanceof TokenExpiredError) {
-        return res.status(HttpStatus.Unauthorized).json(formatResponse("Access token has expired"));
-      }
-
-      // 3️⃣ Token sai / bị sửa
-      if (err instanceof JsonWebTokenError) {
-        return res.status(HttpStatus.Unauthorized).json(formatResponse("Invalid token"));
-      }
-
-      // fallback
-      return res.status(HttpStatus.Unauthorized).json(formatResponse("Token expired or invalid"));
-    }
-  };
-};
 
 // Middleware to ensure that a user context is selected
 export const requireContext: RequestHandler = (req, res, next) => {
@@ -141,6 +83,65 @@ export const requireMoreContext = (rules: AuthContext[]) => [requireContext, req
 
 const formatResponse = (message: string) => {
   return { message, success: false, error: [] };
+};
+
+const authMiddleware = (): RequestHandler => {
+  return async (req, res, next) => {
+    let token = req.cookies?.access_token;
+    const authHeader = req.headers["authorization"];
+
+    if (!token && authHeader?.startsWith("Bearer ")) {
+      token = authHeader.split(" ")[1];
+    }
+
+    if (!token) {
+      if (req.cookies?.refresh_token) {
+        return res.status(HttpStatus.Unauthorized).json(formatResponse("ACCESS_TOKEN_EXPIRED"));
+      }
+
+      return res
+        .status(HttpStatus.Unauthorized)
+        .json(formatResponse("You are not logged in. Please log in to continue!"));
+    }
+
+    try {
+      const payload = jwt.verify(token, process.env.JWT_ACCESS_SECRET!) as UserAuthPayload;
+
+      const isValidUser = await UserSchema.exists({
+        _id: payload.id,
+        is_deleted: false,
+        is_verified: true,
+        token_version: payload.version,
+      });
+
+      if (!isValidUser) {
+        return res.status(HttpStatus.Unauthorized).json(formatResponse("Invalid token"));
+      }
+
+      const user: UserAuthPayload = {
+        id: payload.id,
+        context: payload.context,
+        version: payload.version,
+        type: payload.type,
+      };
+
+      req.user = user;
+      next();
+    } catch (err) {
+      // 2️⃣ Token hết hạn
+      if (err instanceof TokenExpiredError) {
+        return res.status(HttpStatus.Unauthorized).json(formatResponse("Access token has expired"));
+      }
+
+      // 3️⃣ Token sai / bị sửa
+      if (err instanceof JsonWebTokenError) {
+        return res.status(HttpStatus.Unauthorized).json(formatResponse("Invalid token"));
+      }
+
+      // fallback
+      return res.status(HttpStatus.Unauthorized).json(formatResponse("Token expired or invalid"));
+    }
+  };
 };
 
 export default authMiddleware;

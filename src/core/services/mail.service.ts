@@ -17,8 +17,23 @@ export class MailService {
 }
 
 export class MailTemplate {
-  static verifyEmail(username: string, token: string, originDomain?: string | undefined) {
+  static verifyEmail(username: string, token: string, originDomain?: string | undefined, isCustomer: boolean = false) {
     const domain = originDomain || process.env.DOMAIN_FE;
+
+    if (isCustomer) {
+      return {
+        subject: "Welcome to our service! Please verify your email address",
+        content: `Hello ${username},
+
+            Thank you for registering with our service! To complete your registration, please click the following link to verify your email address:
+            ${domain}/verify-customer-email/${token}
+
+            If you did not create an account with us, please ignore this email.
+
+            Best regards,
+            The Team`,
+      };
+    }
 
     return {
       subject: "Verify your email address",
