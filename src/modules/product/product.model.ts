@@ -14,6 +14,7 @@ const ProductSchemaEntity = new Schema({
   [ProductFieldName.IMAGES_URL]: { type: [String], default: [] },
   [ProductFieldName.MIN_PRICE]: { type: Number, min: 0, default: 0 },
   [ProductFieldName.MAX_PRICE]: { type: Number, min: 0, default: 0 },
+  [ProductFieldName.IS_HAVE_TOPPING]: { type: Boolean, default: false },
 
   ...BaseModelFields,
 });

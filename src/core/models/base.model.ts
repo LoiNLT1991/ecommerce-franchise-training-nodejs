@@ -1,11 +1,11 @@
 import { Request } from "express";
-import { RoleScope } from "../enums";
+import { BaseFieldName, RoleScope } from "../enums";
 
 export const BaseModelFields = {
-  is_active: { type: Boolean, default: true },
-  created_at: { type: Date, default: Date.now },
-  updated_at: { type: Date, default: Date.now },
-  is_deleted: { type: Boolean, default: false },
+  [BaseFieldName.IS_ACTIVE]: { type: Boolean, default: true },
+  [BaseFieldName.CREATED_AT]: { type: Date, default: Date.now },
+  [BaseFieldName.UPDATED_AT]: { type: Date, default: Date.now },
+  [BaseFieldName.IS_DELETED]: { type: Boolean, default: false },
 };
 
 export interface AuthenticatedUserRequest extends Request {

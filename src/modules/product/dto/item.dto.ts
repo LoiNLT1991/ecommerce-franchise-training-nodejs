@@ -8,6 +8,7 @@ export interface ProductItemDto {
   content: string;
   min_price: number;
   max_price: number;
+  is_have_topping: boolean;
   is_active: boolean;
   is_deleted: boolean;
   created_at: string;

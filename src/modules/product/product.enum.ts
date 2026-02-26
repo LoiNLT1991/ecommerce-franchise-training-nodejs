@@ -5,4 +5,5 @@ export enum ProductFieldName {
   CONTENT = "content",
   MIN_PRICE = "min_price",
   MAX_PRICE = "max_price",
+  IS_HAVE_TOPPING = "is_have_topping",
 }

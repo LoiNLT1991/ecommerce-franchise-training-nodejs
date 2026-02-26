@@ -69,6 +69,83 @@ export class UserFranchiseRoleRepository extends BaseRepository<IUserFranchiseRo
     }
   }
 
+  public async getAllRolesByUserId(userId: string): Promise<any[]> {
+    try {
+      const matchQuery = {
+        user_id: new Types.ObjectId(userId),
+        is_deleted: false,
+      };
+
+      const pipeline: PipelineStage[] = [
+        ...this.buildQueryPipeline(matchQuery),
+
+        // 🔥 JOIN ROLE
+        {
+          $lookup: {
+            from: "roles",
+            localField: "role_id",
+            foreignField: "_id",
+            as: "role",
+          },
+        },
+        { $unwind: { path: "$role", preserveNullAndEmptyArrays: true } },
+
+        // 🔥 JOIN FRANCHISE
+        {
+          $lookup: {
+            from: "franchises",
+            localField: "franchise_id",
+            foreignField: "_id",
+            as: "franchise",
+          },
+        },
+        { $unwind: { path: "$franchise", preserveNullAndEmptyArrays: true } },
+
+        // 🔥 JOIN USER
+        {
+          $lookup: {
+            from: "users",
+            localField: "user_id",
+            foreignField: "_id",
+            as: "user",
+          },
+        },
+        { $unwind: { path: "$user", preserveNullAndEmptyArrays: true } },
+
+        // 🔥 PROJECT ĐÚNG FORMAT EM MUỐN
+        {
+          $project: {
+            id: "$_id",
+            is_active: 1,
+            is_deleted: 1,
+            created_at: 1,
+            updated_at: 1,
+            note: 1,
+
+            franchise_id: "$franchise._id",
+            franchise_code: "$franchise.code",
+            franchise_name: "$franchise.name",
+
+            role_id: "$role._id",
+            role_code: "$role.code",
+            role_name: "$role.name",
+
+            user_id: "$user._id",
+            user_name: "$user.name",
+            user_email: "$user.email",
+          },
+        },
+
+        { $sort: { created_at: -1 } },
+      ];
+
+      return await this.model.aggregate(pipeline);
+    } catch (error) {
+      console.error(error);
+      throw new HttpException(HttpStatus.BadRequest, MSG_BUSINESS.DATABASE_QUERY_FAILED);
+    }
+  }
+
   private buildQueryPipeline(matchQuery: Record<string, any>): PipelineStage[] {
     return [
       // 1️⃣ Filter

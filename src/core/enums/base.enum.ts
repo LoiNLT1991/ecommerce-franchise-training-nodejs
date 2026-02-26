@@ -31,6 +31,13 @@ export enum BaseGroup {
   GROUP_04 = "group_04",
 }
 
+export enum BaseLoyaltyTier {
+  BRONZE = "BRONZE", // 0 - 299 points
+  SILVER = "SILVER", // 300 - 999 points
+  GOLD = "GOLD", // 1000 - 1999 points
+  PLATINUM = "PLATINUM", // 2000+ points
+}
+
 export enum BaseFieldName {
   ID = "_id",
   IS_ACTIVE = "is_active",
@@ -58,6 +65,8 @@ export enum BaseFieldName {
   PRODUCT_FRANCHISE_ID = "product_franchise_id",
   PRODUCT_CATEGORY_FRANCHISE_ID = "product_category_franchise_id",
   INVENTORY_ID = "inventory_id",
+  CUSTOMER_ID = "customer_id",
+  CUSTOMER_FRANCHISE_ID = "customer_franchise_id",
 
   REFERENCE_TYPE = "reference_type",
   REFERENCE_ID = "reference_id",
@@ -81,4 +90,11 @@ export enum BaseFieldName {
   TOKEN_VERSION = "token_version",
 
   LAST_RESET_PASSWORD_AT = "last_reset_password_at",
+
+  // For Customer
+  LOYALTY_POINTS = "loyalty_points", // default 0
+  LOYALTY_TIER = "loyalty_tier", // BRONZE, SILVER, GOLD, PLATINUM
+  FIRST_ORDER_DATE = "first_order_date",
+  LAST_ORDER_DATE = "last_order_date",
+  TOTAL_EARNED_POINTS = "total_earned_points",
 }

@@ -12,6 +12,7 @@ export interface IProduct extends Document, IBase {
   [ProductFieldName.IMAGES_URL]?: string[];
   [ProductFieldName.MIN_PRICE]: number;
   [ProductFieldName.MAX_PRICE]: number;
+  [ProductFieldName.IS_HAVE_TOPPING]: boolean;
 }
 
 export interface IProductQuery {

@@ -8,6 +8,7 @@ import authMiddleware, {
 } from "./auth.middleware";
 import customerAuthMiddleware from "./customerAuth.middleware";
 import errorMiddleware from "./error.middleware";
+import requireFranchiseAccess from "./franchise.middleware";
 import validationMiddleware from "./validation.middleware";
 
 export {
@@ -15,6 +16,7 @@ export {
   customerAuthMiddleware,
   errorMiddleware,
   requireContext,
+  requireFranchiseAccess,
   requireGlobalRole,
   requireMoreContext,
   requireRole,

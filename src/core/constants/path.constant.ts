@@ -69,6 +69,13 @@ export const API_PATH = {
   CUSTOMER_RESTORE: "/api/customers/:id/restore",
   CUSTOMER_REGISTER: "/api/customers/register",
 
+  // customer franchises
+  CUSTOMER_FRANCHISE: "/api/customer-franchises",
+  CUSTOMER_FRANCHISE_ID: "/api/customer-franchises/:id",
+  CUSTOMER_FRANCHISE_SEARCH: "/api/customer-franchises/search",
+  CUSTOMER_FRANCHISE_RESTORE: "/api/customer-franchises/:id/restore",
+  CUSTOMER_FRANCHISE_CHANGE_STATUS: "/api/customer-franchises/:id/status",
+
   // categories
   CATEGORY: "/api/categories",
   CATEGORY_SEARCH: "/api/categories/search",

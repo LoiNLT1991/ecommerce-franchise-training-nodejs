@@ -39,6 +39,8 @@ tags:
     description: Category related endpoints
   - name: Customer Auth
     description: Customer authentication related endpoints
+  - name: CustomerFranchise
+    description: CustomerFranchise related endpoints
   - name: Customer
     description: Customer related endpoints
   - name: Inventory

@@ -1,12 +1,13 @@
 import {
-  IsArray,
-  IsNotEmpty,
-  IsNumber,
-  IsOptional,
-  IsString,
-  Min,
-  Validate,
-  ValidationArguments,
+    IsArray,
+    IsBoolean,
+    IsNotEmpty,
+    IsNumber,
+    IsOptional,
+    IsString,
+    Min,
+    Validate,
+    ValidationArguments,
 } from "class-validator";
 
 export class PriceRangeValidator {
@@ -23,54 +24,38 @@ export class PriceRangeValidator {
 export default class CreateProductDto {
   @IsNotEmpty()
   @IsString()
-  SKU: string;
+  SKU!: string;
 
   @IsNotEmpty()
   @IsString()
-  name: string;
+  name!: string;
 
   @IsNotEmpty()
   @IsString()
-  description: string;
+  description!: string;
 
   @IsNotEmpty()
   @IsString()
-  image_url: string;
+  image_url!: string;
 
   @IsNotEmpty()
   @IsString()
-  content: string;
+  content!: string;
 
   @IsNumber()
   @Min(0)
-  min_price: number;
+  min_price!: number;
 
   @IsNumber()
   @Min(0)
   @Validate(PriceRangeValidator)
-  max_price: number;
+  max_price!: number;
 
   @IsOptional()
   @IsArray()
   images_url?: string[];
 
-  constructor(
-    SKU: string,
-    name: string,
-    description: string,
-    image_url: string,
-    content: string,
-    min_price: number,
-    max_price: number,
-    images_url?: string[],
-  ) {
-    this.SKU = SKU;
-    this.name = name;
-    this.description = description;
-    this.image_url = image_url;
-    this.content = content;
-    this.min_price = min_price;
-    this.max_price = max_price;
-    this.images_url = images_url;
-  }
+  @IsOptional()
+  @IsBoolean()
+  is_have_topping!: boolean;
 }

@@ -14,5 +14,6 @@ export const mapItemToResponse = (item: IProduct): ProductItemDto => {
     content: item.content,
     min_price: item.min_price,
     max_price: item.max_price,
+    is_have_topping: item.is_have_topping,
   };
 };
