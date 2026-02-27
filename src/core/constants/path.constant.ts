@@ -125,4 +125,12 @@ export const API_PATH = {
 
   INVENTORY_LOGS: "/api/inventories/logs/:inventoryId",
   INVENTORY_LOGS_BY_REFERENCE: "/api/inventories/logs/reference",
+
+  // client
+  CLIENT: "/api/clients",
+  CLIENT_FRANCHISES: "/api/clients/franchises",
+  CLIENT_CATEGORIES: "/api/clients/franchises/:franchiseId/categories",
+  CLIENT_MENU: "/api/clients/menu",
+  CLIENT_PRODUCTS: "/api/clients/products",
+  CLIENT_PRODUCT_DETAIL: "/api/clients/products/:productFranchiseId",
 };

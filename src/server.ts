@@ -5,6 +5,7 @@ import { AuditLogModule } from "./modules/audit-log";
 import { AuthModule } from "./modules/auth";
 import { CategoryModule } from "./modules/category";
 import { CategoryFranchiseModule } from "./modules/category-franchise";
+import { ClientModule } from "./modules/client";
 import { CustomerModule } from "./modules/customer";
 import { CustomerAuthModule } from "./modules/customer-auth";
 import { CustomerFranchiseModule } from "./modules/customer-franchise";
@@ -47,6 +48,9 @@ const inventoryModule = new InventoryModule(productModule, productFranchiseModul
 const customerAuthModule = new CustomerAuthModule(customerModule);
 const customerFranchiseModule = new CustomerFranchiseModule(franchiseModule, customerModule);
 
+// Public module (export to client)
+const clientModule = new ClientModule(franchiseModule, categoryFranchiseModule, productFranchiseModule);
+
 // ===== Register routes =====
 const routes = [
   indexModule.getRoute(),
@@ -65,6 +69,9 @@ const routes = [
   productFranchiseModule.getRoute(),
   productCategoryFranchiseModule.getRoute(),
   inventoryModule.getRoute(),
+
+  // Public route
+  clientModule.getRoute(),
 ];
 
 const app = new App(routes);

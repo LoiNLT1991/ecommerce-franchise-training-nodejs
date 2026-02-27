@@ -1,6 +1,7 @@
 import { Document, Types } from "mongoose";
 import { BaseFieldName } from "../../core/enums";
 import { IBase } from "../../core/interfaces";
+import { PublicProductDetailDto, PublicProductItemDto } from "./dto/item.dto";
 
 export interface IProductFranchise extends Document, IBase {
   [BaseFieldName.PRODUCT_ID]: Types.ObjectId;
@@ -13,4 +14,7 @@ export interface IProductFranchise extends Document, IBase {
 
 export interface IProductFranchiseQuery {
   getById(id: string): Promise<IProductFranchise | null>;
+  getMenuByFranchise(franchiseId: string, categoryId?: string): Promise<PublicProductItemDto[]>;
+  getPublicProducts(franchiseId: string, categoryId?: string): Promise<PublicProductItemDto[]>;
+  getPublicProductDetail(productFranchiseId: string): Promise<PublicProductDetailDto | null>;
 }

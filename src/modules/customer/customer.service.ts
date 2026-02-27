@@ -1,17 +1,17 @@
 import {
-  BaseCrudService,
-  BaseFieldName,
-  checkEmptyObject,
-  encodePassword,
-  HttpException,
-  HttpStatus,
-  IError,
-  MailService,
-  MailTemplate,
-  MSG_BUSINESS,
-  normalizeText,
-  UpdateStatusDto,
-  withTransaction,
+    BaseCrudService,
+    BaseFieldName,
+    checkEmptyObject,
+    encodePassword,
+    HttpException,
+    HttpStatus,
+    IError,
+    MailService,
+    MailTemplate,
+    MSG_BUSINESS,
+    normalizeText,
+    UpdateStatusDto,
+    withTransaction,
 } from "../../core";
 import { createTokenVerified } from "../../core/utils/helpers";
 import { AuditAction, AuditEntityType, buildAuditDiff, IAuditLogger, pickAuditSnapshot } from "../audit-log";
@@ -20,7 +20,6 @@ import { CustomerRepository } from "./customer.repository";
 import CreateCustomerDto from "./dto/create.dto";
 import { SearchPaginationItemDto } from "./dto/search.dto";
 import UpdateCustomerDto from "./dto/update.dto";
-import bcryptjs from "bcryptjs";
 
 export const AUDIT_FIELDS_ITEM = [
   BaseFieldName.EMAIL,

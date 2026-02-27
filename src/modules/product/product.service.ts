@@ -166,6 +166,7 @@ export class ProductService
 
   // ===== End CRUD =====
 
+  // Method external
   public async getById(id: string): Promise<IProduct | null> {
     return this.productRepo.findById(id);
   }

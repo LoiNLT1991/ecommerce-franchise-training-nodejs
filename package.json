@@ -12,7 +12,9 @@
     "lint": "eslint . --ext .ts",
     "lint-and-fix": "eslint . --ext .ts --fix",
     "gen:module": "plop",
-    "migrate": "ts-node -r dotenv/config -r tsconfig-paths/register src/migrations/migrate.ts"
+    "migrate": "ts-node -r dotenv/config -r tsconfig-paths/register src/migrations/migrate.ts",
+    "script:inventory": "ts-node -r dotenv/config -r tsconfig-paths/register src/migrations/scripts/seed-inventory.ts",
+    "script:product-franchise-size": "ts-node -r dotenv/config -r tsconfig-paths/register src/migrations/scripts/fix-product-franchise-size.ts"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",

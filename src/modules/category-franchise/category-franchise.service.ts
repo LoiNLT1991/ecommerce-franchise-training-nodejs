@@ -9,10 +9,10 @@ import { AuditAction, AuditEntityType, IAuditLogger, pickAuditSnapshot } from ".
 import { ICategoryQuery } from "../category";
 import { IFranchiseQuery } from "../franchise";
 import { ICategoryFranchise, ICategoryFranchiseQuery } from "./category-franchise.interface";
-import { mapItemToResponse } from "./category-franchise.mapper";
+import { mapItemToPublicResponse, mapItemToResponse } from "./category-franchise.mapper";
 import { CategoryFranchiseRepository } from "./category-franchise.repository";
 import CreateCategoryFranchiseDto from "./dto/create.dto";
-import { CategoryFranchiseItemDto } from "./dto/item.dto";
+import { CategoryFranchiseItemDto, PublicCategoryFranchiseItemDto } from "./dto/item.dto";
 import { SearchPaginationItemDto } from "./dto/search.dto";
 import UpdateCategoryFranchiseDto from "./dto/update.dto";
 import { UpdateDisplayOrderItemDto, UpdateDisplayOrderItemsDto } from "./dto/updateDisplayOrder.dto";
@@ -139,11 +139,7 @@ export class CategoryFranchiseService
     franchiseId: string,
     isActive: boolean | undefined,
   ): Promise<CategoryFranchiseItemDto[]> {
-    const items = (await this.categoryFranchiseRepo
-      .findByFranchise(franchiseId, isActive)
-      .populate("category_id", "name")
-      .populate("franchise_id", "name")) as unknown as ICategoryFranchise[];
-
+    const items = await this.getItemsByFranchiseId(franchiseId, isActive);
     return items.map(mapItemToResponse);
   }
 
@@ -270,5 +266,25 @@ export class CategoryFranchiseService
   // Support for ICategoryFranchiseQuery
   public async getById(id: string): Promise<ICategoryFranchise | null> {
     return this.repo.findById(id);
+  }
+
+  public async getByFranchiseIdAndCategoryId(
+    franchiseId: string,
+    categoryId: string,
+  ): Promise<ICategoryFranchise | null> {
+    return this.categoryFranchiseRepo.findByCategoryAndFranchise(categoryId, franchiseId);
+  }
+
+  public async getPublicCategoriesByFranchiseId(franchiseId: string): Promise<PublicCategoryFranchiseItemDto[]> {
+    const items = await this.getItemsByFranchiseId(franchiseId, true);
+    return items.map(mapItemToPublicResponse);
+  }
+
+  // Private helper
+  private async getItemsByFranchiseId(
+    franchiseId: string,
+    isActive: boolean | undefined,
+  ): Promise<ICategoryFranchise[]> {
+    return this.categoryFranchiseRepo.getCategoriesByFranchiseId(franchiseId, isActive);
   }
 }

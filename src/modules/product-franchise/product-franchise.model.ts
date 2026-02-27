@@ -16,7 +16,7 @@ const ProductFranchiseSchemaEntity = new Schema({
     required: true,
   },
   [BaseFieldName.PRICE_BASE]: { type: Number, required: true, min: 0 },
-  [BaseFieldName.SIZE]: { type: String, required: false, default: null },
+  [BaseFieldName.SIZE]: { type: String, required: false, default: "DEFAULT" },
 
   ...BaseModelFields,
 });
