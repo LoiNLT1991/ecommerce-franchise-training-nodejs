@@ -10,6 +10,7 @@ export const COLLECTION_NAME = {
   INVENTORY_LOG: "InventoryLog",
   CUSTOMER: "Customer",
   CUSTOMER_FRANCHISE: "CustomerFranchise",
+  CART: "Cart",
   ORDER: "Order",
   ORDER_ITEM: "OrderItem",
 

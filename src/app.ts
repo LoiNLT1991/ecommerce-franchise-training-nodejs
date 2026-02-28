@@ -22,13 +22,13 @@ export default class App {
     this.port = process.env.PORT || 3000;
     this.production = !!(process.env.NODE_ENV === "production");
 
-    this.connectToDatabase();
     this.initializeMiddleware();
     this.initializeSwagger();
     this.initializeRoute(routes);
     this.initializeErrorMiddleware();
   }
 
+  // start server
   public listen() {
     this.app.listen(this.port, () => {
       logger.info(`Server is running at port ${this.port}`);
@@ -36,15 +36,33 @@ export default class App {
   }
 
   // connect to mongoDB
-  private connectToDatabase() {
+  public async connectToDatabase() {
     const mongoDbUri = process.env.MONGODB_URI;
     if (!mongoDbUri) {
-      logger.error("MongoDb URI is empty!");
-      return;
+      throw new Error("MongoDb URI is empty!");
     }
-    mongoose.connect(mongoDbUri).catch((error) => {
-      logger.error("Connection to database error: " + error);
+
+    mongoose.set("strictQuery", true);
+    mongoose.set("bufferCommands", false);
+
+    // 🔥 Attach listeners BEFORE connect
+    mongoose.connection.on("connected", () => {
+      logger.info("MongoDB connected");
     });
+
+    mongoose.connection.on("error", (err) => {
+      logger.error("MongoDB error:", err);
+    });
+
+    mongoose.connection.on("disconnected", () => {
+      logger.warn("MongoDB disconnected");
+    });
+
+    await mongoose.connect(mongoDbUri, {
+      serverSelectionTimeoutMS: 5000,
+      autoIndex: false,
+    });
+
     logger.info("Connection to database success!");
   }
 
@@ -80,7 +98,7 @@ export default class App {
         swaggerOptions: {
           url: "/swagger/swagger.yaml",
         },
-      })
+      }),
     );
   }
 
@@ -92,7 +110,7 @@ export default class App {
   // declare init router
   private initializeRoute(routes: IRoute[]) {
     routes.forEach((route) => {
-      this.app.use('/', route.router);
+      this.app.use("/", route.router);
     });
   }
 }

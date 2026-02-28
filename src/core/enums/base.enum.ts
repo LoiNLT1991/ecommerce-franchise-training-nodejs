@@ -54,6 +54,7 @@ export enum BaseFieldName {
   DISPLAY_ORDER = "display_order",
   SCOPE = "scope", // GLOBAL/FRANCHISE
   ADDRESS = "address",
+  STATUS = "status",
 
   // Collection Id
   FRANCHISE_ID = "franchise_id",
@@ -67,6 +68,7 @@ export enum BaseFieldName {
   INVENTORY_ID = "inventory_id",
   CUSTOMER_ID = "customer_id",
   CUSTOMER_FRANCHISE_ID = "customer_franchise_id",
+  STAFF_ID = "staff_id",
 
   REFERENCE_TYPE = "reference_type",
   REFERENCE_ID = "reference_id",

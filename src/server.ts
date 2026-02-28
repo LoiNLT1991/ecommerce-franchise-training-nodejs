@@ -1,6 +1,6 @@
 import dotenv from "dotenv";
 import App from "./app";
-import { validateEnv } from "./core/utils";
+import { logger, validateEnv } from "./core/utils";
 import { AuditLogModule } from "./modules/audit-log";
 import { AuthModule } from "./modules/auth";
 import { CategoryModule } from "./modules/category";
@@ -74,5 +74,15 @@ const routes = [
   clientModule.getRoute(),
 ];
 
-const app = new App(routes);
-app.listen();
+async function bootstrap() {
+  try {
+    const app = new App(routes);
+    await app.connectToDatabase();
+    app.listen();
+  } catch (error) {
+    logger.error("Failed to start server:", error);
+    process.exit(1); // crash nếu DB fail
+  }
+}
+
+bootstrap();
