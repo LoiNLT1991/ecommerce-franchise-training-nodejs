@@ -125,4 +125,10 @@ export const API_PATH = {
   SHIFT_RESTORE: "/api/shifts/:id/restore",
   SHIFT_CHANGE_STATUS: "/api/shifts/:id/status",
   SHIFT_SELECT: "/api/shifts/select",
+
+  SHIFT_ASSIGNMENT: "/api/shift-assignments",
+  SHIFT_ASSIGNMENT_SEARCH: "/api/shift-assignments/search",
+  SHIFT_ASSIGNMENT_ID: "/api/shift-assignments/:id",
+  SHIFT_ASSIGNMENT_RESTORE: "/api/shift-assignments/:id/restore",
+  SHIFT_ASSIGNMENT_CHANGE_STATUS: "/api/shift-assignments/:id/status",
 };

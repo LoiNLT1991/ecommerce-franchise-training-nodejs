@@ -49,6 +49,8 @@ tags:
     description: Product Franchise related endpoints
   - name: Product
     description: Product related endpoints
+  - name: ShiftAssignment
+    description: Shift assignment related endpoints
   - name: Shift
     description: Shift related endpoints
 paths:
@@ -591,6 +593,128 @@ paths:
           description: Unauthorized
         '500':
           description: Internal server error
+  /api/shift-assignments/search:
+    post:
+      summary: Search shift assignments with pagination
+      tags:
+        - ShiftAssignment
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SearchPaginationItemDto'
+      responses:
+        '200':
+          description: Get shift assignments successfully
+  /api/shift-assignments:
+    post:
+      summary: Create new shift assignment
+      tags:
+        - ShiftAssignment
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateShiftAssignmentDto'
+      responses:
+        '200':
+          description: Created successfully
+  /api/shift-assignments/{id}:
+    get:
+      summary: Get shift assignment detail
+      tags:
+        - ShiftAssignment
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Get shift assignment successfully
+    put:
+      summary: Update shift assignment
+      tags:
+        - ShiftAssignment
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateShiftAssignmentDto'
+      responses:
+        '200':
+          description: Updated successfully
+    delete:
+      summary: Soft delete shift assignment
+      tags:
+        - ShiftAssignment
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Deleted successfully
+  /api/shift-assignments/{id}/restore:
+    patch:
+      summary: Restore shift assignment
+      tags:
+        - ShiftAssignment
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Restored successfully
+  /api/shift-assignments/{id}/change-status:
+    patch:
+      summary: Change shift assignment status
+      tags:
+        - ShiftAssignment
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateShiftAssignmentDto'
+      responses:
+        '200':
+          description: Changed successfully
   /api/shifts/search:
     post:
       summary: Search shifts with pagination
@@ -698,7 +822,7 @@ paths:
         - bearerAuth: []
       parameters:
         - in: path
-          name: franchise_id
+          name: id
           required: true
           schema:
             type: string

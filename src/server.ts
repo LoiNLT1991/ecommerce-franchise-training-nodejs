@@ -17,6 +17,7 @@ import { RoleModule } from "./modules/role";
 import { ShiftModule } from "./modules/shift";
 import { UserModule } from "./modules/user";
 import { UserFranchiseRoleModule } from "./modules/user-franchise-role";
+import { ShiftAssignmentModule } from "./modules/shift-assignment";
 
 dotenv.config();
 validateEnv();
@@ -47,6 +48,7 @@ const inventoryModule = new InventoryModule(productModule, productFranchiseModul
 const customerAuthModule = new CustomerAuthModule(customerModule);
 
 const shiftModule = new ShiftModule();
+const shiftAssignmentModule = new ShiftAssignmentModule();
 // ===== Register routes =====
 const routes = [
   indexModule.getRoute(),
@@ -65,6 +67,7 @@ const routes = [
   productCategoryFranchiseModule.getRoute(),
   inventoryModule.getRoute(),
   shiftModule.getRoute(),
+  shiftAssignmentModule.getRoute(),
 ];
 
 console.log(`DEBUG: Total routes: ${routes.length}, Shift path: ${shiftModule.getRoute().path}`);
