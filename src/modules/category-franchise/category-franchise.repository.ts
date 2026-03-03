@@ -154,7 +154,7 @@ export class CategoryFranchiseRepository extends BaseRepository<ICategoryFranchi
       // 5️⃣ Project DTO
       {
         $project: {
-          _id: 0,
+          _id: 1,
           category_id: "$category._id",
           category_name: "$category.name",
           category_code: "$category.code",

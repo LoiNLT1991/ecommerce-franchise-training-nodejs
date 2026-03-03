@@ -1,5 +1,5 @@
 import mongoose, { HydratedDocument, Schema } from "mongoose";
-import { BaseFieldName, BaseModelFields, COLLECTION_NAME } from "../../core";
+import { BaseFieldName, BASE_MODEL_FIELDS, COLLECTION_NAME } from "../../core";
 import { IInventory } from "./inventory.interface";
 
 const InventorySchemaEntity = new Schema({
@@ -13,7 +13,7 @@ const InventorySchemaEntity = new Schema({
   [BaseFieldName.RESERVED_QUANTITY]: { type: Number, default: 0, min: 0 },
   [BaseFieldName.ALERT_THRESHOLD]: { type: Number, default: 10, min: 0 },
 
-  ...BaseModelFields,
+  ...BASE_MODEL_FIELDS,
 });
 
 export type InventoryDocument = HydratedDocument<IInventory>;

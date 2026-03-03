@@ -68,6 +68,11 @@ export default class App {
 
   // declare middleware
   private initializeMiddleware() {
+    this.app.use((req, res, next) => {
+      logger.info(`FULL URL: ${req.originalUrl} - METHOD: ${req.method}`);
+      next();
+    });
+
     this.app.use(cookieParser());
 
     if (this.production) {

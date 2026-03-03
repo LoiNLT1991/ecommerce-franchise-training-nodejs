@@ -1,7 +1,5 @@
 import mongoose, { HydratedDocument, Schema } from "mongoose";
-import { BaseFieldName } from "../../core";
-import { COLLECTION_NAME } from "../../core/constants";
-import { BaseModelFields } from "../../core/models";
+import { BASE_MODEL_FIELDS, BaseFieldName, COLLECTION_NAME } from "../../core";
 import { IUser } from "./user.interface";
 
 const UserSchemaEntity = new Schema({
@@ -18,7 +16,7 @@ const UserSchemaEntity = new Schema({
 
   [BaseFieldName.LAST_RESET_PASSWORD_AT]: { type: Date, default: Date.now },
 
-  ...BaseModelFields,
+  ...BASE_MODEL_FIELDS,
 });
 
 export type UserDocument = HydratedDocument<IUser>;

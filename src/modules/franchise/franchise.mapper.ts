@@ -1,5 +1,5 @@
-import { mapBaseResponse } from "../../core/mappers";
-import { BaseItemSelectDto } from "../../core/models";
+
+import { mapBaseResponse } from "../../core";
 import { FranchiseItemDto } from "./dto/item.dto";
 import { IFranchise } from "./franchise.interface";
 
@@ -14,13 +14,5 @@ export const mapItemToResponse = (item: IFranchise): FranchiseItemDto => {
     address: item.address,
     opened_at: item.opened_at,
     closed_at: item.closed_at,
-  };
-};
-
-export const mapItemToSelect = (item: IFranchise): BaseItemSelectDto => {
-  return {
-    value: String(item._id),
-    code: item.code,
-    name: item.name,
   };
 };

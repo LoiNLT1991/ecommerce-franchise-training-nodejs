@@ -1,7 +1,6 @@
 import mongoose, { HydratedDocument, Schema } from "mongoose";
 import { ICustomerFranchise } from "./customer-franchise.interface";
-import { BaseFieldName, BaseModelFields, COLLECTION_NAME } from "../../core";
-import { BaseLoyaltyTier } from "../../core/enums/base.enum";
+import { BaseFieldName, BASE_MODEL_FIELDS, COLLECTION_NAME, BaseLoyaltyTier } from "../../core";
 
 const CustomerFranchiseSchemaEntity = new Schema({
   [BaseFieldName.CUSTOMER_ID]: {
@@ -22,7 +21,7 @@ const CustomerFranchiseSchemaEntity = new Schema({
   [BaseFieldName.FIRST_ORDER_DATE]: { type: Date, default: Date.now },
   [BaseFieldName.LAST_ORDER_DATE]: { type: Date, default: Date.now },
 
-  ...BaseModelFields,
+  ...BASE_MODEL_FIELDS,
 });
 
 CustomerFranchiseSchemaEntity.index(

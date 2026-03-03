@@ -1,7 +1,5 @@
 import mongoose, { HydratedDocument, Schema } from "mongoose";
-import { COLLECTION_NAME } from "../../core/constants";
-import { BaseFieldName } from "../../core/enums";
-import { BaseModelFields } from "../../core/models";
+import { BASE_MODEL_FIELDS, BaseFieldName, COLLECTION_NAME } from "../../core";
 import { ICategoryFranchise } from "./category-franchise.interface";
 
 const CategoryFranchiseSchemaEntity = new Schema({
@@ -15,9 +13,9 @@ const CategoryFranchiseSchemaEntity = new Schema({
     ref: COLLECTION_NAME.FRANCHISE,
     required: true,
   },
-  [BaseFieldName.DISPLAY_ORDER]: { type: Number, default: 1 },
+  [BaseFieldName.DISPLAY_ORDER]: { type: Number, default: 1, min: 1 },
 
-  ...BaseModelFields,
+  ...BASE_MODEL_FIELDS,
 });
 
 CategoryFranchiseSchemaEntity.index(

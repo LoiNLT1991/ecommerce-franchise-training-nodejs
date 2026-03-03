@@ -1,6 +1,5 @@
 import mongoose, { HydratedDocument, Schema } from "mongoose";
-import { COLLECTION_NAME } from "../../core/constants";
-import { BaseModelFields } from "../../core/models";
+import { BASE_MODEL_FIELDS, COLLECTION_NAME } from "../../core";
 import { AuditAction, AuditLogFieldName } from "./audit-log.enum";
 import { IAuditLog } from "./audit-log.interface";
 
@@ -13,7 +12,7 @@ const AuditLogSchemaEntity = new Schema({
   [AuditLogFieldName.CHANGED_BY]: { type: String, required: true },
   [AuditLogFieldName.NOTE]: { type: String },
 
-  ...BaseModelFields,
+  ...BASE_MODEL_FIELDS,
 });
 
 export type AuditLogDocument = HydratedDocument<IAuditLog>;

@@ -1,4 +1,4 @@
-import { IsMongoId, IsNotEmpty, IsNumber, IsOptional } from "class-validator";
+import { IsMongoId, IsNotEmpty, IsNumber, IsOptional, Min } from "class-validator";
 
 export default class UpdateCategoryFranchiseDto {
   @IsNotEmpty()
@@ -11,6 +11,7 @@ export default class UpdateCategoryFranchiseDto {
 
   @IsOptional()
   @IsNumber()
+  @Min(1)
   display_order?: number;
 
   constructor(franchise_id: string, category_id: string, display_order?: number) {

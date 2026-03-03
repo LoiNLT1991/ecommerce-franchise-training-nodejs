@@ -1,9 +1,7 @@
 import mongoose, { HydratedDocument, Schema } from "mongoose";
-import { BaseModelFields } from "../../core/models";
+import { BASE_MODEL_FIELDS, BaseFieldName, COLLECTION_NAME } from "../../core";
 import { CategoryFieldName } from "./category.enum";
 import { ICategory } from "./category.interface";
-import { COLLECTION_NAME } from "../../core/constants";
-import { BaseFieldName } from "../../core/enums";
 
 const CategorySchemaEntity = new Schema({
   [BaseFieldName.CODE]: { type: String, required: true, unique: true },
@@ -15,7 +13,7 @@ const CategorySchemaEntity = new Schema({
     required: false,
   },
 
-  ...BaseModelFields,
+  ...BASE_MODEL_FIELDS,
 });
 
 export type CategoryDocument = HydratedDocument<ICategory>;

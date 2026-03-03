@@ -1,7 +1,5 @@
 import mongoose, { HydratedDocument, Schema } from "mongoose";
-import { COLLECTION_NAME } from "../../core/constants";
-import { BaseFieldName, RoleScope } from "../../core/enums";
-import { BaseModelFields } from "../../core/models";
+import { BASE_MODEL_FIELDS, BaseFieldName, COLLECTION_NAME, RoleScope } from "../../core";
 import { IRole } from "./role.interface";
 
 const RoleSchemaEntity = new Schema({
@@ -10,7 +8,7 @@ const RoleSchemaEntity = new Schema({
   [BaseFieldName.DESCRIPTION]: { type: String },
   [BaseFieldName.SCOPE]: { type: String, enum: Object.values(RoleScope), required: true, default: RoleScope.FRANCHISE },
 
-  ...BaseModelFields,
+  ...BASE_MODEL_FIELDS,
 });
 
 export type RoleDocument = HydratedDocument<IRole>;

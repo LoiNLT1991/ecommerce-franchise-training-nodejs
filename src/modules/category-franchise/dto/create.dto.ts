@@ -1,4 +1,4 @@
-import { IsMongoId, IsNotEmpty, IsNumber, IsOptional } from "class-validator";
+import { IsMongoId, IsNotEmpty, IsNumber, IsOptional, Min } from "class-validator";
 
 export default class CreateCategoryFranchiseDto {
   @IsNotEmpty()
@@ -11,5 +11,6 @@ export default class CreateCategoryFranchiseDto {
 
   @IsOptional()
   @IsNumber()
+  @Min(1)
   display_order?: number;
 }

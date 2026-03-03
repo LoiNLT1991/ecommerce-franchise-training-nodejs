@@ -1,1 +1,1 @@
-export class UpdateCartDto {}
+export default class UpdateCartDto {}

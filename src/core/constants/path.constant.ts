@@ -95,7 +95,7 @@ export const API_PATH = {
   CATEGORY_FRANCHISE_SEARCH: "/api/category-franchises/search",
   CATEGORY_FRANCHISE_RESTORE: "/api/category-franchises/:id/restore", // restore category-franchise by id
   CATEGORY_FRANCHISE_CHANGE_STATUS: "/api/category-franchises/:id/status", // change status of category-franchise
-  CATEGORY_FRANCHISE_CHANGE_DISPLAY_ORDER: "/api/category-franchises/display-order", // change display order of category-franchise
+  CATEGORY_FRANCHISE_CHANGE_DISPLAY_ORDER: "/api/category-franchises/:id/display-order", // change display order of category-franchise
   CATEGORY_FRANCHISE_REORDER: "/api/category-franchises/reorder", // reorder categories of franchise
   GET_CATEGORIES_BY_FRANCHISE: "/api/category-franchises/franchise/:franchiseId", // get categories of franchise
 

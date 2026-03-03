@@ -1,9 +1,7 @@
 import mongoose, { HydratedDocument, Schema } from "mongoose";
-import { COLLECTION_NAME } from "../../core/constants";
-import { BaseFieldName } from "../../core/enums";
-import { BaseModelFields } from "../../core/models";
 import { FranchiseFieldName } from "./franchise.enum";
 import { IFranchise } from "./franchise.interface";
+import { BASE_MODEL_FIELDS, BaseFieldName, COLLECTION_NAME } from "../../core";
 
 const FranchiseSchemaEntity = new Schema({
   [BaseFieldName.CODE]: { type: String, unique: true, index: true },
@@ -14,7 +12,7 @@ const FranchiseSchemaEntity = new Schema({
   [FranchiseFieldName.OPENED_AT]: { type: String, required: true },
   [FranchiseFieldName.CLOSED_AT]: { type: String, required: true },
 
-  ...BaseModelFields,
+  ...BASE_MODEL_FIELDS,
 });
 
 export type FranchiseDocument = HydratedDocument<IFranchise>;

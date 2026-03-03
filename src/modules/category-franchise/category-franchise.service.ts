@@ -15,7 +15,7 @@ import CreateCategoryFranchiseDto from "./dto/create.dto";
 import { CategoryFranchiseItemDto, PublicCategoryFranchiseItemDto } from "./dto/item.dto";
 import { SearchPaginationItemDto } from "./dto/search.dto";
 import UpdateCategoryFranchiseDto from "./dto/update.dto";
-import { UpdateDisplayOrderItemDto, UpdateDisplayOrderItemsDto } from "./dto/updateDisplayOrder.dto";
+import { UpdateDisplayOrderItemDto } from "./dto/updateDisplayOrder.dto";
 
 const AUDIT_FIELDS_ITEM = [
   BaseFieldName.CATEGORY_ID,
@@ -172,8 +172,8 @@ export class CategoryFranchiseService
   /**
    * Update display order
    */
-  public async changeDisplayOrderItem(dto: UpdateDisplayOrderItemDto, loggedUserId: string): Promise<void> {
-    const { display_order, id } = dto;
+  public async changeDisplayOrderItem(id: string, dto: UpdateDisplayOrderItemDto, loggedUserId: string): Promise<void> {
+    const { display_order } = dto;
 
     const currentItem = await this.getActiveItemOrThrow(id);
 
@@ -191,66 +191,6 @@ export class CategoryFranchiseService
       action: AuditAction.DISPLAY_ORDER,
       oldData: { display_order: currentItem.display_order },
       newData: { display_order },
-      changedBy: loggedUserId,
-    });
-  }
-
-  /**
-   * Reorder menu categories (drag & drop)
-   */
-  public async reorderCategories(dto: UpdateDisplayOrderItemsDto, loggedUserId: string): Promise<void> {
-    const { franchise_id, items } = dto;
-
-    if (!items || items.length === 0) {
-      throw new HttpException(HttpStatus.BadRequest, MSG_BUSINESS.ITEMS_NOT_FOUND);
-    }
-
-    // 1. Validate no duplicate ids in the request
-    const uniqueIds = new Set(items.map((i) => i.id));
-    if (uniqueIds.size !== items.length) {
-      throw new HttpException(HttpStatus.BadRequest, MSG_BUSINESS.DUPLICATE_IDS_IN_REQUEST("CategoryFranchise"));
-    }
-
-    // 2. Get current items in the franchise
-    const currentItems = await this.categoryFranchiseRepo.findByFranchise(franchise_id, undefined);
-
-    const currentMap = new Map(currentItems.map((item) => [item._id.toString(), item]));
-
-    // 3. Validate all items belong to this franchise
-    for (const item of items) {
-      const current = currentMap.get(item.id);
-      if (!current) {
-        throw new HttpException(
-          HttpStatus.BadRequest,
-          `CategoryFranchise ${item.id} does not belong to this franchise`,
-        );
-      }
-    }
-
-    // 3. Check if there is any actual change
-    const hasChange = items.some((item) => {
-      const current = currentMap.get(item.id)!;
-      return current.display_order !== item.display_order;
-    });
-
-    if (!hasChange) {
-      throw new HttpException(HttpStatus.BadRequest, MSG_BUSINESS.NO_DATA_TO_UPDATE);
-    }
-
-    // 4. Bulk update (should be in transaction if Mongo session is used)
-    await this.categoryFranchiseRepo.bulkUpdateOrder(items);
-
-    // 5. Audit log (summary log – do not log each item)
-    await this.auditLogger.log({
-      entityType: AuditEntityType.CATEGORY_FRANCHISE,
-      entityId: franchise_id,
-      action: AuditAction.DISPLAY_ORDER,
-      note: "Reorder category menu",
-      oldData: currentItems.map((i) => ({
-        id: i._id,
-        display_order: i.display_order,
-      })),
-      newData: items,
       changedBy: loggedUserId,
     });
   }
