@@ -9,8 +9,14 @@ export const COLLECTION_NAME = {
   INVENTORY: "Inventory",
   INVENTORY_LOG: "InventoryLog",
   CUSTOMER: "Customer",
+  CUSTOMER_FRANCHISE: "CustomerFranchise",
+  CART: "Cart",
+  CART_ITEM: "CartItem",
+  CART_ITEM_OPTION: "CartItemOption",
   ORDER: "Order",
   ORDER_ITEM: "OrderItem",
+  VOUCHER: "Voucher",
+  PROMOTION: "Promotion",
 
   // Master Data
   CATEGORY_FRANCHISE: "CategoryFranchise",

@@ -1,17 +1,17 @@
 import { NextFunction, Request, Response } from "express";
+import { BaseCrudController } from "../../core";
+import { UpdateStatusDto } from "../../core/dto";
 import { HttpStatus } from "../../core/enums";
 import { AuthenticatedUserRequest } from "../../core/models";
 import { formatResponse } from "../../core/utils";
+import { ICategoryFranchise } from "./category-franchise.interface";
+import { mapItemToResponse } from "./category-franchise.mapper";
 import { CategoryFranchiseService } from "./category-franchise.service";
 import CreateCategoryFranchiseDto from "./dto/create.dto";
-import { UpdateDisplayOrderItemDto, UpdateDisplayOrderItemsDto } from "./dto/updateDisplayOrder.dto";
-import { UpdateStatusDto } from "../../core/dto";
-import { BaseCrudController } from "../../core";
-import { ICategoryFranchise } from "./category-franchise.interface";
-import UpdateCategoryFranchiseDto from "./dto/update.dto";
-import { SearchPaginationItemDto } from "./dto/search.dto";
 import { CategoryFranchiseItemDto } from "./dto/item.dto";
-import { mapItemToResponse } from "./category-franchise.mapper";
+import { SearchPaginationItemDto } from "./dto/search.dto";
+import UpdateCategoryFranchiseDto from "./dto/update.dto";
+import { UpdateDisplayOrderItemDto } from "./dto/updateDisplayOrder.dto";
 
 export class CategoryFranchiseController extends BaseCrudController<
   ICategoryFranchise,
@@ -21,7 +21,6 @@ export class CategoryFranchiseController extends BaseCrudController<
   CategoryFranchiseItemDto,
   CategoryFranchiseService
 > {
-
   constructor(service: CategoryFranchiseService) {
     super(service, mapItemToResponse);
   }
@@ -60,23 +59,10 @@ export class CategoryFranchiseController extends BaseCrudController<
    */
   public changeDisplayOrder = async (req: Request, res: Response, next: NextFunction) => {
     try {
+      const { id } = req.params;
       const payload: UpdateDisplayOrderItemDto = req.body;
       const userId = (req as AuthenticatedUserRequest).user.id;
-      await this.service.changeDisplayOrderItem(payload, userId);
-      res.status(HttpStatus.Success).json(formatResponse<null>(null));
-    } catch (error) {
-      next(error);
-    }
-  };
-
-  /**
-   * Reorder menu categories (drag & drop)
-   */
-  public reorder = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const payload: UpdateDisplayOrderItemsDto = req.body;
-      const userId = (req as AuthenticatedUserRequest).user.id;
-      await this.service.reorderCategories(payload, userId);
+      await this.service.changeDisplayOrderItem(id, payload, userId);
       res.status(HttpStatus.Success).json(formatResponse<null>(null));
     } catch (error) {
       next(error);

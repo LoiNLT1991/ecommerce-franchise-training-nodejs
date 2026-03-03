@@ -31,6 +31,18 @@ export enum BaseGroup {
   GROUP_04 = "group_04",
 }
 
+export enum BaseLoyaltyTier {
+  BRONZE = "BRONZE", // 0 - 299 points
+  SILVER = "SILVER", // 300 - 999 points
+  GOLD = "GOLD", // 1000 - 1999 points
+  PLATINUM = "PLATINUM", // 2000+ points
+}
+
+export enum CartStatus {
+  ACTIVE = "ACTIVE",
+  CHECKED_OUT = "CHECKED_OUT",
+}
+
 export enum BaseFieldName {
   ID = "_id",
   IS_ACTIVE = "is_active",
@@ -47,6 +59,7 @@ export enum BaseFieldName {
   DISPLAY_ORDER = "display_order",
   SCOPE = "scope", // GLOBAL/FRANCHISE
   ADDRESS = "address",
+  STATUS = "status",
 
   // Collection Id
   FRANCHISE_ID = "franchise_id",
@@ -60,6 +73,14 @@ export enum BaseFieldName {
   INVENTORY_ID = "inventory_id",
   SHIFT_ID = "shift_id",
   SHIFT_ASSIGNMENT_ID = "shift_assignment_id",
+  CUSTOMER_ID = "customer_id",
+  CUSTOMER_FRANCHISE_ID = "customer_franchise_id",
+  STAFF_ID = "staff_id",
+  VOUCHER_ID = "voucher_id",
+  CART_ID = "cart_id",
+  CART_ITEM_ID = "cart_item_id",
+  CART_ITEM_OPTION_ID = "cart_item_option_id",
+
   REFERENCE_TYPE = "reference_type",
   REFERENCE_ID = "reference_id",
 
@@ -83,9 +104,32 @@ export enum BaseFieldName {
   TOKEN_VERSION = "token_version",
   WORK_DATE = "work_date",
   ASSIGNED_BY = "assigned_by",
-  STATUS = "status",
 
   LAST_RESET_PASSWORD_AT = "last_reset_password_at",
+
+  // For Customer
+  STAFF_NAME = "staff_name",
+  FRANCHISE_NAME = "franchise_name",
+  CUSTOMER_NAME = "customer_name",
+  CUSTOMER_EMAIL = "customer_email",
+  CUSTOMER_PHONE = "customer_phone",
+  LOYALTY_POINTS = "loyalty_points", // default 0
+  LOYALTY_TIER = "loyalty_tier", // BRONZE, SILVER, GOLD, PLATINUM
+  FIRST_ORDER_DATE = "first_order_date",
+  LAST_ORDER_DATE = "last_order_date",
+  TOTAL_EARNED_POINTS = "total_earned_points",
+  PROMOTION_DISCOUNT = "promotion_discount",
+  VOUCHER_DISCOUNT = "voucher_discount",
+  LOYALTY_DISCOUNT = "loyalty_discount",
+  FINAL_AMOUNT = "final_amount",
+  SUBTOTAL_AMOUNT = "subtotal_amount",
+  LOYALTY_POINTS_USED = "loyalty_points_used",
+  VOUCHER_CODE = "voucher_code",
+  PRODUCT_CART_PRICE = "product_cart_price",
+  DISCOUNT_AMOUNT = "discount_amount",
+  LINE_TOTAL = "line_total",
+  FINAL_LINE_TOTAL = "final_line_total",
+  OPTIONS_HASH = "options_hash",
 }
 
 export enum ShiftAssignmentStatus {

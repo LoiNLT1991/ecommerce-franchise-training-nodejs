@@ -27,4 +27,5 @@ export interface IFranchiseValidation {
 export interface IFranchiseQuery {
   getByIds(ids: string[]): Promise<IFranchiseQueryResult[]>;
   getById(id: string): Promise<IFranchise | null>;
+  getPublicFranchises(): Promise<IFranchiseQueryResult[]>;
 }

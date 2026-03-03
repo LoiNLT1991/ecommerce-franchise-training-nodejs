@@ -9,13 +9,13 @@ import { AuditAction, AuditEntityType, IAuditLogger, pickAuditSnapshot } from ".
 import { ICategoryQuery } from "../category";
 import { IFranchiseQuery } from "../franchise";
 import { ICategoryFranchise, ICategoryFranchiseQuery } from "./category-franchise.interface";
-import { mapItemToResponse } from "./category-franchise.mapper";
+import { mapItemToPublicResponse, mapItemToResponse } from "./category-franchise.mapper";
 import { CategoryFranchiseRepository } from "./category-franchise.repository";
 import CreateCategoryFranchiseDto from "./dto/create.dto";
-import { CategoryFranchiseItemDto } from "./dto/item.dto";
+import { CategoryFranchiseItemDto, PublicCategoryFranchiseItemDto } from "./dto/item.dto";
 import { SearchPaginationItemDto } from "./dto/search.dto";
 import UpdateCategoryFranchiseDto from "./dto/update.dto";
-import { UpdateDisplayOrderItemDto, UpdateDisplayOrderItemsDto } from "./dto/updateDisplayOrder.dto";
+import { UpdateDisplayOrderItemDto } from "./dto/updateDisplayOrder.dto";
 
 const AUDIT_FIELDS_ITEM = [
   BaseFieldName.CATEGORY_ID,
@@ -139,11 +139,7 @@ export class CategoryFranchiseService
     franchiseId: string,
     isActive: boolean | undefined,
   ): Promise<CategoryFranchiseItemDto[]> {
-    const items = (await this.categoryFranchiseRepo
-      .findByFranchise(franchiseId, isActive)
-      .populate("category_id", "name")
-      .populate("franchise_id", "name")) as unknown as ICategoryFranchise[];
-
+    const items = await this.getItemsByFranchiseId(franchiseId, isActive);
     return items.map(mapItemToResponse);
   }
 
@@ -176,8 +172,8 @@ export class CategoryFranchiseService
   /**
    * Update display order
    */
-  public async changeDisplayOrderItem(dto: UpdateDisplayOrderItemDto, loggedUserId: string): Promise<void> {
-    const { display_order, id } = dto;
+  public async changeDisplayOrderItem(id: string, dto: UpdateDisplayOrderItemDto, loggedUserId: string): Promise<void> {
+    const { display_order } = dto;
 
     const currentItem = await this.getActiveItemOrThrow(id);
 
@@ -199,66 +195,6 @@ export class CategoryFranchiseService
     });
   }
 
-  /**
-   * Reorder menu categories (drag & drop)
-   */
-  public async reorderCategories(dto: UpdateDisplayOrderItemsDto, loggedUserId: string): Promise<void> {
-    const { franchise_id, items } = dto;
-
-    if (!items || items.length === 0) {
-      throw new HttpException(HttpStatus.BadRequest, MSG_BUSINESS.ITEMS_NOT_FOUND);
-    }
-
-    // 1. Validate no duplicate ids in the request
-    const uniqueIds = new Set(items.map((i) => i.id));
-    if (uniqueIds.size !== items.length) {
-      throw new HttpException(HttpStatus.BadRequest, MSG_BUSINESS.DUPLICATE_IDS_IN_REQUEST("CategoryFranchise"));
-    }
-
-    // 2. Get current items in the franchise
-    const currentItems = await this.categoryFranchiseRepo.findByFranchise(franchise_id, undefined);
-
-    const currentMap = new Map(currentItems.map((item) => [item._id.toString(), item]));
-
-    // 3. Validate all items belong to this franchise
-    for (const item of items) {
-      const current = currentMap.get(item.id);
-      if (!current) {
-        throw new HttpException(
-          HttpStatus.BadRequest,
-          `CategoryFranchise ${item.id} does not belong to this franchise`,
-        );
-      }
-    }
-
-    // 3. Check if there is any actual change
-    const hasChange = items.some((item) => {
-      const current = currentMap.get(item.id)!;
-      return current.display_order !== item.display_order;
-    });
-
-    if (!hasChange) {
-      throw new HttpException(HttpStatus.BadRequest, MSG_BUSINESS.NO_DATA_TO_UPDATE);
-    }
-
-    // 4. Bulk update (should be in transaction if Mongo session is used)
-    await this.categoryFranchiseRepo.bulkUpdateOrder(items);
-
-    // 5. Audit log (summary log – do not log each item)
-    await this.auditLogger.log({
-      entityType: AuditEntityType.CATEGORY_FRANCHISE,
-      entityId: franchise_id,
-      action: AuditAction.DISPLAY_ORDER,
-      note: "Reorder category menu",
-      oldData: currentItems.map((i) => ({
-        id: i._id,
-        display_order: i.display_order,
-      })),
-      newData: items,
-      changedBy: loggedUserId,
-    });
-  }
-
   private async getActiveItemOrThrow(id: string) {
     const item = await this.repo.findById(id);
     if (!item || item.is_deleted) {
@@ -270,5 +206,25 @@ export class CategoryFranchiseService
   // Support for ICategoryFranchiseQuery
   public async getById(id: string): Promise<ICategoryFranchise | null> {
     return this.repo.findById(id);
+  }
+
+  public async getByFranchiseIdAndCategoryId(
+    franchiseId: string,
+    categoryId: string,
+  ): Promise<ICategoryFranchise | null> {
+    return this.categoryFranchiseRepo.findByCategoryAndFranchise(categoryId, franchiseId);
+  }
+
+  public async getPublicCategoriesByFranchiseId(franchiseId: string): Promise<PublicCategoryFranchiseItemDto[]> {
+    const items = await this.getItemsByFranchiseId(franchiseId, true);
+    return items.map(mapItemToPublicResponse);
+  }
+
+  // Private helper
+  private async getItemsByFranchiseId(
+    franchiseId: string,
+    isActive: boolean | undefined,
+  ): Promise<ICategoryFranchise[]> {
+    return this.categoryFranchiseRepo.getCategoriesByFranchiseId(franchiseId, isActive);
   }
 }

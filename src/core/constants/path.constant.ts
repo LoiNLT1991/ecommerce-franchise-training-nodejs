@@ -69,6 +69,13 @@ export const API_PATH = {
   CUSTOMER_RESTORE: "/api/customers/:id/restore",
   CUSTOMER_REGISTER: "/api/customers/register",
 
+  // customer franchises
+  CUSTOMER_FRANCHISE: "/api/customer-franchises",
+  CUSTOMER_FRANCHISE_ID: "/api/customer-franchises/:id",
+  CUSTOMER_FRANCHISE_SEARCH: "/api/customer-franchises/search",
+  CUSTOMER_FRANCHISE_RESTORE: "/api/customer-franchises/:id/restore",
+  CUSTOMER_FRANCHISE_CHANGE_STATUS: "/api/customer-franchises/:id/status",
+
   // categories
   CATEGORY: "/api/categories",
   CATEGORY_SEARCH: "/api/categories/search",
@@ -88,7 +95,7 @@ export const API_PATH = {
   CATEGORY_FRANCHISE_SEARCH: "/api/category-franchises/search",
   CATEGORY_FRANCHISE_RESTORE: "/api/category-franchises/:id/restore", // restore category-franchise by id
   CATEGORY_FRANCHISE_CHANGE_STATUS: "/api/category-franchises/:id/status", // change status of category-franchise
-  CATEGORY_FRANCHISE_CHANGE_DISPLAY_ORDER: "/api/category-franchises/display-order", // change display order of category-franchise
+  CATEGORY_FRANCHISE_CHANGE_DISPLAY_ORDER: "/api/category-franchises/:id/display-order", // change display order of category-franchise
   CATEGORY_FRANCHISE_REORDER: "/api/category-franchises/reorder", // reorder categories of franchise
   GET_CATEGORIES_BY_FRANCHISE: "/api/category-franchises/franchise/:franchiseId", // get categories of franchise
 
@@ -131,4 +138,11 @@ export const API_PATH = {
   SHIFT_ASSIGNMENT_ID: "/api/shift-assignments/:id",
   SHIFT_ASSIGNMENT_RESTORE: "/api/shift-assignments/:id/restore",
   SHIFT_ASSIGNMENT_CHANGE_STATUS: "/api/shift-assignments/:id/status",
+  // client
+  CLIENT: "/api/clients",
+  CLIENT_FRANCHISES: "/api/clients/franchises",
+  CLIENT_CATEGORIES: "/api/clients/franchises/:franchiseId/categories",
+  CLIENT_MENU: "/api/clients/menu",
+  CLIENT_PRODUCTS: "/api/clients/products",
+  CLIENT_PRODUCT_DETAIL: "/api/clients/products/:productFranchiseId",
 };

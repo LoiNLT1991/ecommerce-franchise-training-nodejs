@@ -1,5 +1,5 @@
 import mongoose, { HydratedDocument, Schema } from "mongoose";
-import { BaseFieldName, BaseModelFields, COLLECTION_NAME } from "../../core";
+import { BaseFieldName, BASE_MODEL_FIELDS, COLLECTION_NAME } from "../../core";
 import { IProductCategoryFranchise } from "./product-category-franchise.interface";
 
 const ProductCategoryFranchiseSchemaEntity = new Schema({
@@ -15,7 +15,7 @@ const ProductCategoryFranchiseSchemaEntity = new Schema({
   },
   [BaseFieldName.DISPLAY_ORDER]: { type: Number, default: 1 },
 
-  ...BaseModelFields,
+  ...BASE_MODEL_FIELDS,
 });
 
 ProductCategoryFranchiseSchemaEntity.index(

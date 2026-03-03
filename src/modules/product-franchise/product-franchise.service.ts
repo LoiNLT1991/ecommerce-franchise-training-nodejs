@@ -9,6 +9,7 @@ import { AuditAction, AuditEntityType, buildAuditDiff, IAuditLogger, pickAuditSn
 import { IFranchiseQuery } from "../franchise";
 import { IProductQuery } from "../product";
 import { CreateProductFranchiseDto } from "./dto/create.dto";
+import { PublicProductDetailDto, PublicProductItemDto } from "./dto/item.dto";
 import { SearchPaginationItemDto } from "./dto/search.dto";
 import { UpdateProductFranchiseDto } from "./dto/update.dto";
 import { IProductFranchise, IProductFranchiseQuery } from "./product-franchise.interface";
@@ -253,6 +254,18 @@ export class ProductFranchiseService
   // Support for IProductFranchiseQuery
   public async getById(id: string): Promise<IProductFranchise | null> {
     return this.repo.findById(id);
+  }
+
+  public async getMenuByFranchise(franchiseId: string, categoryId?: string): Promise<PublicProductItemDto[]> {
+    return this.productFranchiseRepo.getMenuByFranchise(franchiseId, categoryId);
+  }
+
+  public async getPublicProducts(franchiseId: string, categoryId?: string): Promise<PublicProductItemDto[]> {
+    return this.productFranchiseRepo.getPublicProducts(franchiseId, categoryId);
+  }
+
+  public async getPublicProductDetail(productFranchiseId: string): Promise<PublicProductDetailDto | null> {
+    return this.productFranchiseRepo.getPublicProductDetail(productFranchiseId);
   }
 
   // ==== Validation helpers =====

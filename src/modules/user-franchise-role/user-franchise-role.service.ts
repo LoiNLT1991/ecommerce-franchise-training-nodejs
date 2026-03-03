@@ -214,7 +214,7 @@ export default class UserFranchiseRoleService
 
   // Get all franchise roles of a user by userId
   public async getAllRolesByUserId(userId: string): Promise<IUserFranchiseRole[]> {
-    return this.userFranchiseRoleRepo.find({ user_id: userId, is_deleted: false });
+    return this.userFranchiseRoleRepo.getAllRolesByUserId(userId);
   }
 
   // Interface method (not API)

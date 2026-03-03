@@ -1,8 +1,6 @@
 import mongoose, { HydratedDocument, Schema } from "mongoose";
-import { COLLECTION_NAME } from "../../core/constants";
-import { BaseFieldName } from "../../core/enums";
-import { BaseModelFields } from "../../core/models";
 import { IProductFranchise } from "./product-franchise.interface";
+import { BASE_MODEL_FIELDS, BaseFieldName, COLLECTION_NAME } from "../../core";
 
 const ProductFranchiseSchemaEntity = new Schema({
   [BaseFieldName.PRODUCT_ID]: {
@@ -16,9 +14,9 @@ const ProductFranchiseSchemaEntity = new Schema({
     required: true,
   },
   [BaseFieldName.PRICE_BASE]: { type: Number, required: true, min: 0 },
-  [BaseFieldName.SIZE]: { type: String, required: false, default: null },
+  [BaseFieldName.SIZE]: { type: String, required: false, default: "DEFAULT" },
 
-  ...BaseModelFields,
+  ...BASE_MODEL_FIELDS,
 });
 
 ProductFranchiseSchemaEntity.index(

@@ -37,8 +37,12 @@ tags:
     description: Franchise menu category endpoints
   - name: Category
     description: Category related endpoints
+  - name: Client
+    description: Client related endpoints
   - name: Customer Auth
     description: Customer authentication related endpoints
+  - name: CustomerFranchise
+    description: CustomerFranchise related endpoints
   - name: Customer
     description: Customer related endpoints
   - name: Inventory

@@ -1,12 +1,14 @@
 import dotenv from "dotenv";
 import App from "./app";
-import { validateEnv } from "./core/utils";
+import { logger, validateEnv } from "./core/utils";
 import { AuditLogModule } from "./modules/audit-log";
 import { AuthModule } from "./modules/auth";
 import { CategoryModule } from "./modules/category";
 import { CategoryFranchiseModule } from "./modules/category-franchise";
+import { ClientModule } from "./modules/client";
 import { CustomerModule } from "./modules/customer";
 import { CustomerAuthModule } from "./modules/customer-auth";
+import { CustomerFranchiseModule } from "./modules/customer-franchise";
 import { FranchiseModule } from "./modules/franchise";
 import { IndexModule } from "./modules/index";
 import { InventoryModule } from "./modules/inventory";
@@ -46,6 +48,10 @@ const productCategoryFranchiseModule = new ProductCategoryFranchiseModule(
 );
 const inventoryModule = new InventoryModule(productModule, productFranchiseModule);
 const customerAuthModule = new CustomerAuthModule(customerModule);
+const customerFranchiseModule = new CustomerFranchiseModule(franchiseModule, customerModule);
+
+// Public module (export to client)
+const clientModule = new ClientModule(franchiseModule, categoryFranchiseModule, productFranchiseModule);
 
 const shiftModule = new ShiftModule();
 const shiftAssignmentModule = new ShiftAssignmentModule();
@@ -60,6 +66,7 @@ const routes = [
   userFranchiseRoleModule.getRoute(),
   customerModule.getRoute(),
   customerAuthModule.getRoute(),
+  customerFranchiseModule.getRoute(),
   categoryModule.getRoute(),
   productModule.getRoute(),
   categoryFranchiseModule.getRoute(),
@@ -74,3 +81,20 @@ console.log(`DEBUG: Total routes: ${routes.length}, Shift path: ${shiftModule.ge
 
 const app = new App(routes);
 app.listen();
+
+  // Public route
+  clientModule.getRoute(),
+];
+
+async function bootstrap() {
+  try {
+    const app = new App(routes);
+    await app.connectToDatabase();
+    app.listen();
+  } catch (error) {
+    logger.error("Failed to start server:", error);
+    process.exit(1); // crash nếu DB fail
+  }
+}
+
+bootstrap();

@@ -1,5 +1,5 @@
 import { Types } from "mongoose";
-import { BaseItemSelectDto } from "../models";
+import { BaseItemSelectDto } from "../dto";
 
 export interface MongoBaseEntity {
   _id: Types.ObjectId;

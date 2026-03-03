@@ -1,7 +1,5 @@
 import mongoose, { HydratedDocument, Schema } from "mongoose";
-import { COLLECTION_NAME } from "../../core/constants";
-import { BaseFieldName } from "../../core/enums";
-import { BaseModelFields } from "../../core/models";
+import { BASE_MODEL_FIELDS, BaseFieldName, COLLECTION_NAME } from "../../core";
 import { IUserFranchiseRole } from "./user-franchise-role.interface";
 
 const UserFranchiseRoleSchemaEntity = new Schema(
@@ -32,7 +30,7 @@ const UserFranchiseRoleSchemaEntity = new Schema(
       required: false,
     },
 
-    ...BaseModelFields,
+    ...BASE_MODEL_FIELDS,
   },
   { timestamps: true },
 );

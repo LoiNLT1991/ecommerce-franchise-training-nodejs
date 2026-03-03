@@ -8,12 +8,6 @@ export const SEED = {
   SEED_007_PRODUCT: "007-seed-product",
   SEED_008_PRODUCT_FRANCHISE: "008-seed-product-franchise",
   SEED_009_PRODUCT_CATEGORY_FRANCHISE: "009-seed-product-category-franchise",
-  
-
-
-
-  SEED_010_INVENTORY: "010-seed-inventory",
-  SEED_011_CUSTOMER: "011-seed-customer",
 };
 
 export const FRANCHISE_CODE = {

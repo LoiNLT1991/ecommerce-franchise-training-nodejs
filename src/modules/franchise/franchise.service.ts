@@ -202,7 +202,6 @@ export default class FranchiseService
   }
 
   public async getByIds(ids: string[]): Promise<IFranchiseQueryResult[]> {
-
     const items = await this.repo.find({
       _id: { $in: ids },
       is_deleted: false,
@@ -221,6 +220,18 @@ export default class FranchiseService
 
   public async updateShiftsByFranchiseId(id: string, data: UpdateShiftDto[], loggedUserId: string): Promise<void> {
     await this.franchiseRepo.updateShiftsByFranchiseId(id, data, loggedUserId);
+  }
+  public async getPublicFranchises(): Promise<IFranchiseQueryResult[]> {
+    const items = await this.repo.find({
+      is_deleted: false,
+      is_active: true,
+    });
+
+    return items.map((r) => ({
+      id: r._id.toString(),
+      code: r.code,
+      name: r.name,
+    }));
   }
 
   private validateBusinessRules(data: FranchiseTimeContext, errors: IError[]) {

@@ -360,7 +360,7 @@ export default class AuthService {
   }
 
   private async verifyToken<T>(entity: T | null, expireField: keyof T) {
-    if (!entity) throw new Error("Token not valid");
+    if (!entity) throw new Error("Token not valid or user is verified!");
 
     if (!entity[expireField]) throw new Error("Missing expiration");
 

@@ -1,7 +1,5 @@
 import mongoose, { HydratedDocument, Schema } from "mongoose";
-import { COLLECTION_NAME } from "../../core/constants";
-import { BaseFieldName } from "../../core/enums";
-import { BaseModelFields } from "../../core/models";
+import { BASE_MODEL_FIELDS, BaseFieldName, COLLECTION_NAME } from "../../core";
 import { ProductFieldName } from "./product.enum";
 import { IProduct } from "./product.interface";
 
@@ -14,8 +12,9 @@ const ProductSchemaEntity = new Schema({
   [ProductFieldName.IMAGES_URL]: { type: [String], default: [] },
   [ProductFieldName.MIN_PRICE]: { type: Number, min: 0, default: 0 },
   [ProductFieldName.MAX_PRICE]: { type: Number, min: 0, default: 0 },
+  [ProductFieldName.IS_HAVE_TOPPING]: { type: Boolean, default: false },
 
-  ...BaseModelFields,
+  ...BASE_MODEL_FIELDS,
 });
 
 export type ProductDocument = HydratedDocument<IProduct>;

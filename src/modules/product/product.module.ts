@@ -14,10 +14,11 @@ export class ProductModule extends BaseModule<ProductRoute> {
 
     // Internal dependencies
     const auditLogModule = new AuditLogModule();
+    const auditLogger = auditLogModule.getAuditLogger();
     const repo = new ProductRepository();
 
     // Core service and HTTP layer
-    const service = new ProductService(repo, auditLogModule.getAuditLogger());
+    const service = new ProductService(repo, auditLogger);
     const controller = new ProductController(service);
     this.route = new ProductRoute(controller);
 
