@@ -14,6 +14,82 @@ export class ProductFranchiseRepository extends BaseRepository<IProductFranchise
     super(ProductFranchiseSchema);
   }
 
+  // Get products by franchise
+  public async getItemsByFranchiseId(
+    franchiseId: string,
+    productId?: string,
+    isActive: boolean = true,
+  ): Promise<IProductFranchise[]> {
+    if (!Types.ObjectId.isValid(franchiseId)) {
+      return [];
+    }
+
+    const franchiseObjectId = new Types.ObjectId(franchiseId);
+    const productObjectId = productId && Types.ObjectId.isValid(productId) ? new Types.ObjectId(productId) : undefined;
+
+    const pipeline: PipelineStage[] = [
+      // 1️⃣ Match product_franchise
+      {
+        $match: {
+          franchise_id: franchiseObjectId,
+          is_deleted: false,
+          ...(isActive !== undefined ? { is_active: isActive } : {}),
+          ...(productObjectId ? { product_id: productObjectId } : {}),
+        },
+      },
+
+      // 2️⃣ Join product
+      {
+        $lookup: {
+          from: "products",
+          localField: "product_id",
+          foreignField: "_id",
+          as: "product",
+        },
+      },
+      { $unwind: "$product" },
+
+      // 3️⃣ Join franchise
+      {
+        $lookup: {
+          from: "franchises",
+          localField: "franchise_id",
+          foreignField: "_id",
+          as: "franchise",
+        },
+      },
+      { $unwind: "$franchise" },
+
+      // 4️⃣ Filter active product + franchise
+      {
+        $match: {
+          "product.is_deleted": false,
+          "product.is_active": true,
+          "franchise.is_deleted": false,
+          "franchise.is_active": true,
+        },
+      },
+
+      // 5️⃣ Project DTO
+      {
+        $project: {
+          product_id: "$product._id",
+          product_name: "$product.name",
+          product_sku: "$product.SKU",
+
+          size: "$size",
+          price_base: "$price_base",
+
+          franchise_id: "$franchise._id",
+          franchise_name: "$franchise.name",
+          franchise_code: "$franchise.code",
+        },
+      },
+    ];
+
+    return this.model.aggregate(pipeline);
+  }
+
   // check if a product is already assigned to a franchise
   public async findByProductFranchiseAndSize(
     productId: string,

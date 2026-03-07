@@ -88,6 +88,7 @@ export const API_PATH = {
   PRODUCT_SEARCH: "/api/products/search",
   PRODUCT_ID: "/api/products/:id",
   PRODUCT_RESTORE: "/api/products/:id/restore",
+  PRODUCT_SELECT: "/api/products/select",
 
   // category franchises
   CATEGORY_FRANCHISE: "/api/category-franchises", // assign categories to franchise
@@ -105,6 +106,7 @@ export const API_PATH = {
   PRODUCT_FRANCHISE_SEARCH: "/api/product-franchises/search",
   PRODUCT_FRANCHISE_RESTORE: "/api/product-franchises/:id/restore",
   PRODUCT_FRANCHISE_CHANGE_STATUS: "/api/product-franchises/:id/status",
+  GET_PRODUCTS_BY_FRANCHISE: "/api/product-franchises/franchise/:franchiseId",
 
   // product category franchises
   PRODUCT_CATEGORY_FRANCHISE: "/api/product-category-franchises",
