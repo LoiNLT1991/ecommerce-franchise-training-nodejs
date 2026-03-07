@@ -30,7 +30,10 @@ export default class ClientRoute implements IRoute {
     // GET domain:/api/clients/products?franchiseId=&categoryId= - Get products by franchise and category for client
     this.router.get(API_PATH.CLIENT_PRODUCTS, this.controller.getProducts);
 
-    // GET domain:/api/clients/products/:productFranchiseId - Get product detail for client
+    // GET domain:/api/clients/franchises/:franchiseId/products/:productId - Get product detail for client
     this.router.get(API_PATH.CLIENT_PRODUCT_DETAIL, this.controller.getProductDetail);
+
+    // GET domain:/api/clients/franchises/:franchiseId - Get franchise detail for client
+    this.router.get(API_PATH.CLIENT_FRANCHISE_DETAIL, this.controller.getFranchiseDetail);
   }
 }

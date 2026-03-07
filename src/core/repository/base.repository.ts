@@ -37,6 +37,17 @@ export class BaseRepository<T extends Document> {
     return doc ? this.toObject(doc) : null;
   }
 
+  public async findByIdForUpdate(id: string) {
+    const objectId = new Types.ObjectId(id);
+    return this.model.findOne({ _id: objectId, is_deleted: false });
+  }
+
+  public async findItemActive(id: string): Promise<T | null> {
+    const objectId = new Types.ObjectId(id);
+    const doc = await this.model.findOne({ _id: objectId, is_deleted: false, is_active: true });
+    return doc ? this.toObject(doc) : null;
+  }
+
   public async findAll(filter: Partial<T> = {}): Promise<T[]> {
     const docs = await this.model.find({ ...filter, is_deleted: false });
     return docs.map((doc) => this.toObject(doc));

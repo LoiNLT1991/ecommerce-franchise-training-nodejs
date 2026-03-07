@@ -1,10 +1,10 @@
 import { CookieOptions, NextFunction, Request, Response } from "express";
 import { AuthenticatedCustomerRequest, AuthenticatedUserRequest, formatResponse, HttpException, HttpStatus } from "../../core";
 import { AUTH_CONFIG, TOKEN } from "../auth/auth.config";
+import { mapItemToResponse } from "./customer-auth.mapper";
 import { CustomerAuthService } from "./customer-auth.service";
 import ChangePasswordDto from "./dto/changePassword.dto";
 import LoginDto from "./dto/login.dto";
-import { mapItemToResponse } from "../customer";
 
 export default class CustomerAuthController {
   constructor(private readonly service: CustomerAuthService) {}
