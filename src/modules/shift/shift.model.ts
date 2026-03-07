@@ -14,6 +14,19 @@ const ShiftSchemaEntity = new Schema({
     ...BASE_MODEL_FIELDS,
 })
 
+
+ShiftSchemaEntity.index(
+  {
+    [BaseFieldName.FRANCHISE_ID]: 1,
+    [ShiftFieldName.START_TIME]: 1,
+    [ShiftFieldName.END_TIME]: 1,
+  },
+  {
+    unique: true,
+    partialFilterExpression: { is_deleted: false },
+  },
+);
+
 export type ShiftDocument = HydratedDocument<IShift>;
 const ShiftSchema = mongoose.model<ShiftDocument>(COLLECTION_NAME.SHIFT, ShiftSchemaEntity);
 export default ShiftSchema;

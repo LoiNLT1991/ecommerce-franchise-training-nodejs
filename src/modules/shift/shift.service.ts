@@ -259,6 +259,14 @@ export class ShiftService
       throw new HttpException(HttpStatus.NotFound, MSG_BUSINESS.ITEM_NOT_FOUND);
     }
 
+    const isExist = await this.shiftAssign.getShiftAssignementByShiftId(id);
+    if (isExist) {
+      throw new HttpException(
+        HttpStatus.BAD_REQUEST,
+        MSG_BUSINESS.SHIFT_IS_ASSIGNED_TO_SOME_USERS,
+      );
+    }
+
     // 2. Check change status
     if (currentItem.is_active === is_active) {
       throw new HttpException(
