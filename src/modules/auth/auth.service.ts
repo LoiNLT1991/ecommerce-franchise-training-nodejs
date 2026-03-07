@@ -152,7 +152,7 @@ export default class AuthService {
     };
   }
 
-  public async switchContext(franchiseId: string | null, userId: string) {
+  public async switchContext(franchise_id: string | null, userId: string) {
     const user = await this.userQuery.getUserById(userId);
 
     if (!user) {
@@ -163,10 +163,10 @@ export default class AuthService {
     const contexts = await this.userContext.getUserContexts(userId);
 
     let activeContext;
-    if (franchiseId === null) {
+    if (franchise_id === null) {
       activeContext = contexts.find((c) => c.scope === RoleScope.GLOBAL);
     } else {
-      activeContext = contexts.find((c) => c.scope === RoleScope.FRANCHISE && c.franchise_id === franchiseId);
+      activeContext = contexts.find((c) => c.scope === RoleScope.FRANCHISE && c.franchise_id === franchise_id);
     }
     if (!activeContext) {
       throw new HttpException(HttpStatus.Forbidden, "You do not have permission for this context");
@@ -344,7 +344,7 @@ export default class AuthService {
       context: {
         role: context.role,
         scope: context.scope,
-        franchiseId: context.franchise_id ?? null,
+        franchise_id: context.franchise_id ?? null,
       },
     };
 

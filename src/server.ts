@@ -20,6 +20,8 @@ import { ShiftModule } from "./modules/shift";
 import { UserModule } from "./modules/user";
 import { UserFranchiseRoleModule } from "./modules/user-franchise-role";
 import { ShiftAssignmentModule } from "./modules/shift-assignment";
+import { CartItemModule } from "./modules/cart-item";
+import { CartModule } from "./modules/cart";
 
 dotenv.config();
 validateEnv();
@@ -67,11 +69,9 @@ const customerFranchiseModule = new CustomerFranchiseModule(
 );
 
 // Public module (export to client)
-const clientModule = new ClientModule(
-  franchiseModule,
-  categoryFranchiseModule,
-  productFranchiseModule,
-);
+const clientModule = new ClientModule(franchiseModule, categoryFranchiseModule, productFranchiseModule);
+const cartItemModule = new CartItemModule();
+const cartModule = new CartModule(customerModule, franchiseModule, productFranchiseModule, cartItemModule);
 
 const shiftModule = new ShiftModule();
 const shiftAssignmentModule = new ShiftAssignmentModule(
@@ -100,6 +100,11 @@ const routes = [
   inventoryModule.getRoute(),
   shiftModule.getRoute(),
   shiftAssignmentModule.getRoute(),
+
+  // Public route
+  clientModule.getRoute(),
+  cartItemModule.getRoute(),
+  cartModule.getRoute(),
 ];
 
 console.log(

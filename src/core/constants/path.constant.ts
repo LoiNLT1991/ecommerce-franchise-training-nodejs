@@ -88,6 +88,7 @@ export const API_PATH = {
   PRODUCT_SEARCH: "/api/products/search",
   PRODUCT_ID: "/api/products/:id",
   PRODUCT_RESTORE: "/api/products/:id/restore",
+  PRODUCT_SELECT: "/api/products/select",
 
   // category franchises
   CATEGORY_FRANCHISE: "/api/category-franchises", // assign categories to franchise
@@ -105,6 +106,7 @@ export const API_PATH = {
   PRODUCT_FRANCHISE_SEARCH: "/api/product-franchises/search",
   PRODUCT_FRANCHISE_RESTORE: "/api/product-franchises/:id/restore",
   PRODUCT_FRANCHISE_CHANGE_STATUS: "/api/product-franchises/:id/status",
+  GET_PRODUCTS_BY_FRANCHISE: "/api/product-franchises/franchise/:franchiseId",
 
   // product category franchises
   PRODUCT_CATEGORY_FRANCHISE: "/api/product-category-franchises",
@@ -148,5 +150,18 @@ export const API_PATH = {
   CLIENT_CATEGORIES: "/api/clients/franchises/:franchiseId/categories",
   CLIENT_MENU: "/api/clients/menu",
   CLIENT_PRODUCTS: "/api/clients/products",
-  CLIENT_PRODUCT_DETAIL: "/api/clients/products/:productFranchiseId",
+  CLIENT_PRODUCT_DETAIL: "/api/clients/franchises/:franchiseId/products/:productId",
+  CLIENT_FRANCHISE_DETAIL: "/api/clients/franchises/:franchiseId",
+
+  // cart, cartItem
+  CART: "/api/carts",
+  CART_ID: "/api/carts/:id",
+  CART_ITEM: "/api/carts/items",
+  CART_ITEM_ID: "/api/carts/items/:cartItemId",
+  UPDATE_OPTION_ITEM: "/api/carts/items/update-option",
+  REMOVE_OPTION_ITEM: "/api/carts/items/remove-option",
+  ADD_CART_ITEM: "/api/carts/items",
+  CART_VOUCHER: "/api/carts/voucher",
+  APPLY_VOUCHER: "/api/carts/apply-voucher",
+  REMOVE_VOUCHER: "/api/carts/remove-voucher/:cartItemId",
 };

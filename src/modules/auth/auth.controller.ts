@@ -95,8 +95,8 @@ export default class AuthController {
   public switchContext = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const payload: SwitchContextDto = req.body;
-      const franchiseId: string | null = payload.franchise_id === undefined ? null : payload.franchise_id;
-      const tokens = await this.authService.switchContext(franchiseId, (req as AuthenticatedUserRequest).user.id);
+      const franchise_id: string | null = payload.franchise_id === undefined ? null : payload.franchise_id;
+      const tokens = await this.authService.switchContext(franchise_id, (req as AuthenticatedUserRequest).user.id);
       const { accessToken, refreshToken } = tokens;
 
       // 3️⃣ Set lại cookies

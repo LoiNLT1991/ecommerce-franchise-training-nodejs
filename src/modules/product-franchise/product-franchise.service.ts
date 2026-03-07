@@ -1,3 +1,4 @@
+import { Types } from "mongoose";
 import { MSG_BUSINESS } from "../../core/constants";
 import { UpdateStatusDto } from "../../core/dto";
 import { BaseFieldName, HttpStatus } from "../../core/enums";
@@ -9,10 +10,11 @@ import { AuditAction, AuditEntityType, buildAuditDiff, IAuditLogger, pickAuditSn
 import { IFranchiseQuery } from "../franchise";
 import { IProductQuery } from "../product";
 import { CreateProductFranchiseDto } from "./dto/create.dto";
-import { PublicProductDetailDto, PublicProductItemDto } from "./dto/item.dto";
+import { PublicProductDetailDto, PublicProductFranchiseItemDto, PublicProductItemDto } from "./dto/item.dto";
 import { SearchPaginationItemDto } from "./dto/search.dto";
 import { UpdateProductFranchiseDto } from "./dto/update.dto";
 import { IProductFranchise, IProductFranchiseQuery } from "./product-franchise.interface";
+import { mapItemToResponse } from "./product-franchise.mapper";
 import { ProductFranchiseRepository } from "./product-franchise.repository";
 
 const AUDIT_FIELDS_ITEM = [
@@ -256,6 +258,10 @@ export class ProductFranchiseService
     return this.repo.findById(id);
   }
 
+  public async getItemActive(id: string): Promise<IProductFranchise | null> {
+    return this.repo.findItemActive(id);
+  }
+
   public async getMenuByFranchise(franchiseId: string, categoryId?: string): Promise<PublicProductItemDto[]> {
     return this.productFranchiseRepo.getMenuByFranchise(franchiseId, categoryId);
   }
@@ -264,8 +270,24 @@ export class ProductFranchiseService
     return this.productFranchiseRepo.getPublicProducts(franchiseId, categoryId);
   }
 
-  public async getPublicProductDetail(productFranchiseId: string): Promise<PublicProductDetailDto | null> {
-    return this.productFranchiseRepo.getPublicProductDetail(productFranchiseId);
+  public async getPublicProductDetail(franchiseId: string, productId: string): Promise<PublicProductDetailDto | null> {
+    return this.productFranchiseRepo.getPublicProductDetail(franchiseId, productId);
+  }
+
+  public async getItemsActiveByIds(ids: string[]): Promise<IProductFranchise[]> {
+    return this.productFranchiseRepo.findItemsActiveByIds(ids);
+  }
+
+  /**
+   * Get products by franchise
+   */
+  public async getItemsByFranchise(
+    franchiseId: string,
+    productId?: string | undefined,
+    isActive?: boolean | undefined,
+  ): Promise<PublicProductFranchiseItemDto[]> {
+    const items = await this.getItemsByFranchiseId(franchiseId, productId, isActive);
+    return items.map(mapItemToResponse);
   }
 
   // ==== Validation helpers =====
@@ -284,5 +306,12 @@ export class ProductFranchiseService
 
   private normalizeSize(size: string): string {
     return size.trim().toUpperCase();
+  }
+  private async getItemsByFranchiseId(
+    franchiseId: string,
+    productId?: string,
+    isActive?: boolean | undefined,
+  ): Promise<IProductFranchise[]> {
+    return this.productFranchiseRepo.getItemsByFranchiseId(franchiseId, productId, isActive);
   }
 }

@@ -1,29 +1,7 @@
 import { Type } from "class-transformer";
-import { IsMongoId, IsNotEmpty, IsNumber, IsOptional, Min, ValidateNested } from "class-validator";
+import { IsMongoId, IsNotEmpty, IsNumber, IsOptional, IsString, Max, Min, ValidateNested } from "class-validator";
 
-export class CreateCartDto {
-  @IsNotEmpty()
-  @IsMongoId()
-  public franchise_id!: string;
-
-  @IsNotEmpty()
-  @IsMongoId()
-  public customer_id!: string;
-
-  @IsOptional()
-  @IsMongoId()
-  public staff_id?: string;
-
-  // --- For Cart Item ---
-  @IsNotEmpty()
-  @IsMongoId()
-  public product_franchise_id!: string;
-
-  @IsNotEmpty()
-  @IsNumber()
-  @Min(1)
-  public quantity!: number;
-}
+export class CreateCartDto {}
 
 export class AddToCartDto {
   @IsNotEmpty()
@@ -35,15 +13,32 @@ export class AddToCartDto {
   product_franchise_id!: string;
 
   @IsNotEmpty()
+  @Type(() => Number)
   @IsNumber()
   @Min(1)
   quantity!: number;
+
+  @IsOptional()
+  @IsString()
+  address!: string;
+
+  @IsOptional()
+  @IsString()
+  phone!: string;
 
   // optional options
   @IsOptional()
   @ValidateNested({ each: true })
   @Type(() => AddCartItemOptionDto)
   options?: AddCartItemOptionDto[];
+
+  @IsOptional()
+  @IsMongoId()
+  customer_id!: string;
+
+  @IsOptional()
+  @IsMongoId()
+  staff_id!: string;
 }
 
 export class AddCartItemOptionDto {
@@ -52,7 +47,9 @@ export class AddCartItemOptionDto {
   product_franchise_id!: string; // topping id
 
   @IsNotEmpty()
+  @Type(() => Number)
   @IsNumber()
   @Min(1)
+  @Max(10)
   quantity!: number;
 }
