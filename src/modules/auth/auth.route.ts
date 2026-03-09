@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { API_PATH } from "../../core/constants";
 import { IRoute } from "../../core/interfaces";
-import { authMiddleware, requireContext, validationMiddleware } from "../../core/middleware";
+import { adminAuthMiddleware, requireContext, validationMiddleware } from "../../core/middleware";
 import AuthController from "./auth.controller";
 import { LoginDto, RegisterDto } from "./dto/authCredential.dto";
 import ChangePasswordDto from "./dto/changePassword.dto";
@@ -39,12 +39,12 @@ export default class AuthRoute implements IRoute {
     this.router.post(API_PATH.AUTH_LOGIN_SWAGGER, validationMiddleware(LoginDto), this.authController.loginForSwagger);
 
     // GET domain:/api/auth -> Login User Info
-    this.router.get(this.path, authMiddleware(), this.authController.getLoginUserInfo);
+    this.router.get(this.path, adminAuthMiddleware(), this.authController.getLoginUserInfo);
 
     // POST domain:/api/auth/switch-context -> Switch Context
     this.router.post(
       API_PATH.AUTH_SWITCH_CONTEXT,
-      authMiddleware(),
+      adminAuthMiddleware(),
       validationMiddleware(SwitchContextDto),
       this.authController.switchContext,
     );
@@ -53,7 +53,7 @@ export default class AuthRoute implements IRoute {
     this.router.get(API_PATH.AUTH_REFRESH_TOKEN, this.authController.refreshToken);
 
     // POST domain:/api/auth/logout -> Logout
-    this.router.post(API_PATH.AUTH_LOGOUT, authMiddleware(), this.authController.logout);
+    this.router.post(API_PATH.AUTH_LOGOUT, adminAuthMiddleware(), this.authController.logout);
 
     // PUT domain:/api/auth/forgot-password -> Forgot password
     this.router.put(API_PATH.AUTH_FORGOT_PASSWORD, this.authController.forgotPassword);
@@ -61,7 +61,7 @@ export default class AuthRoute implements IRoute {
     // PUT domain:/api/auth/change-password -> Forgot password
     this.router.put(
       API_PATH.AUTH_CHANGE_PASSWORD,
-      authMiddleware(),
+      adminAuthMiddleware(),
       validationMiddleware(ChangePasswordDto),
       this.authController.changePassword,
     );

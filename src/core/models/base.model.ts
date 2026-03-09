@@ -10,7 +10,7 @@ export const BaseModelNoActive = {
   created_at: { type: Date, default: Date.now },
   updated_at: { type: Date, default: Date.now },
   is_deleted: { type: Boolean, default: false },
-}
+};
 
 export interface AuthenticatedUserRequest extends Request {
   user: {
@@ -48,4 +48,11 @@ export interface IUserContext {
   role: string; // role.code
   scope: RoleScope; // GLOBAL | FRANCHISE
   franchise_id: string | null; // null if GLOBAL
+}
+
+export interface AuthPayload {
+  id: string;
+  context: IUserContext | null;
+  version: number;
+  type: UserType;
 }

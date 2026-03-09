@@ -6,7 +6,7 @@ import {
 import { IRoute } from "../../core/interfaces";
 import { VoucherController } from "./voucher.controller";
 import {
-  authMiddleware,
+  adminAuthMiddleware,
   requireMoreContext,
   validationMiddleware,
 } from "../../core/middleware";
@@ -26,7 +26,7 @@ export default class VoucherRoute implements IRoute {
     // POST /api/vouchers - Create voucher
     this.router.post(
       this.path,
-      authMiddleware(),
+      adminAuthMiddleware(),
       requireMoreContext(SYSTEM_AND_FRANCHISE_MANAGER_ROLES),
       validationMiddleware(CreateVoucherDto),
       this.controller.createItem,
@@ -35,7 +35,7 @@ export default class VoucherRoute implements IRoute {
     // POST /api/vouchers/search - Search vouchers
     this.router.post(
       API_PATH.VOUCHER_SEARCH,
-      authMiddleware(),
+      adminAuthMiddleware(),
       requireMoreContext(SYSTEM_AND_FRANCHISE_MANAGER_ROLES),
       validationMiddleware(SearchPaginationItemDto, true, {
         enableImplicitConversion: false,
@@ -46,7 +46,7 @@ export default class VoucherRoute implements IRoute {
     // GET /api/vouchers/:id - Get by id
     this.router.get(
       API_PATH.VOUCHER_ID,
-      authMiddleware(),
+      adminAuthMiddleware(),
       requireMoreContext(SYSTEM_AND_FRANCHISE_MANAGER_ROLES),
       this.controller.getItem,
     );
@@ -54,7 +54,7 @@ export default class VoucherRoute implements IRoute {
     // GET /api/vouchers/franchise/:franchiseId - Get by franchise id
     this.router.get(
       `${this.path}/franchise/:franchiseId`,
-      authMiddleware(),
+      adminAuthMiddleware(),
       requireMoreContext(SYSTEM_AND_FRANCHISE_MANAGER_ROLES),
       this.controller.getAllVoucherByFranchiseId,
     );
@@ -62,7 +62,7 @@ export default class VoucherRoute implements IRoute {
     // GET /api/vouchers/product-franchise/:productFranchiseId - Get by product franchise id
     this.router.get(
       `${this.path}/product-franchise/:productFranchiseId`,
-      authMiddleware(),
+      adminAuthMiddleware(),
       requireMoreContext(SYSTEM_AND_FRANCHISE_MANAGER_ROLES),
       this.controller.getAllVoucherByProductFranchiseId,
     );
@@ -70,7 +70,7 @@ export default class VoucherRoute implements IRoute {
     // PUT /api/vouchers/:id - Update
     this.router.put(
       API_PATH.VOUCHER_ID,
-      authMiddleware(),
+      adminAuthMiddleware(),
       requireMoreContext(SYSTEM_AND_FRANCHISE_MANAGER_ROLES),
       validationMiddleware(UpdateVoucherDto),
       this.controller.updateItem,
@@ -79,7 +79,7 @@ export default class VoucherRoute implements IRoute {
     // DELETE /api/vouchers/:id - Soft delete
     this.router.delete(
       API_PATH.VOUCHER_ID,
-      authMiddleware(),
+      adminAuthMiddleware(),
       requireMoreContext(SYSTEM_AND_FRANCHISE_MANAGER_ROLES),
       this.controller.softDeleteItem,
     );
@@ -87,7 +87,7 @@ export default class VoucherRoute implements IRoute {
     // PATCH /api/vouchers/:id/restore - Restore
     this.router.patch(
       API_PATH.VOUCHER_RESTORE,
-      authMiddleware(),
+      adminAuthMiddleware(),
       requireMoreContext(SYSTEM_AND_FRANCHISE_MANAGER_ROLES),
       this.controller.restoreItem,
     );
@@ -95,7 +95,7 @@ export default class VoucherRoute implements IRoute {
     // PATCH /api/vouchers/:id/status - Change status
     this.router.patch(
       `${this.path}/:id/status`,
-      authMiddleware(),
+      adminAuthMiddleware(),
       requireMoreContext(SYSTEM_AND_FRANCHISE_MANAGER_ROLES),
       this.controller.changeStatus,
     );

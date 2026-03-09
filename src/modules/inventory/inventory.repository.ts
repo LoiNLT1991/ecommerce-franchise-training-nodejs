@@ -182,15 +182,26 @@ export class InventoryRepository extends BaseRepository<IInventory> {
   }
 
   // Adjust stock (increase or decrease) for inventory management
-  public async adjustStock(productFranchiseId: string, change: number, session?: ClientSession): Promise<boolean> {
+  public async adjustStock(
+    productFranchiseId: string,
+    change: number,
+    alertThreshold?: number,
+    session?: ClientSession,
+  ): Promise<boolean> {
+    const update: any = {
+      $inc: { quantity: change },
+    };
+
+    if (alertThreshold !== undefined) {
+      update.$set = { alert_threshold: alertThreshold };
+    }
+
     const result = await this.model.updateOne(
       {
         product_franchise_id: productFranchiseId,
         ...(change < 0 && { quantity: { $gte: Math.abs(change) } }),
       },
-      {
-        $inc: { quantity: change },
-      },
+      update,
       { session },
     );
 

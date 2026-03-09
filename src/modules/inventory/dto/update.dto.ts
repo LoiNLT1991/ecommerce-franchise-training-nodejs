@@ -1,5 +1,5 @@
 import { Type } from "class-transformer";
-import { IsMongoId, IsNotEmpty, IsNumber, IsOptional, IsString, Min } from "class-validator";
+import { IsArray, IsMongoId, IsNotEmpty, IsNumber, IsOptional, IsString, Min, ValidateNested } from "class-validator";
 
 export class UpdateInventoryQuantityDto {
   @IsNotEmpty()
@@ -10,9 +10,22 @@ export class UpdateInventoryQuantityDto {
   @IsNumber()
   change!: number; // + hoặc -
 
+  @Type(() => Number)
+  @IsNumber()
+  @Min(0)
+  alert_threshold!: number;
+
   @IsOptional()
   @IsString()
   reason?: string; // optional, nhưng nên có để log lại lý do điều chỉnh
+}
+
+export class BulkAdjustInventoryDto {
+  @IsNotEmpty()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => UpdateInventoryQuantityDto)
+  items!: UpdateInventoryQuantityDto[];
 }
 
 export class UpdateInventoryThresholdDto {

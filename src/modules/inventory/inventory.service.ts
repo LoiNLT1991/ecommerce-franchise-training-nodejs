@@ -1,23 +1,23 @@
-import { ClientSession } from "mongoose";
+import mongoose, { ClientSession } from "mongoose";
 import {
-  BaseCrudService,
-  BaseFieldName,
-  checkEmptyObject,
-  HttpException,
-  HttpStatus,
-  MSG_BUSINESS,
-  toObjectId,
+    BaseCrudService,
+    BaseFieldName,
+    checkEmptyObject,
+    HttpException,
+    HttpStatus,
+    MSG_BUSINESS,
+    toObjectId,
 } from "../../core";
 import { AuditAction, AuditEntityType, IAuditLogger, pickAuditSnapshot } from "../audit-log";
 import { IProductQuery } from "../product";
+import { IProductFranchiseQuery } from "../product-franchise";
 import { CreateInventoryDto } from "./dto/create.dto";
 import { SearchPaginationItemDto } from "./dto/search.dto";
+import { BulkAdjustInventoryDto, UpdateInventoryQuantityDto } from "./dto/update.dto";
 import { InventoryLogRepository } from "./inventory-log.repository";
 import { InventoryReferenceType, InventoryType } from "./inventory.enum";
 import { IInventory, IInventoryQuery } from "./inventory.interface";
 import { InventoryRepository } from "./inventory.repository";
-import { IProductFranchiseQuery } from "../product-franchise";
-import { UpdateInventoryQuantityDto } from "./dto/update.dto";
 
 const AUDIT_FIELDS_ITEM = [
   BaseFieldName.PRODUCT_FRANCHISE_ID,
@@ -52,13 +52,13 @@ export class InventoryService
 
   // ================= ADJUST =================
   public async adjustStock(payload: UpdateInventoryQuantityDto, loggedUserId: string, session?: ClientSession) {
-    const { product_franchise_id, change, reason } = payload;
+    const { product_franchise_id, change, reason, alert_threshold } = payload;
     const inventory = await this.inventoryRepository.findByProductFranchiseId(product_franchise_id);
     if (!inventory) {
       throw new HttpException(HttpStatus.BadRequest, MSG_BUSINESS.ITEM_NOT_FOUND_WITH_NAME("Inventory"));
     }
 
-    const success = await this.inventoryRepository.adjustStock(product_franchise_id, change, session);
+    const success = await this.inventoryRepository.adjustStock(product_franchise_id, change, alert_threshold, session);
     if (!success) {
       throw new HttpException(HttpStatus.BadRequest, "Invalid stock adjustment");
     }
@@ -75,6 +75,21 @@ export class InventoryService
       },
       session,
     );
+  }
+
+  public async adjustStockBulk(payload: BulkAdjustInventoryDto, loggedUserId: string) {
+    const { items } = payload;
+    const session = await mongoose.startSession();
+
+    try {
+      await session.withTransaction(async () => {
+        for (const item of items) {
+          await this.adjustStock(item, loggedUserId, session);
+        }
+      });
+    } finally {
+      session.endSession();
+    }
   }
 
   // ================= RESERVE =================

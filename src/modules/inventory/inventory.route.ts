@@ -1,16 +1,17 @@
 import { Router } from "express";
 import {
   API_PATH,
-  authMiddleware,
+  adminAuthMiddleware,
   IRoute,
   requireMoreContext,
   SYSTEM_AND_FRANCHISE_ALL_ROLES,
   SYSTEM_AND_FRANCHISE_MANAGER_ROLES,
   validationMiddleware,
+  validationBulkMiddleware,
 } from "../../core";
 import { CreateInventoryDto } from "./dto/create.dto";
 import { SearchPaginationItemDto } from "./dto/search.dto";
-import { UpdateInventoryQuantityDto } from "./dto/update.dto";
+import { BulkAdjustInventoryDto, UpdateInventoryQuantityDto } from "./dto/update.dto";
 import InventoryController from "./inventory.controller";
 
 export default class InventoryRoute implements IRoute {
@@ -34,16 +35,24 @@ export default class InventoryRoute implements IRoute {
     // POST /api/inventories/adjust
     this.router.post(
       API_PATH.INVENTORY_ADJUST,
-      authMiddleware(),
+      adminAuthMiddleware(),
       requireMoreContext(SYSTEM_AND_FRANCHISE_MANAGER_ROLES),
       validationMiddleware(UpdateInventoryQuantityDto),
       this.controller.adjustStock,
     );
 
+    this.router.post(
+      API_PATH.INVENTORY_ADJUST_BULK,
+      adminAuthMiddleware(),
+      requireMoreContext(SYSTEM_AND_FRANCHISE_MANAGER_ROLES),
+      validationBulkMiddleware(UpdateInventoryQuantityDto),
+      this.controller.adjustBulk,
+    );
+
     // GET /api/inventories/low-stock/franchise/:franchiseId
     this.router.get(
       API_PATH.INVENTORY_LOW_STOCK_BY_FRANCHISE,
-      authMiddleware(),
+      adminAuthMiddleware(),
       requireMoreContext(SYSTEM_AND_FRANCHISE_MANAGER_ROLES),
       this.controller.getLowStock,
     );
@@ -53,7 +62,7 @@ export default class InventoryRoute implements IRoute {
     // GET /api/inventories/logs/:inventoryId
     this.router.get(
       API_PATH.INVENTORY_LOGS,
-      authMiddleware(),
+      adminAuthMiddleware(),
       requireMoreContext(SYSTEM_AND_FRANCHISE_MANAGER_ROLES),
       this.controller.getLogsByInventory,
     );
@@ -61,7 +70,7 @@ export default class InventoryRoute implements IRoute {
     // GET /api/inventories/logs/reference?referenceType=ORDER&referenceId=xxx
     this.router.get(
       API_PATH.INVENTORY_LOGS_BY_REFERENCE,
-      authMiddleware(),
+      adminAuthMiddleware(),
       requireMoreContext(SYSTEM_AND_FRANCHISE_MANAGER_ROLES),
       this.controller.getLogsByReference,
     );
@@ -71,7 +80,7 @@ export default class InventoryRoute implements IRoute {
     // POST /api/inventories - Create inventory
     this.router.post(
       this.path,
-      authMiddleware(),
+      adminAuthMiddleware(),
       requireMoreContext(SYSTEM_AND_FRANCHISE_MANAGER_ROLES),
       validationMiddleware(CreateInventoryDto),
       this.controller.createItem,
@@ -80,7 +89,7 @@ export default class InventoryRoute implements IRoute {
     // POST /api/inventories/search - Search inventory
     this.router.post(
       API_PATH.INVENTORY_SEARCH,
-      authMiddleware(),
+      adminAuthMiddleware(),
       requireMoreContext(SYSTEM_AND_FRANCHISE_ALL_ROLES),
       validationMiddleware(SearchPaginationItemDto, true),
       this.controller.getItems,
@@ -89,7 +98,7 @@ export default class InventoryRoute implements IRoute {
     // GET /api/inventories/:id - Get detail
     this.router.get(
       API_PATH.INVENTORY_ID,
-      authMiddleware(),
+      adminAuthMiddleware(),
       requireMoreContext(SYSTEM_AND_FRANCHISE_ALL_ROLES),
       this.controller.getItem,
     );
@@ -97,7 +106,7 @@ export default class InventoryRoute implements IRoute {
     // DELETE /api/inventories/:id - Soft delete (optional)
     this.router.delete(
       API_PATH.INVENTORY_ID,
-      authMiddleware(),
+      adminAuthMiddleware(),
       requireMoreContext(SYSTEM_AND_FRANCHISE_MANAGER_ROLES),
       this.controller.softDeleteItem,
     );
@@ -105,7 +114,7 @@ export default class InventoryRoute implements IRoute {
     // PATCH /api/inventories/:id/restore
     this.router.patch(
       API_PATH.INVENTORY_RESTORE,
-      authMiddleware(),
+      adminAuthMiddleware(),
       requireMoreContext(SYSTEM_AND_FRANCHISE_MANAGER_ROLES),
       this.controller.restoreItem,
     );

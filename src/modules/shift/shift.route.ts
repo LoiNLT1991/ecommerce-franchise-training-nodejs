@@ -1,7 +1,7 @@
 import { Router } from "express";
 import {
   API_PATH,
-  authMiddleware,
+  adminAuthMiddleware,
   IRoute,
   SYSTEM_AND_FRANCHISE_ALL_ROLES,
   validationMiddleware,
@@ -68,7 +68,7 @@ export default class ShiftRoute implements IRoute {
      */
     this.router.post(
       API_PATH.SHIFT_SEARCH,
-      authMiddleware(),
+      adminAuthMiddleware(),
       requireMoreContext(SYSTEM_AND_FRANCHISE_ALL_ROLES),
       validationMiddleware(SearchPaginationItemDto, true, {
         enableImplicitConversion: false,
@@ -106,7 +106,7 @@ export default class ShiftRoute implements IRoute {
      */
     this.router.post(
       API_PATH.SHIFT,
-      authMiddleware(),
+      adminAuthMiddleware(),
       requireMoreContext(SYSTEM_AND_FRANCHISE_MANAGER_ROLES),
       validationMiddleware(CreateShiftDto),
       this.controller.createItem,
@@ -133,7 +133,7 @@ export default class ShiftRoute implements IRoute {
      */
     this.router.get(
       API_PATH.SHIFT_SELECT,
-      authMiddleware(),
+      adminAuthMiddleware(),
       requireMoreContext(SYSTEM_AND_FRANCHISE_ALL_ROLES),
       this.controller.getAllShifts,
     );
@@ -158,7 +158,7 @@ export default class ShiftRoute implements IRoute {
      */
     this.router.get(
       API_PATH.SHIFT_ID,
-      authMiddleware(),
+      adminAuthMiddleware(),
       requireMoreContext(SYSTEM_AND_FRANCHISE_ALL_ROLES),
       this.controller.getAllShiftsByFranchiseId,
     );
@@ -196,7 +196,7 @@ export default class ShiftRoute implements IRoute {
      */
     this.router.put(
       API_PATH.SHIFT_ID,
-      authMiddleware(),
+      adminAuthMiddleware(),
       requireMoreContext(SYSTEM_AND_FRANCHISE_MANAGER_ROLES),
       validationMiddleware(UpdateShiftDto),
       this.controller.updateItem,
@@ -222,7 +222,7 @@ export default class ShiftRoute implements IRoute {
      */
     this.router.delete(
       API_PATH.SHIFT_ID,
-      authMiddleware(),
+      adminAuthMiddleware(),
       requireMoreContext(SYSTEM_AND_FRANCHISE_MANAGER_ROLES),
       this.controller.softDeleteItem,
     );
@@ -247,7 +247,7 @@ export default class ShiftRoute implements IRoute {
      */
     this.router.patch(
       API_PATH.SHIFT_RESTORE,
-      authMiddleware(),
+      adminAuthMiddleware(),
       requireMoreContext(SYSTEM_AND_FRANCHISE_MANAGER_ROLES),
       this.controller.restoreItem,
     );
@@ -282,7 +282,7 @@ export default class ShiftRoute implements IRoute {
      */
     this.router.patch(
       API_PATH.SHIFT_CHANGE_STATUS,
-      authMiddleware(),
+      adminAuthMiddleware(),
       requireMoreContext(SYSTEM_AND_FRANCHISE_MANAGER_ROLES),
       validationMiddleware(UpdateStatusDto),
       this.controller.changeStatus,

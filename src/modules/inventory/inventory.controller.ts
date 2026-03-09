@@ -2,7 +2,7 @@ import { AuthenticatedUserRequest, BaseCrudController, formatResponse, HttpStatu
 import { CreateInventoryDto } from "./dto/create.dto";
 import { InventoryItemDto } from "./dto/item.dto";
 import { SearchPaginationItemDto } from "./dto/search.dto";
-import { UpdateInventoryQuantityDto } from "./dto/update.dto";
+import { BulkAdjustInventoryDto, UpdateInventoryQuantityDto } from "./dto/update.dto";
 import { InventoryReferenceType } from "./inventory.enum";
 import { IInventory } from "./inventory.interface";
 import { mapItemToResponse } from "./inventory.mapper";
@@ -26,6 +26,16 @@ export default class InventoryController extends BaseCrudController<
     try {
       const payload: UpdateInventoryQuantityDto = req.body;
       await this.service.adjustStock(payload, (req as AuthenticatedUserRequest).user.id);
+      res.status(HttpStatus.Success).json(formatResponse<null>(null));
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  public adjustBulk = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const payload: BulkAdjustInventoryDto = req.body;
+      await this.service.adjustStockBulk(payload, (req as AuthenticatedUserRequest).user.id);
       res.status(HttpStatus.Success).json(formatResponse<null>(null));
     } catch (error) {
       next(error);

@@ -2,7 +2,7 @@ import { Router } from "express";
 import { API_PATH } from "../../core/constants";
 import { BaseRole } from "../../core/enums";
 import { IRoute } from "../../core/interfaces";
-import { authMiddleware, requireGlobalRole } from "../../core/middleware";
+import { adminAuthMiddleware, requireGlobalRole } from "../../core/middleware";
 import RoleController from "./role.controller";
 
 export default class RoleRoute implements IRoute {
@@ -24,12 +24,12 @@ export default class RoleRoute implements IRoute {
     // GET domain:/api/roles/migrate - Migrate roles
     this.router.get(
       API_PATH.ROLE_MIGRATE,
-      authMiddleware(),
+      adminAuthMiddleware(),
       requireGlobalRole(),
       this.controller.migrateRoles,
     );
 
     // GET domain:/api/roles/select - Get all roles for select option
-    this.router.get(API_PATH.ROLE_SELECT, authMiddleware(), this.controller.getAllRoles);
+    this.router.get(API_PATH.ROLE_SELECT, adminAuthMiddleware(), this.controller.getAllRoles);
   }
 }

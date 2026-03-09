@@ -1,7 +1,7 @@
 import { Router } from "express";
 import {
   API_PATH,
-  authMiddleware,
+  adminAuthMiddleware,
   IRoute,
   requireMoreContext,
   SYSTEM_AND_FRANCHISE_ALL_ROLES,
@@ -29,7 +29,7 @@ export default class CustomerFranchiseRoute implements IRoute {
     // GET domain:/api/customer-franchises/:id - Get item by id
     this.router.get(
       API_PATH.CUSTOMER_FRANCHISE_ID,
-      authMiddleware(),
+      adminAuthMiddleware(),
       requireMoreContext(SYSTEM_AND_FRANCHISE_ALL_ROLES),
       this.controller.getItem,
     );
@@ -37,7 +37,7 @@ export default class CustomerFranchiseRoute implements IRoute {
     // POST domain:/api/customer-franchises/search - Search items with pagination
     this.router.post(
       API_PATH.CUSTOMER_FRANCHISE_SEARCH,
-      authMiddleware(),
+      adminAuthMiddleware(),
       requireMoreContext(SYSTEM_AND_FRANCHISE_ALL_ROLES),
       validationMiddleware(SearchPaginationItemDto, true, { enableImplicitConversion: false }),
       this.controller.getItems,

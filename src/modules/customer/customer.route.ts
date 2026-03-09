@@ -1,10 +1,12 @@
 import { Router } from "express";
 import {
+    adminAuthMiddleware,
     API_PATH,
     authMiddleware,
     customerAuthMiddleware,
     IRoute,
     requireMoreContext,
+    SYSTEM_ADMIN_ROLES,
     SYSTEM_AND_FRANCHISE_ALL_ROLES,
     SYSTEM_AND_FRANCHISE_MANAGER_ROLES,
     UpdateStatusDto,
@@ -36,8 +38,8 @@ export default class CustomerRoute implements IRoute {
     // PATCH domain:/api/customers/:id/status -> Change customer status (block/unBlock)
     this.router.patch(
       API_PATH.CUSTOMER_CHANGE_STATUS,
-      authMiddleware(),
-      requireMoreContext(SYSTEM_AND_FRANCHISE_MANAGER_ROLES),
+      adminAuthMiddleware(),
+      requireMoreContext(SYSTEM_ADMIN_ROLES),
       validationMiddleware(UpdateStatusDto),
       this.controller.changeStatus,
     );
@@ -45,7 +47,7 @@ export default class CustomerRoute implements IRoute {
     // POST domain:/api/customers - Create item
     this.router.post(
       this.path,
-      authMiddleware(),
+      adminAuthMiddleware(),
       requireMoreContext(SYSTEM_AND_FRANCHISE_ALL_ROLES),
       validationMiddleware(CreateCustomerDto),
       this.controller.createItem,
@@ -54,7 +56,7 @@ export default class CustomerRoute implements IRoute {
     // POST domain:/api/customers/search - Search items with pagination
     this.router.post(
       API_PATH.CUSTOMER_SEARCH,
-      authMiddleware(),
+      adminAuthMiddleware(),
       requireMoreContext(SYSTEM_AND_FRANCHISE_ALL_ROLES),
       this.controller.getItems,
     );
@@ -65,7 +67,7 @@ export default class CustomerRoute implements IRoute {
     // PUT domain:/api/customers/:id - Update item
     this.router.put(
       API_PATH.CUSTOMER_ID,
-      customerAuthMiddleware(),
+      authMiddleware(),
       validationMiddleware(UpdateCustomerDto),
       this.controller.updateItem,
     );
@@ -73,16 +75,16 @@ export default class CustomerRoute implements IRoute {
     // DELETE domain:/api/customers/:id - Soft delete item
     this.router.delete(
       API_PATH.CUSTOMER_ID,
-      authMiddleware(),
-      requireMoreContext(SYSTEM_AND_FRANCHISE_MANAGER_ROLES),
+      adminAuthMiddleware(),
+      requireMoreContext(SYSTEM_ADMIN_ROLES),
       this.controller.softDeleteItem,
     );
 
     // PATCH domain:/api/customers/:id/restore - Restore soft deleted item
     this.router.patch(
       API_PATH.CUSTOMER_RESTORE,
-      authMiddleware(),
-      requireMoreContext(SYSTEM_AND_FRANCHISE_MANAGER_ROLES),
+      adminAuthMiddleware(),
+      requireMoreContext(SYSTEM_ADMIN_ROLES),
       this.controller.restoreItem,
     );
   }

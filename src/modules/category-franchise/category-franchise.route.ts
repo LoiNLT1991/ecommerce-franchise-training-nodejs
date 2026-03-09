@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { API_PATH, SYSTEM_ADMIN_ROLES, SYSTEM_AND_FRANCHISE_MANAGER_ROLES } from "../../core/constants";
 import { IRoute } from "../../core/interfaces";
-import { authMiddleware, requireMoreContext, validationMiddleware } from "../../core/middleware";
+import { adminAuthMiddleware, requireMoreContext, validationMiddleware } from "../../core/middleware";
 import { CategoryFranchiseController } from "./category-franchise.controller";
 import CreateCategoryFranchiseDto from "./dto/create.dto";
 import { UpdateDisplayOrderItemDto } from "./dto/updateDisplayOrder.dto";
@@ -27,7 +27,7 @@ export default class CategoryFranchiseRoute implements IRoute {
     // GET /api/category-franchises/franchise/:franchiseId -> get categories by franchise
     this.router.get(
       API_PATH.GET_CATEGORIES_BY_FRANCHISE,
-      authMiddleware(),
+      adminAuthMiddleware(),
       requireMoreContext(SYSTEM_AND_FRANCHISE_MANAGER_ROLES),
       this.controller.getByFranchise,
     );
@@ -35,7 +35,7 @@ export default class CategoryFranchiseRoute implements IRoute {
     // POST /api/category-franchises -> add category to franchise
     this.router.post(
       this.path,
-      authMiddleware(),
+      adminAuthMiddleware(),
       requireMoreContext(SYSTEM_AND_FRANCHISE_MANAGER_ROLES),
       validationMiddleware(CreateCategoryFranchiseDto),
       this.controller.createItem,
@@ -44,7 +44,7 @@ export default class CategoryFranchiseRoute implements IRoute {
     // POST domain:/api/category-franchises/search - Search product category franchises
     this.router.post(
       API_PATH.CATEGORY_FRANCHISE_SEARCH,
-      authMiddleware(),
+      adminAuthMiddleware(),
       requireMoreContext(SYSTEM_AND_FRANCHISE_MANAGER_ROLES),
       validationMiddleware(SearchPaginationItemDto, true, {
         enableImplicitConversion: false,
@@ -55,7 +55,7 @@ export default class CategoryFranchiseRoute implements IRoute {
     // GET domain:/api/category-franchises/:id - Get detail
     this.router.get(
       API_PATH.CATEGORY_FRANCHISE_ID,
-      authMiddleware(),
+      adminAuthMiddleware(),
       requireMoreContext(SYSTEM_AND_FRANCHISE_MANAGER_ROLES),
       this.controller.getItem,
     );
@@ -63,7 +63,7 @@ export default class CategoryFranchiseRoute implements IRoute {
     // DELETE /api/category-franchises/:id -> remove category from franchise
     this.router.delete(
       API_PATH.CATEGORY_FRANCHISE_ID,
-      authMiddleware(),
+      adminAuthMiddleware(),
       requireMoreContext(SYSTEM_AND_FRANCHISE_MANAGER_ROLES),
       this.controller.softDeleteItem,
     );
@@ -71,7 +71,7 @@ export default class CategoryFranchiseRoute implements IRoute {
     // PATCH /api/category-franchises/:id/restore -> restore category from franchise
     this.router.patch(
       API_PATH.CATEGORY_FRANCHISE_RESTORE,
-      authMiddleware(),
+      adminAuthMiddleware(),
       requireMoreContext(SYSTEM_ADMIN_ROLES),
       this.controller.restoreItem,
     );
@@ -79,7 +79,7 @@ export default class CategoryFranchiseRoute implements IRoute {
     // PATCH /api/category-franchises/:id/status -> change status
     this.router.patch(
       API_PATH.CATEGORY_FRANCHISE_CHANGE_STATUS,
-      authMiddleware(),
+      adminAuthMiddleware(),
       requireMoreContext(SYSTEM_AND_FRANCHISE_MANAGER_ROLES),
       validationMiddleware(UpdateStatusDto),
       this.controller.changeStatus,
@@ -88,7 +88,7 @@ export default class CategoryFranchiseRoute implements IRoute {
     // PATCH /api/category-franchises/:id/display-order -> change display order
     this.router.patch(
       API_PATH.CATEGORY_FRANCHISE_CHANGE_DISPLAY_ORDER,
-      authMiddleware(),
+      adminAuthMiddleware(),
       requireMoreContext(SYSTEM_AND_FRANCHISE_MANAGER_ROLES),
       validationMiddleware(UpdateDisplayOrderItemDto),
       this.controller.changeDisplayOrder,

@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { API_PATH, SYSTEM_AND_FRANCHISE_MANAGER_ROLES } from "../../core/constants";
 import { IRoute } from "../../core/interfaces";
-import { authMiddleware, requireMoreContext, validationMiddleware } from "../../core/middleware";
+import { adminAuthMiddleware, requireMoreContext, validationMiddleware } from "../../core/middleware";
 import { CategoryController } from "./category.controller";
 import CreateCategoryDto from "./dto/create.dto";
 import { SearchPaginationItemDto } from "./dto/search.dto";
@@ -30,7 +30,7 @@ export default class CategoryRoute implements IRoute {
     // POST domain:/api/categories - Create category
     this.router.post(
       this.path,
-      authMiddleware(),
+      adminAuthMiddleware(),
       requireMoreContext(SYSTEM_AND_FRANCHISE_MANAGER_ROLES),
       validationMiddleware(CreateCategoryDto),
       this.controller.createItem,
@@ -39,7 +39,7 @@ export default class CategoryRoute implements IRoute {
     // POST domain:/api/categories/search - Get all categories
     this.router.post(
       API_PATH.CATEGORY_SEARCH,
-      authMiddleware(),
+      adminAuthMiddleware(),
       requireMoreContext(SYSTEM_AND_FRANCHISE_MANAGER_ROLES),
       validationMiddleware(SearchPaginationItemDto, true, {
         enableImplicitConversion: false,
@@ -50,7 +50,7 @@ export default class CategoryRoute implements IRoute {
     // GET domain:/api/categories/:id - Get category by id
     this.router.get(
       API_PATH.CATEGORY_ID,
-      authMiddleware(),
+      adminAuthMiddleware(),
       requireMoreContext(SYSTEM_AND_FRANCHISE_MANAGER_ROLES),
       this.controller.getItem,
     );
@@ -58,7 +58,7 @@ export default class CategoryRoute implements IRoute {
     // PUT domain:/api/categories/:id - Update category
     this.router.put(
       API_PATH.CATEGORY_ID,
-      authMiddleware(),
+      adminAuthMiddleware(),
       requireMoreContext(SYSTEM_AND_FRANCHISE_MANAGER_ROLES),
       validationMiddleware(UpdateCategoryDto),
       this.controller.updateItem,
@@ -67,7 +67,7 @@ export default class CategoryRoute implements IRoute {
     // DELETE domain:/api/categories/:id - Soft delete category
     this.router.delete(
       API_PATH.CATEGORY_ID,
-      authMiddleware(),
+      adminAuthMiddleware(),
       requireMoreContext(SYSTEM_AND_FRANCHISE_MANAGER_ROLES),
       this.controller.softDeleteItem,
     );
@@ -75,7 +75,7 @@ export default class CategoryRoute implements IRoute {
     // PATCH domain:/api/categories/:id/restore - Restore soft deleted category
     this.router.patch(
       API_PATH.CATEGORY_RESTORE,
-      authMiddleware(),
+      adminAuthMiddleware(),
       requireMoreContext(SYSTEM_AND_FRANCHISE_MANAGER_ROLES),
       this.controller.restoreItem,
     );

@@ -2,7 +2,7 @@ import { Router } from "express";
 import { IRoute } from "../../core/interfaces";
 import IndexController from "./index.controller";
 import { API_PATH } from "../../core/constants";
-import { authMiddleware } from "../../core/middleware";
+import { adminAuthMiddleware } from "../../core/middleware";
 
 export default class IndexRoute implements IRoute {
   public path = "/";

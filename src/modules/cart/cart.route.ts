@@ -54,16 +54,16 @@ export default class CartRoute implements IRoute {
     );
 
     // PATCH domain:/api/carts/items/:cartItemId - Update cart item
-    // this.router.patch(API_PATH.CART_ITEM_ID, authMiddleware(), customerAuthMiddleware(), this.controller.getItem);
+    // this.router.patch(API_PATH.CART_ITEM_ID, adminAuthMiddleware(), customerAuthMiddleware(), this.controller.getItem);
 
     // DELETE domain:/cart/items/:cartItemId - Delete cart item
-    // this.router.delete(API_PATH.CART_ITEM_ID, authMiddleware(), customerAuthMiddleware(), this.controller.getItem);
+    // this.router.delete(API_PATH.CART_ITEM_ID, adminAuthMiddleware(), customerAuthMiddleware(), this.controller.getItem);
 
     // POST domain:/api/carts/apply-voucher - Apply voucher for cart item
-    // this.router.post(API_PATH.APPLY_VOUCHER, authMiddleware(), customerAuthMiddleware(), this.controller.getItem);
+    // this.router.post(API_PATH.APPLY_VOUCHER, adminAuthMiddleware(), customerAuthMiddleware(), this.controller.getItem);
 
     // DELETE domain:/api/carts/remove-voucher/:cartItemId - Remove voucher for cart item
-    // this.router.delete(API_PATH.REMOVE_VOUCHER, authMiddleware(), customerAuthMiddleware(), this.controller.getItem);
+    // this.router.delete(API_PATH.REMOVE_VOUCHER, adminAuthMiddleware(), customerAuthMiddleware(), this.controller.getItem);
 
     TODO: "Apply voucher for cart item";
   }

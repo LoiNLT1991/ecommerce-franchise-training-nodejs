@@ -1,7 +1,7 @@
 import { Router } from "express";
 import {
   API_PATH,
-  authMiddleware,
+  adminAuthMiddleware,
   IRoute,
   SYSTEM_AND_FRANCHISE_ALL_ROLES,
   validationMiddleware,
@@ -49,7 +49,7 @@ export default class ShiftAssignmentRoute implements IRoute {
      */
     this.router.post(
       API_PATH.SHIFT_ASSIGNMENT_SEARCH,
-      authMiddleware(),
+      adminAuthMiddleware(),
       requireMoreContext(SYSTEM_AND_FRANCHISE_ALL_ROLES),
       validationMiddleware(SearchPaginationItemDto),
       this.controller.getItems,
@@ -75,7 +75,7 @@ export default class ShiftAssignmentRoute implements IRoute {
      */
     this.router.post(
       API_PATH.SHIFT_ASSIGNMENT,
-      authMiddleware(),
+      adminAuthMiddleware(),
       requireMoreContext(SYSTEM_AND_FRANCHISE_MANAGER_ROLES),
       validationMiddleware(CreateShiftAssignmentDto),
       this.controller.createItem,
@@ -103,7 +103,7 @@ export default class ShiftAssignmentRoute implements IRoute {
      */
     this.router.post(
       API_PATH.SHIFT_ASSIGNMENT_BULK,
-      authMiddleware(),
+      adminAuthMiddleware(),
       requireMoreContext(SYSTEM_AND_FRANCHISE_MANAGER_ROLES),
       validationBulkMiddleware(CreateShiftAssignmentDto),
       this.controller.createItems,
@@ -129,7 +129,7 @@ export default class ShiftAssignmentRoute implements IRoute {
      */
     this.router.get(
       API_PATH.SHIFT_ASSIGNMENT_USER_ID,
-      authMiddleware(),
+      adminAuthMiddleware(),
       requireMoreContext(SYSTEM_AND_FRANCHISE_ALL_ROLES),
       this.controller.getShiftAssignmentByUserId,
     );
@@ -154,7 +154,7 @@ export default class ShiftAssignmentRoute implements IRoute {
      */
     this.router.get(
       API_PATH.SHIFT_ASSIGNMENT_FRANCHISE_ID,
-      authMiddleware(),
+      adminAuthMiddleware(),
       requireMoreContext(SYSTEM_AND_FRANCHISE_ALL_ROLES),
       this.controller.getShiftAssignmentByFranchiseId,
     )
@@ -179,7 +179,7 @@ export default class ShiftAssignmentRoute implements IRoute {
      */
     this.router.get(
       API_PATH.SHIFT_ASSIGNMENT_ID,
-      authMiddleware(),
+      adminAuthMiddleware(),
       requireMoreContext(SYSTEM_AND_FRANCHISE_ALL_ROLES),
       this.controller.getById,
     );
@@ -205,7 +205,7 @@ export default class ShiftAssignmentRoute implements IRoute {
      */
     this.router.delete(
       API_PATH.SHIFT_ASSIGNMENT_ID,
-      authMiddleware(),
+      adminAuthMiddleware(),
       requireMoreContext(SYSTEM_AND_FRANCHISE_MANAGER_ROLES),
       this.controller.softDeleteItem,
     );
@@ -230,7 +230,7 @@ export default class ShiftAssignmentRoute implements IRoute {
      */
     this.router.patch(
       API_PATH.SHIFT_ASSIGNMENT_RESTORE,
-      authMiddleware(),
+      adminAuthMiddleware(),
       requireMoreContext(SYSTEM_AND_FRANCHISE_MANAGER_ROLES),
       this.controller.restoreItem,
     );
@@ -261,14 +261,14 @@ export default class ShiftAssignmentRoute implements IRoute {
      */
     this.router.patch(
       API_PATH.SHIFT_ASSIGNMENT_CHANGE_STATUS,
-      authMiddleware(),
+      adminAuthMiddleware(),
       requireMoreContext(SYSTEM_AND_FRANCHISE_ALL_ROLES),
       this.controller.changeStatus,
     );
 
     this.router.get(
       API_PATH.SHIFT_ASSIGNMENT_BY_SHIFT_ID,
-      authMiddleware(),
+      adminAuthMiddleware(),
       requireMoreContext(SYSTEM_AND_FRANCHISE_ALL_ROLES),
       this.controller.getShiftAssignedByShiftId,
     )

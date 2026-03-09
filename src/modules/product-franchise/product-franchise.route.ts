@@ -7,7 +7,7 @@ import {
 } from "../../core/constants";
 import { IRoute } from "../../core/interfaces";
 import ProductFranchiseController from "./product-franchise.controller";
-import { authMiddleware, requireMoreContext, validationMiddleware } from "../../core/middleware";
+import { adminAuthMiddleware, requireMoreContext, validationMiddleware } from "../../core/middleware";
 import { UpdateStatusDto } from "../../core/dto";
 import { CreateProductFranchiseDto } from "./dto/create.dto";
 import { SearchPaginationItemDto } from "./dto/search.dto";
@@ -32,7 +32,7 @@ export default class ProductFranchiseRoute implements IRoute {
     // GET /api/product-franchises/franchise/:franchiseId -> get products by franchise
     this.router.get(
       API_PATH.GET_PRODUCTS_BY_FRANCHISE,
-      authMiddleware(),
+      adminAuthMiddleware(),
       requireMoreContext(SYSTEM_AND_FRANCHISE_MANAGER_ROLES),
       this.controller.getByFranchise,
     );
@@ -40,7 +40,7 @@ export default class ProductFranchiseRoute implements IRoute {
     // PATCH domain:/api/product-franchises/:id/status - Change status
     this.router.patch(
       API_PATH.PRODUCT_FRANCHISE_CHANGE_STATUS,
-      authMiddleware(),
+      adminAuthMiddleware(),
       requireMoreContext(SYSTEM_AND_FRANCHISE_MANAGER_ROLES),
       validationMiddleware(UpdateStatusDto),
       this.controller.changeStatus,
@@ -49,7 +49,7 @@ export default class ProductFranchiseRoute implements IRoute {
     // POST domain:/api/product-franchises - Create product franchise
     this.router.post(
       this.path,
-      authMiddleware(),
+      adminAuthMiddleware(),
       requireMoreContext(SYSTEM_AND_FRANCHISE_MANAGER_ROLES),
       validationMiddleware(CreateProductFranchiseDto),
       this.controller.createItem,
@@ -58,7 +58,7 @@ export default class ProductFranchiseRoute implements IRoute {
     // POST domain:/api/product-franchises/search - Search product franchises
     this.router.post(
       API_PATH.PRODUCT_FRANCHISE_SEARCH,
-      authMiddleware(),
+      adminAuthMiddleware(),
       requireMoreContext(SYSTEM_AND_FRANCHISE_ALL_ROLES),
       validationMiddleware(SearchPaginationItemDto, true, {
         enableImplicitConversion: false,
@@ -69,7 +69,7 @@ export default class ProductFranchiseRoute implements IRoute {
     // GET domain:/api/product-franchises/:id - Get detail
     this.router.get(
       API_PATH.PRODUCT_FRANCHISE_ID,
-      authMiddleware(),
+      adminAuthMiddleware(),
       requireMoreContext(SYSTEM_AND_FRANCHISE_ALL_ROLES),
       this.controller.getItem,
     );
@@ -77,7 +77,7 @@ export default class ProductFranchiseRoute implements IRoute {
     // PUT domain:/api/product-franchises/:id - Update
     this.router.put(
       API_PATH.PRODUCT_FRANCHISE_ID,
-      authMiddleware(),
+      adminAuthMiddleware(),
       requireMoreContext(SYSTEM_AND_FRANCHISE_MANAGER_ROLES),
       validationMiddleware(UpdateProductFranchiseDto),
       this.controller.updateItem,
@@ -86,7 +86,7 @@ export default class ProductFranchiseRoute implements IRoute {
     // DELETE domain:/api/product-franchises/:id - Soft delete
     this.router.delete(
       API_PATH.PRODUCT_FRANCHISE_ID,
-      authMiddleware(),
+      adminAuthMiddleware(),
       requireMoreContext(SYSTEM_AND_FRANCHISE_MANAGER_ROLES),
       this.controller.softDeleteItem,
     );
@@ -94,7 +94,7 @@ export default class ProductFranchiseRoute implements IRoute {
     // PATCH domain:/api/product-franchises/:id/restore - Restore
     this.router.patch(
       API_PATH.PRODUCT_FRANCHISE_RESTORE,
-      authMiddleware(),
+      adminAuthMiddleware(),
       requireMoreContext(SYSTEM_AND_FRANCHISE_MANAGER_ROLES),
       this.controller.restoreItem,
     );

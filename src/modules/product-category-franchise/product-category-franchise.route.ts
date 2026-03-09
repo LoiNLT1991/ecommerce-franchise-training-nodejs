@@ -1,7 +1,7 @@
 import { Router } from "express";
 import {
   API_PATH,
-  authMiddleware,
+  adminAuthMiddleware,
   IRoute,
   requireMoreContext,
   SYSTEM_AND_FRANCHISE_ALL_ROLES,
@@ -33,7 +33,7 @@ export default class ProductCategoryFranchiseRoute implements IRoute {
     // PATCH domain:/api/product-category-franchises/:id/status - Change status
     this.router.patch(
       API_PATH.PRODUCT_CATEGORY_FRANCHISE_CHANGE_STATUS,
-      authMiddleware(),
+      adminAuthMiddleware(),
       requireMoreContext(SYSTEM_AND_FRANCHISE_MANAGER_ROLES),
       validationMiddleware(UpdateStatusDto),
       this.controller.changeStatus,
@@ -42,7 +42,7 @@ export default class ProductCategoryFranchiseRoute implements IRoute {
     // POST domain:/api/product-category-franchises - Create product category franchise
     this.router.post(
       this.path,
-      authMiddleware(),
+      adminAuthMiddleware(),
       requireMoreContext(SYSTEM_AND_FRANCHISE_MANAGER_ROLES),
       validationMiddleware(CreateProductCategoryFranchiseDto),
       this.controller.createItem,
@@ -51,7 +51,7 @@ export default class ProductCategoryFranchiseRoute implements IRoute {
     // POST domain:/api/product-category-franchises/search - Search product category franchises
     this.router.post(
       API_PATH.PRODUCT_CATEGORY_FRANCHISE_SEARCH,
-      authMiddleware(),
+      adminAuthMiddleware(),
       requireMoreContext(SYSTEM_AND_FRANCHISE_MANAGER_ROLES),
       validationMiddleware(SearchPaginationItemDto, true, {
         enableImplicitConversion: false,
@@ -62,7 +62,7 @@ export default class ProductCategoryFranchiseRoute implements IRoute {
     // GET domain:/api/product-category-franchises/:id - Get detail
     this.router.get(
       API_PATH.PRODUCT_CATEGORY_FRANCHISE_ID,
-      authMiddleware(),
+      adminAuthMiddleware(),
       requireMoreContext(SYSTEM_AND_FRANCHISE_ALL_ROLES),
       this.controller.getItem,
     );
@@ -70,7 +70,7 @@ export default class ProductCategoryFranchiseRoute implements IRoute {
     // DELETE domain:/api/product-category-franchises/:id - Soft delete
     this.router.delete(
       API_PATH.PRODUCT_CATEGORY_FRANCHISE_ID,
-      authMiddleware(),
+      adminAuthMiddleware(),
       requireMoreContext(SYSTEM_AND_FRANCHISE_MANAGER_ROLES),
       this.controller.softDeleteItem,
     );
@@ -78,7 +78,7 @@ export default class ProductCategoryFranchiseRoute implements IRoute {
     // PATCH domain:/api/product-category-franchises/:id/restore - Restore
     this.router.patch(
       API_PATH.PRODUCT_CATEGORY_FRANCHISE_RESTORE,
-      authMiddleware(),
+      adminAuthMiddleware(),
       requireMoreContext(SYSTEM_AND_FRANCHISE_MANAGER_ROLES),
       this.controller.restoreItem,
     );
@@ -86,7 +86,7 @@ export default class ProductCategoryFranchiseRoute implements IRoute {
     // PUT /api/product-category-franchises/reorder -> reorder categories in franchise
     this.router.put(
       API_PATH.PRODUCT_CATEGORY_FRANCHISE_REORDER,
-      authMiddleware(),
+      adminAuthMiddleware(),
       requireMoreContext(SYSTEM_AND_FRANCHISE_MANAGER_ROLES),
       validationMiddleware(UpdateDisplayOrderItemDto),
       this.controller.reorder,

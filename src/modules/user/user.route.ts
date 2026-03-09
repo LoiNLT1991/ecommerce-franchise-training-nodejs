@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { API_PATH, SYSTEM_ADMIN_ROLES, SYSTEM_AND_FRANCHISE_MANAGER_ROLES } from "../../core/constants";
 import { IRoute } from "../../core/interfaces";
-import { authMiddleware, requireMoreContext, validationMiddleware } from "../../core/middleware";
+import { adminAuthMiddleware, requireMoreContext, validationMiddleware } from "../../core/middleware";
 import CreateUserDto from "./dto/create.dto";
 import UpdateUserDto from "./dto/update.dto";
 import UserController from "./user.controller";
@@ -26,7 +26,7 @@ export default class UserRoute implements IRoute {
     // PATCH domain:/api/users/:id/status -> Change user status (block/unBlock)
     this.router.patch(
       API_PATH.USER_CHANGE_STATUS,
-      authMiddleware(),
+      adminAuthMiddleware(),
       requireMoreContext(SYSTEM_ADMIN_ROLES),
       validationMiddleware(UpdateStatusDto),
       this.controller.changeStatus,
@@ -35,7 +35,7 @@ export default class UserRoute implements IRoute {
     // POST domain:/api/users - Create item
     this.router.post(
       this.path,
-      authMiddleware(),
+      adminAuthMiddleware(),
       requireMoreContext(SYSTEM_ADMIN_ROLES),
       validationMiddleware(CreateUserDto),
       this.controller.createItem,
@@ -44,18 +44,18 @@ export default class UserRoute implements IRoute {
     // POST domain:/api/users/search - Search items with pagination
     this.router.post(
       API_PATH.USER_SEARCH,
-      authMiddleware(),
+      adminAuthMiddleware(),
       requireMoreContext(SYSTEM_AND_FRANCHISE_MANAGER_ROLES),
       this.controller.getItems,
     );
 
     // GET domain:/api/users/:id - Get item
-    this.router.get(API_PATH.USER_ID, authMiddleware(), this.controller.getItem);
+    this.router.get(API_PATH.USER_ID, adminAuthMiddleware(), this.controller.getItem);
 
     // PUT domain:/api/users/:id - Update item
     this.router.put(
       API_PATH.USER_ID,
-      authMiddleware(),
+      adminAuthMiddleware(),
       validationMiddleware(UpdateUserDto),
       this.controller.updateItem,
     );
@@ -63,7 +63,7 @@ export default class UserRoute implements IRoute {
     // DELETE domain:/api/users/:id - Soft delete item
     this.router.delete(
       API_PATH.USER_ID,
-      authMiddleware(),
+      adminAuthMiddleware(),
       requireMoreContext(SYSTEM_ADMIN_ROLES),
       this.controller.softDeleteItem,
     );
@@ -71,7 +71,7 @@ export default class UserRoute implements IRoute {
     // PATCH domain:/api/users/:id/restore - Restore soft deleted item
     this.router.patch(
       API_PATH.USER_RESTORE,
-      authMiddleware(),
+      adminAuthMiddleware(),
       requireMoreContext(SYSTEM_ADMIN_ROLES),
       this.controller.restoreItem,
     );

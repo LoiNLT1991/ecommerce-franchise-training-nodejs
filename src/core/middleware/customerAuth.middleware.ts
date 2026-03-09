@@ -1,51 +1,39 @@
 import { RequestHandler } from "express";
-import jwt from "jsonwebtoken";
-import CustomerSchema from "../../modules/customer/customer.model";
+import { JsonWebTokenError, TokenExpiredError } from "jsonwebtoken";
 import { HttpStatus } from "../enums";
-import { CustomerAuthPayload } from "../models";
-
-const formatResponse = (message: string) => {
-  return { message, success: false, error: [] };
-};
+import { authFormatResponse, getTokenFromRequest, verifyCustomerToken } from "./auth.helper";
 
 const customerAuthMiddleware = (): RequestHandler => {
   return async (req, res, next) => {
-    let token = req.cookies?.customer_access_token;
-
-    const authHeader = req.headers["authorization"];
-
-    if (!token && authHeader?.startsWith("Bearer ")) {
-      token = authHeader.split(" ")[1];
-    }
+    const token = getTokenFromRequest(req);
 
     if (!token) {
       if (req.cookies?.customer_refresh_token) {
-        return res.status(HttpStatus.Unauthorized).json(formatResponse("CUSTOMER_ACCESS_TOKEN_EXPIRED"));
+        return res.status(HttpStatus.Unauthorized).json(authFormatResponse("CUSTOMER_ACCESS_TOKEN_EXPIRED"));
       }
 
       return res
         .status(HttpStatus.Unauthorized)
-        .json(formatResponse("You are not logged in. Please log in to continue!"));
+        .json(authFormatResponse("You are not logged in. Please log in to continue!"));
     }
-
+    
     try {
-      const payload = jwt.verify(token, process.env.JWT_CUSTOMER_ACCESS_SECRET!) as CustomerAuthPayload;
-
-      const isValidCustomer = await CustomerSchema.exists({
-        _id: payload.id,
-        is_deleted: false,
-        is_verified: true,
-        token_version: payload.version,
-      });
-
-      if (!isValidCustomer) {
-        return res.status(HttpStatus.Unauthorized).json(formatResponse("Invalid token"));
-      }
-
+      const payload = await verifyCustomerToken(token);
       req.user = payload;
       next();
     } catch (err) {
-      return res.status(HttpStatus.Unauthorized).json(formatResponse("Token expired or invalid"));
+      // Token hết hạn
+      if (err instanceof TokenExpiredError) {
+        return res.status(HttpStatus.Unauthorized).json(authFormatResponse("Access token has expired"));
+      }
+
+      // Token sai / bị sửa
+      if (err instanceof JsonWebTokenError) {
+        return res.status(HttpStatus.Unauthorized).json(authFormatResponse("Invalid token"));
+      }
+
+      // fallback
+      return res.status(HttpStatus.Unauthorized).json(authFormatResponse("Token expired or invalid"));
     }
   };
 };

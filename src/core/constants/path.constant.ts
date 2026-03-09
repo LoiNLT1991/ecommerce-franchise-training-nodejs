@@ -137,6 +137,7 @@ export const API_PATH = {
   INVENTORY_RESTORE: "/api/inventories/:id/restore",
 
   INVENTORY_ADJUST: "/api/inventories/adjust",
+  INVENTORY_ADJUST_BULK: "/api/inventories/adjust/bulk",
   INVENTORY_LOW_STOCK_BY_FRANCHISE: "/api/inventories/low-stock/franchise/:franchiseId",
 
   INVENTORY_LOGS: "/api/inventories/logs/:inventoryId",

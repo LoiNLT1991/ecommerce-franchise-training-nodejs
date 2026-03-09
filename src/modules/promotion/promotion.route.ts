@@ -6,7 +6,7 @@ import {
 import { IRoute } from "../../core/interfaces";
 import { PromotionController } from "./promotion.controller";
 import {
-  authMiddleware,
+  adminAuthMiddleware,
   requireMoreContext,
   validationMiddleware,
 } from "../../core/middleware";
@@ -26,7 +26,7 @@ export default class PromotionRoute implements IRoute {
     // POST /api/promotions - Create promotion
     this.router.post(
       this.path,
-      authMiddleware(),
+      adminAuthMiddleware(),
       requireMoreContext(SYSTEM_AND_FRANCHISE_MANAGER_ROLES),
       validationMiddleware(CreatePromotionDto),
       this.controller.createItem,
@@ -35,7 +35,7 @@ export default class PromotionRoute implements IRoute {
     // POST /api/promotions/search - Search promotions
     this.router.post(
       API_PATH.PROMOTION_SEARCH,
-      authMiddleware(),
+      adminAuthMiddleware(),
       requireMoreContext(SYSTEM_AND_FRANCHISE_MANAGER_ROLES),
       validationMiddleware(SearchPaginationItemDto, true, {
         enableImplicitConversion: false,
@@ -46,7 +46,7 @@ export default class PromotionRoute implements IRoute {
     // GET /api/promotions/:id - Get by id
     this.router.get(
       API_PATH.PROMOTION_ID,
-      authMiddleware(),
+      adminAuthMiddleware(),
       requireMoreContext(SYSTEM_AND_FRANCHISE_MANAGER_ROLES),
       this.controller.getItem,
     );
@@ -54,7 +54,7 @@ export default class PromotionRoute implements IRoute {
     // GET /api/promotions/franchise/:franchiseId - Get by franchise id
     this.router.get(
       `${this.path}/franchise/:franchiseId`,
-      authMiddleware(),
+      adminAuthMiddleware(),
       requireMoreContext(SYSTEM_AND_FRANCHISE_MANAGER_ROLES),
       this.controller.getAllPromotionsByFranchiseId,
     );
@@ -62,7 +62,7 @@ export default class PromotionRoute implements IRoute {
     // GET /api/promotions/product-franchise/:productFranchiseId - Get by product franchise name
     this.router.get(
       `${this.path}/product-franchise/:productFranchiseId`,
-      authMiddleware(),
+      adminAuthMiddleware(),
       requireMoreContext(SYSTEM_AND_FRANCHISE_MANAGER_ROLES),
       this.controller.getAllPromotionsByProductFranchiseId,
     );
@@ -70,7 +70,7 @@ export default class PromotionRoute implements IRoute {
     // PUT /api/promotions/:id - Update
     this.router.put(
       API_PATH.PROMOTION_ID,
-      authMiddleware(),
+      adminAuthMiddleware(),
       requireMoreContext(SYSTEM_AND_FRANCHISE_MANAGER_ROLES),
       validationMiddleware(UpdatePromotionDto),
       this.controller.updateItem,
@@ -79,7 +79,7 @@ export default class PromotionRoute implements IRoute {
     // DELETE /api/promotions/:id - Soft delete
     this.router.delete(
       API_PATH.PROMOTION_ID,
-      authMiddleware(),
+      adminAuthMiddleware(),
       requireMoreContext(SYSTEM_AND_FRANCHISE_MANAGER_ROLES),
       this.controller.softDeleteItem,
     );
@@ -87,7 +87,7 @@ export default class PromotionRoute implements IRoute {
     // PATCH /api/promotions/:id/restore - Restore
     this.router.patch(
       API_PATH.PROMOTION_RESTORE,
-      authMiddleware(),
+      adminAuthMiddleware(),
       requireMoreContext(SYSTEM_AND_FRANCHISE_MANAGER_ROLES),
       this.controller.restoreItem,
     );
@@ -95,7 +95,7 @@ export default class PromotionRoute implements IRoute {
     // PATCH /api/promotions/:id/status - Change status
     this.router.patch(
       API_PATH.PROMOTION_CHANGE_STATUS,
-      authMiddleware(),
+      adminAuthMiddleware(),
       requireMoreContext(SYSTEM_AND_FRANCHISE_MANAGER_ROLES),
       validationMiddleware(
         class {
