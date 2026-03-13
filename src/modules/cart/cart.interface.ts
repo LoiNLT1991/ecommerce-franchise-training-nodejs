@@ -1,5 +1,5 @@
 import { Document, Types } from "mongoose";
-import { BaseFieldName, IBase, PriceType } from "../../core";
+import { BaseFieldName, CartStatus, IBase, PriceType } from "../../core";
 
 export interface ICart extends Document, IBase {
   [BaseFieldName.FRANCHISE_ID]: Types.ObjectId;
@@ -10,9 +10,10 @@ export interface ICart extends Document, IBase {
   [BaseFieldName.CUSTOMER_PHONE]?: string;
   [BaseFieldName.ADDRESS]?: string;
   [BaseFieldName.PHONE]?: string;
+  [BaseFieldName.MESSAGE]?: string;
   [BaseFieldName.STAFF_ID]?: Types.ObjectId;
   [BaseFieldName.STAFF_NAME]?: string;
-  [BaseFieldName.STATUS]: string;
+  [BaseFieldName.STATUS]: CartStatus;
   [BaseFieldName.PROMOTION_ID]?: Types.ObjectId;
   [BaseFieldName.PROMOTION_TYPE]?: PriceType;
   [BaseFieldName.PROMOTION_VALUE]?: number;

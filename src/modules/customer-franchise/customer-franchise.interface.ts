@@ -6,10 +6,12 @@ export interface ICustomerFranchise extends Document, IBase {
   [BaseFieldName.CUSTOMER_ID]: Types.ObjectId;
   [BaseFieldName.FRANCHISE_ID]: Types.ObjectId;
   [BaseFieldName.LOYALTY_POINTS]: number; // default 0
+  [BaseFieldName.CURRENT_TIER]: string; // BRONZE, SILVER, GOLD, PLATINUM
   [BaseFieldName.TOTAL_EARNED_POINTS]: number; // default 0
-  [BaseFieldName.LOYALTY_TIER]: string; // BRONZE, SILVER, GOLD, PLATINUM
   [BaseFieldName.FIRST_ORDER_DATE]?: Date;
   [BaseFieldName.LAST_ORDER_DATE]?: Date;
+  [BaseFieldName.TOTAL_ORDERS]: number; // default 0
+  [BaseFieldName.TOTAL_SPENT]: number; // default 0
 
   customer_name: string;
   customer_email: string;

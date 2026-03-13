@@ -49,6 +49,66 @@ export enum PriceType {
   FIXED = "FIXED",
 }
 
+export enum OrderType {
+  DEFAULT = "",
+  POS = "POS",
+  ONLINE = "ONLINE",
+}
+
+export enum OrderStatus {
+  DEFAULT = "",
+  DRAFT = "DRAFT",
+  CONFIRMED = "CONFIRMED",
+  PREPARING = "PREPARING",
+  READY_FOR_PICKUP = "READY_FOR_PICKUP",
+  OUT_FOR_DELIVERY = "OUT_FOR_DELIVERY",
+  COMPLETED = "COMPLETED",
+  CANCELLED = "CANCELLED",
+}
+
+export enum PaymentStatus {
+  DEFAULT = "",
+  PENDING = "PENDING",
+  SUCCESS = "SUCCESS",
+  FAILED = "FAILED",
+  REFUNDED = "REFUNDED",
+}
+
+export enum PaymentMethod {
+  CASH = "CASH",
+  CARD = "CARD",
+  MOMO = "MOMO",
+  VNPAY = "VNPAY",
+}
+
+export enum RefundStatus {
+  REQUESTED = "REQUESTED",
+  APPROVED = "APPROVED",
+  REJECTED = "REJECTED",
+  COMPLETED = "COMPLETED",
+}
+
+export enum DeliveryStatus {
+  DEFAULT = "",
+  ASSIGNED = "ASSIGNED",
+  PICKING_UP = "PICKING_UP",
+  DELIVERED = "DELIVERED",
+  FAILED = "FAILED",
+}
+
+export enum ShiftAssignmentStatus {
+  ASSIGNED = "ASSIGNED",
+  COMPLETED = "COMPLETED",
+  ABSENT = "ABSENT",
+  CANCELED = "CANCELED",
+}
+
+export enum LoyaltyTransactionType {
+  EARN = "EARN", // nhận điểm khi mua hàng
+  REDEEM = "REDEEM", // dùng điểm
+  ADJUST = "ADJUST", // admin chỉnh tay
+}
+
 export enum BaseFieldName {
   ID = "_id",
   IS_ACTIVE = "is_active",
@@ -87,6 +147,9 @@ export enum BaseFieldName {
   CART_ID = "cart_id",
   CART_ITEM_ID = "cart_item_id",
   CART_ITEM_OPTION_ID = "cart_item_option_id",
+  ORDER_ID = "ORDER_ID",
+  ORDER_ITEM_ID = "ORDER_ITEM_ID",
+  ORDER_ITEM_OPTION_ID = "ORDER_ITEM_OPTION_ID",
 
   REFERENCE_TYPE = "reference_type",
   REFERENCE_ID = "reference_id",
@@ -122,8 +185,11 @@ export enum BaseFieldName {
   CUSTOMER_PHONE = "customer_phone",
   LOYALTY_POINTS = "loyalty_points", // default 0
   LOYALTY_TIER = "loyalty_tier", // BRONZE, SILVER, GOLD, PLATINUM
+  CURRENT_TIER = "current_tier", // BRONZE, SILVER, GOLD, PLATINUM
   FIRST_ORDER_DATE = "first_order_date",
   LAST_ORDER_DATE = "last_order_date",
+  TOTAL_ORDERS = "total_orders",
+  TOTAL_SPENT = "total_spent",
   TOTAL_EARNED_POINTS = "total_earned_points",
   PROMOTION_DISCOUNT = "promotion_discount",
   VOUCHER_DISCOUNT = "voucher_discount",
@@ -146,11 +212,41 @@ export enum BaseFieldName {
   OPTIONS = "options",
   PRICE_SNAPSHOT = "price_snapshot",
   FINAL_PRICE = "final_price",
-}
-
-export enum ShiftAssignmentStatus {
-  ASSIGNED = "ASSIGNED",
-  COMPLETED = "COMPLETED",
-  ABSENT = "ABSENT",
-  CANCELED = "CANCELED",
+  APPROVE_AT = "approve_at",
+  CONFIRMED_AT = "confirmed_at",
+  COMPLETED_AT = "completed_at",
+  REJECTED_AT = "rejected_at",
+  CANCELLED_AT = "cancelled_at",
+  ASSIGNED_AT = "assigned_at",
+  PICKED_UP_AT = "picked_up_at",
+  DELIVERED_AT = "delivered_at",
+  ORDER_CODE = "order_code",
+  ASSIGNED_TO = "assigned_to",
+  FAILED_REASON = "failed_reason",
+  CHANGED_BY = "changed_by",
+  OLD_DATA = "old_data",
+  NEW_DATA = "new_data",
+  OLD_STATUS = "old_status",
+  NEW_STATUS = "new_status",
+  CHANGED_AT = "changed_at",
+  METHOD = "method",
+  AMOUNT = "amount",
+  PAID_AT = "paid_at",
+  PROVIDER_TXN_ID = "provider_txn_id",
+  CREATED_NAME = "created_name",
+  PAYMENT_ID = "PAYMENT_ID",
+  REASON_REJECT = "reason_reject",
+  POINT_CHANGE = "point_change",
+  EARN_AMOUNT_PER_POINT = "earn_amount_per_point",
+  REDEEM_VALUE_PER_POINT = "redeem_value_per_point",
+  MIN_REDEEM_POINTS = "min_redeem_points",
+  MAX_REDEEM_POINTS = "max_redeem_points",
+  TIER_RULES = "tier_rules",
+  TIER = "tier",
+  MIN_POINTS = "min_points",
+  MAX_POINTS = "max_points",
+  BENEFIT = "BENEFIT",
+  ORDER_DISCOUNT_PERCENT = "order_discount_percent",
+  EARN_MULTIPLIER = "earn_multiplier",
+  FREE_SHIPPING = "free_shipping",
 }

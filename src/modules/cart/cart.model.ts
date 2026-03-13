@@ -45,7 +45,7 @@ const CartSchemaEntity = new Schema({
   [BaseFieldName.VOUCHER_VALUE]: { type: Number, default: 0 },
 
   // --- Loyalty ---
-  [BaseFieldName.LOYALTY_POINTS_USED]: { type: Number, default: 0 }, // tổng point đã dùng cho cart này
+  [BaseFieldName.LOYALTY_POINTS_USED]: { type: Number, default: 0 }, // tổng point đã dùng
 
   // --- Pricing ---
   [BaseFieldName.LOYALTY_DISCOUNT]: { type: Number, default: 0 },
@@ -56,12 +56,10 @@ const CartSchemaEntity = new Schema({
 });
 
 CartSchemaEntity.index({ customer_id: 1 });
-
 CartSchemaEntity.index(
   { customer_id: 1, franchise_id: 1, status: 1 },
   { unique: true, partialFilterExpression: { status: CartStatus.ACTIVE } },
 );
-
 CartSchemaEntity.virtual("cart_items", {
   ref: COLLECTION_NAME.CART_ITEM,
   localField: "_id",

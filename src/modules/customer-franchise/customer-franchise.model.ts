@@ -16,10 +16,11 @@ const CustomerFranchiseSchemaEntity = new Schema({
     index: true,
   },
   [BaseFieldName.LOYALTY_POINTS]: { type: Number, default: 0 }, // 10.000 VND = 1 point
-  [BaseFieldName.LOYALTY_TIER]: { type: String, enum: Object.values(BaseLoyaltyTier), default: BaseLoyaltyTier.BRONZE },
+  [BaseFieldName.CURRENT_TIER]: { type: String, enum: Object.values(BaseLoyaltyTier), default: BaseLoyaltyTier.BRONZE },
   [BaseFieldName.TOTAL_EARNED_POINTS]: { type: Number, default: 0 },
   [BaseFieldName.FIRST_ORDER_DATE]: { type: Date, default: Date.now },
-  [BaseFieldName.LAST_ORDER_DATE]: { type: Date, default: Date.now },
+  [BaseFieldName.TOTAL_ORDERS]: { type: Number, default: 0 },
+  [BaseFieldName.TOTAL_SPENT]:{ type: Number, default: 0 },
 
   ...BASE_MODEL_FIELDS,
 });

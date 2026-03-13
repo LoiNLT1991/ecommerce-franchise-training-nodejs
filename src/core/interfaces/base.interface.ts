@@ -1,5 +1,5 @@
 import { Types } from "mongoose";
-import { BaseField } from "../enums";
+import { BaseField, BaseFieldName } from "../enums";
 import { SearchPaginationResponseModel } from "../models";
 
 export interface IBase {
@@ -10,11 +10,20 @@ export interface IBase {
   [BaseField.IS_DELETED]?: boolean; // flag for soft delete, default is false
 }
 export interface IBaseNoActiveField {
-  [BaseField.ID]: Types.ObjectId; 
+  [BaseField.ID]: Types.ObjectId;
   [BaseField.CREATED_AT]?: Date; // default new Date()
   [BaseField.UPDATED_AT]?: Date; // default new Date()
   [BaseField.IS_DELETED]?: boolean; // flag for soft delete, default is false
 }
+
+export interface IDetailItemOption {
+  [BaseFieldName.PRODUCT_FRANCHISE_ID]: Types.ObjectId;
+  [BaseFieldName.QUANTITY]: number;
+  [BaseFieldName.PRICE_SNAPSHOT]: number;
+  [BaseFieldName.DISCOUNT_AMOUNT]?: number;
+  [BaseFieldName.FINAL_PRICE]?: number;
+}
+
 export interface IBaseCrudService<T, CreateDto, UpdateDto, SearchDto> {
   create(dto: CreateDto, userId: string): Promise<T>;
   getItems(dto: SearchDto): Promise<SearchPaginationResponseModel<T>>;

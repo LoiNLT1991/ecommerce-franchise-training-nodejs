@@ -17,6 +17,12 @@ export const COLLECTION_NAME = {
   ORDER_ITEM: "OrderItem",
   VOUCHER: "Voucher",
   PROMOTION: "Promotion",
+  DELIVERY: "Delivery",
+  PAYMENT: "Payment",
+  REFUND: "Refund",
+  ORDER_STATUS_LOG: "OrderStatusLog",
+  LOYALTY_TRANSACTION: "LoyaltyTransaction",
+  LOYALTY_RULE: "LoyaltyRule",
 
   // Master Data
   CATEGORY_FRANCHISE: "CategoryFranchise",

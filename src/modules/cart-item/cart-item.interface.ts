@@ -1,5 +1,5 @@
 import { Document, Types } from "mongoose";
-import { BaseFieldName, IBase } from "../../core";
+import { BaseFieldName, IBase, IDetailItemOption } from "../../core";
 import { ICreateCartItemDto } from "./dto/create.dto";
 import { ICartItemDto } from "./dto/item.dto";
 
@@ -13,15 +13,7 @@ export interface ICartItem extends Document, IBase {
   [BaseFieldName.LINE_TOTAL]: number;
   [BaseFieldName.FINAL_LINE_TOTAL]: number;
   [BaseFieldName.OPTIONS_HASH]: string;
-  [BaseFieldName.OPTIONS]: ICartItemOption[];
-}
-
-export interface ICartItemOption {
-  [BaseFieldName.PRODUCT_FRANCHISE_ID]: Types.ObjectId;
-  [BaseFieldName.QUANTITY]: number;
-  [BaseFieldName.PRICE_SNAPSHOT]: number;
-  [BaseFieldName.DISCOUNT_AMOUNT]?: number;
-  [BaseFieldName.FINAL_PRICE]?: number;
+  [BaseFieldName.OPTIONS]: IDetailItemOption[];
 }
 
 export interface ICartItemQuery {
