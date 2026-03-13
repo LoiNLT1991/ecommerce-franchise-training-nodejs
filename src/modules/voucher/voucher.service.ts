@@ -1,3 +1,4 @@
+import { Types } from "mongoose";
 import { MSG_BUSINESS } from "../../core";
 import { BaseFieldName, HttpStatus } from "../../core/enums";
 import { HttpException } from "../../core/exceptions";
@@ -78,10 +79,10 @@ export class VoucherService
       });
     }
 
-    if (dto.start_date < new Date()) {
+    if (dto.end_date < new Date()) {
       errors.push({
-        field: VoucherFieldName.START_DATE,
-        message: "Start date must be in the future",
+        field: VoucherFieldName.END_DATE,
+        message: "End date must be in the future",
       });
     }
 
@@ -189,10 +190,6 @@ export class VoucherService
     return this.voucherRepo.getItems(dto);
   }
 
-  public async getById(id: string): Promise<IVoucher | null> {
-    return this.voucherRepo.getItem(id);
-  }
-
   public async getDetail(id: string): Promise<IVoucher | null> {
     const item = this.voucherRepo.getItem(id);
 
@@ -224,17 +221,22 @@ export class VoucherService
     return updated;
   }
 
-  public async getAllVoucherByFranchiseId(franchiseId: string) {
-    return this.voucherRepo.find({
-      franchise_id: franchiseId,
-      is_deleted: false,
-    });
+  public async getAllAvailableVouchersByFranchiseId(franchiseId: string): Promise<IVoucher[]> {
+    return this.voucherRepo.getAllAvailableVouchersByFranchiseId(new Types.ObjectId(franchiseId));
   }
 
-  public async getAllVoucherByProductFranchiseId(productFranchiseId: string) {
+  public async getAllVoucherByProductFranchiseId(productFranchiseId: string): Promise<IVoucher[]> {
     return this.voucherRepo.find({
       product_franchise_id: productFranchiseId,
       is_deleted: false,
     });
+  }
+
+  public async getById(id: string): Promise<IVoucher | null> {
+    return this.voucherRepo.getItem(id);
+  }
+
+  public async getActiveVoucherByCode(code: string, franchiseId: Types.ObjectId): Promise<IVoucher | null> {
+    return this.voucherRepo.getActiveVoucherByCode(code, franchiseId);
   }
 }

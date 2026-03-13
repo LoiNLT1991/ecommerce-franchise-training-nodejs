@@ -1,5 +1,5 @@
 import { generateRandomPassword } from "./helpers";
 
 export const genVoucherCode = (): string => {
-  return generateRandomPassword(10).toUpperCase();
+  return `VOUCHER_${generateRandomPassword(10).toUpperCase()}`;
 };

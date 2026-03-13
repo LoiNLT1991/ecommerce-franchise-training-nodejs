@@ -1,8 +1,17 @@
 import { Router } from "express";
-import { API_PATH, authMiddleware, customerAuthMiddleware, IRoute, validationMiddleware } from "../../core";
+import {
+  adminAuthMiddleware,
+  API_PATH,
+  authMiddleware,
+  customerAuthMiddleware,
+  IRoute,
+  validationMiddleware,
+} from "../../core";
 import { CartController } from "./cart.controller";
+import { AddToCartDto } from "./dto/create.dto";
 import { RemoveOptionItemDto, UpdateQuantityOptionItemDto } from "./dto/optionItem.dto";
 import { UpdateCartDto } from "./dto/update.dto";
+import { ApplyVoucherDto } from "./dto/voucher.dto";
 
 export default class CartRoute implements IRoute {
   public path = API_PATH.CART;
@@ -20,8 +29,41 @@ export default class CartRoute implements IRoute {
      *     description: Cart related endpoints
      */
 
+    // GET domain:/api/carts/customer/:customerId - Get carts by customer
+    this.router.get(API_PATH.GET_CARTS_BY_CUSTOMER, authMiddleware(), this.controller.getCartsByCustomer);
+
+    // GET domain:/api/carts/customer/:customerId/count-cart - Count cart by customer
+    this.router.get(API_PATH.COUNT_CART_BY_CUSTOMER, customerAuthMiddleware(), this.controller.countCartsByCustomer);
+
+    // PUT domain:/api/carts/:id/apply-voucher - Apply voucher for cart
+    this.router.put(
+      API_PATH.APPLY_VOUCHER,
+      authMiddleware(),
+      validationMiddleware(ApplyVoucherDto),
+      this.controller.applyVoucher,
+    );
+
+    // DELETE domain:/api/carts/:id/remove-voucher - Remove voucher for cart
+    this.router.delete(API_PATH.REMOVE_VOUCHER, authMiddleware(), this.controller.removeVoucher);
+
+    // GET domain:/api/carts/:id/count-cart-item - Count cart item in cart
+    this.router.get(API_PATH.COUNT_CART_ITEM, customerAuthMiddleware(), this.controller.countCartItemsInCart);
+
     // POST domain:/api/carts/items - Add cart, add or update cart item, add option in cart item
-    this.router.post(API_PATH.CART_ITEM, authMiddleware(), this.controller.addProductToCart);
+    this.router.post(
+      API_PATH.CART_ITEM,
+      customerAuthMiddleware(),
+      validationMiddleware(AddToCartDto),
+      this.controller.addProductToCart,
+    );
+
+    // POST domain:/api/carts/items/staff - Add cart, add or update cart item, add option in cart item role staff
+    this.router.post(
+      API_PATH.CART_ITEM_STAFF,
+      adminAuthMiddleware(),
+      validationMiddleware(AddToCartDto),
+      this.controller.addProductToCart,
+    );
 
     // GET domain:/api/carts/:id - Get item
     this.router.get(API_PATH.CART_ID, authMiddleware(), this.controller.getItem);
@@ -52,19 +94,5 @@ export default class CartRoute implements IRoute {
       validationMiddleware(RemoveOptionItemDto),
       this.controller.removeOptionItem,
     );
-
-    // PATCH domain:/api/carts/items/:cartItemId - Update cart item
-    // this.router.patch(API_PATH.CART_ITEM_ID, adminAuthMiddleware(), customerAuthMiddleware(), this.controller.getItem);
-
-    // DELETE domain:/cart/items/:cartItemId - Delete cart item
-    // this.router.delete(API_PATH.CART_ITEM_ID, adminAuthMiddleware(), customerAuthMiddleware(), this.controller.getItem);
-
-    // POST domain:/api/carts/apply-voucher - Apply voucher for cart item
-    // this.router.post(API_PATH.APPLY_VOUCHER, adminAuthMiddleware(), customerAuthMiddleware(), this.controller.getItem);
-
-    // DELETE domain:/api/carts/remove-voucher/:cartItemId - Remove voucher for cart item
-    // this.router.delete(API_PATH.REMOVE_VOUCHER, adminAuthMiddleware(), customerAuthMiddleware(), this.controller.getItem);
-
-    TODO: "Apply voucher for cart item";
   }
 }

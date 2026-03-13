@@ -83,14 +83,27 @@ export class CartRepository extends BaseRepository<ICart> {
     }
   }
 
-  /**
-   * Get full cart detail with items + options
-   */
-  public async getCartDetail(cartId: Types.ObjectId) {
-    const result = await this.model.aggregate([
-      ...this.buildCartBaseAggregate({ _id: cartId }),
+  public async getCartsByCustomer(customerId: string, status?: CartStatus) {
+    const matchQuery: Record<string, any> = {
+      customer_id: new Types.ObjectId(customerId),
+      is_deleted: false,
+    };
 
-      // Cart Items
+    if (status) {
+      matchQuery.status = status;
+    } else {
+      matchQuery.status = { $ne: CartStatus.ACTIVE };
+    }
+
+    const result = await this.model.aggregate([
+      ...this.buildCartBaseAggregate(matchQuery),
+
+      // sort cart mới nhất trước
+      { $sort: { updated_at: -1 } },
+
+      /**
+       * Cart Items
+       */
       {
         $lookup: {
           from: "cartitems",
@@ -100,7 +113,9 @@ export class CartRepository extends BaseRepository<ICart> {
         },
       },
 
-      // Product franchises
+      /**
+       * Product franchises
+       */
       {
         $lookup: {
           from: "productfranchises",
@@ -110,7 +125,9 @@ export class CartRepository extends BaseRepository<ICart> {
         },
       },
 
-      // Option product franchises
+      /**
+       * Option product franchises
+       */
       {
         $lookup: {
           from: "productfranchises",
@@ -120,7 +137,9 @@ export class CartRepository extends BaseRepository<ICart> {
         },
       },
 
-      // Products
+      /**
+       * Products
+       */
       {
         $lookup: {
           from: "products",
@@ -130,7 +149,9 @@ export class CartRepository extends BaseRepository<ICart> {
         },
       },
 
-      // Option products
+      /**
+       * Option products
+       */
       {
         $lookup: {
           from: "products",
@@ -140,6 +161,9 @@ export class CartRepository extends BaseRepository<ICart> {
         },
       },
 
+      /**
+       * Build cart_items giống getCartDetail
+       */
       {
         $addFields: {
           cart_items: {
@@ -154,6 +178,7 @@ export class CartRepository extends BaseRepository<ICart> {
                 line_total: "$$item.line_total",
                 final_line_total: "$$item.final_line_total",
                 options_hash: "$$item.options_hash",
+                note: "$$item.note",
 
                 product_name: {
                   $arrayElemAt: [
@@ -269,6 +294,241 @@ export class CartRepository extends BaseRepository<ICart> {
 
           staff_id: 1,
           staff_name: 1,
+          staff_email: 1,
+
+          franchise_id: 1,
+          franchise_name: 1,
+
+          status: 1,
+          address: 1,
+          phone: 1,
+
+          loyalty_points_used: 1,
+          promotion_discount: 1,
+          voucher_discount: 1,
+          loyalty_discount: 1,
+
+          subtotal_amount: 1,
+          final_amount: 1,
+
+          promotion_id: 1,
+          promotion_type: 1,
+          promotion_value: 1,
+
+          voucher_id: 1,
+          voucher_code: 1,
+          voucher_type: 1,
+          voucher_value: 1,
+
+          cart_items: 1,
+        },
+      },
+    ]);
+
+    return result;
+  }
+
+  public async countCartsByCustomer(customerId: string, status?: CartStatus): Promise<number> {
+    const query: Record<string, any> = {
+      customer_id: new Types.ObjectId(customerId),
+      is_deleted: false,
+    };
+
+    if (status) {
+      query.status = status;
+    }
+
+    return this.model.countDocuments(query);
+  }
+
+  /**
+   * Get full cart detail with items + options
+   */
+  public async getCartDetail(cartId: Types.ObjectId) {
+    const result = await this.model.aggregate([
+      ...this.buildCartBaseAggregate({ _id: cartId }),
+
+      // Cart Items
+      {
+        $lookup: {
+          from: "cartitems",
+          localField: "_id",
+          foreignField: "cart_id",
+          as: "cart_items",
+        },
+      },
+
+      // Product franchises
+      {
+        $lookup: {
+          from: "productfranchises",
+          localField: "cart_items.product_franchise_id",
+          foreignField: "_id",
+          as: "product_franchises",
+        },
+      },
+
+      // Option product franchises
+      {
+        $lookup: {
+          from: "productfranchises",
+          localField: "cart_items.options.product_franchise_id",
+          foreignField: "_id",
+          as: "option_product_franchises",
+        },
+      },
+
+      // Products
+      {
+        $lookup: {
+          from: "products",
+          localField: "product_franchises.product_id",
+          foreignField: "_id",
+          as: "products",
+        },
+      },
+
+      // Option products
+      {
+        $lookup: {
+          from: "products",
+          localField: "option_product_franchises.product_id",
+          foreignField: "_id",
+          as: "option_products",
+        },
+      },
+
+      {
+        $addFields: {
+          cart_items: {
+            $map: {
+              input: "$cart_items",
+              as: "item",
+              in: {
+                cart_item_id: "$$item._id",
+                quantity: "$$item.quantity",
+                product_cart_price: "$$item.product_cart_price",
+                discount_amount: "$$item.discount_amount",
+                line_total: "$$item.line_total",
+                final_line_total: "$$item.final_line_total",
+                options_hash: "$$item.options_hash",
+                note: "$$item.note",
+
+                product_name: {
+                  $arrayElemAt: [
+                    {
+                      $map: {
+                        input: {
+                          $filter: {
+                            input: "$products",
+                            as: "p",
+                            cond: {
+                              $eq: [
+                                "$$p._id",
+                                {
+                                  $arrayElemAt: [
+                                    {
+                                      $map: {
+                                        input: {
+                                          $filter: {
+                                            input: "$product_franchises",
+                                            as: "pf",
+                                            cond: {
+                                              $eq: ["$$pf._id", "$$item.product_franchise_id"],
+                                            },
+                                          },
+                                        },
+                                        as: "pf",
+                                        in: "$$pf.product_id",
+                                      },
+                                    },
+                                    0,
+                                  ],
+                                },
+                              ],
+                            },
+                          },
+                        },
+                        as: "p",
+                        in: "$$p.name",
+                      },
+                    },
+                    0,
+                  ],
+                },
+
+                options: {
+                  $map: {
+                    input: "$$item.options",
+                    as: "opt",
+                    in: {
+                      quantity: "$$opt.quantity",
+                      product_franchise_id: "$$opt.product_franchise_id",
+                      price_snapshot: "$$opt.price_snapshot",
+                      discount_amount: "$$opt.discount_amount",
+                      final_price: "$$opt.final_price",
+
+                      product_name: {
+                        $arrayElemAt: [
+                          {
+                            $map: {
+                              input: {
+                                $filter: {
+                                  input: "$option_products",
+                                  as: "p",
+                                  cond: {
+                                    $eq: [
+                                      "$$p._id",
+                                      {
+                                        $arrayElemAt: [
+                                          {
+                                            $map: {
+                                              input: {
+                                                $filter: {
+                                                  input: "$option_product_franchises",
+                                                  as: "pf",
+                                                  cond: {
+                                                    $eq: ["$$pf._id", "$$opt.product_franchise_id"],
+                                                  },
+                                                },
+                                              },
+                                              as: "pf",
+                                              in: "$$pf.product_id",
+                                            },
+                                          },
+                                          0,
+                                        ],
+                                      },
+                                    ],
+                                  },
+                                },
+                              },
+                              as: "p",
+                              in: "$$p.name",
+                            },
+                          },
+                          0,
+                        ],
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+
+      {
+        $project: {
+          _id: 1,
+
+          customer_id: 1,
+          customer_name: 1,
+
+          staff_id: 1,
+          staff_name: 1,
+          staff_email: 1,
 
           franchise_id: 1,
           franchise_name: 1,
@@ -282,6 +542,15 @@ export class CartRepository extends BaseRepository<ICart> {
           loyalty_discount: 1,
           subtotal_amount: 1,
           final_amount: 1,
+
+          promotion_id: 1,
+          promotion_type: 1,
+          promotion_value: 1,
+
+          voucher_id: 1,
+          voucher_code: 1,
+          voucher_type: 1,
+          voucher_value: 1,
 
           cart_items: 1,
         },
@@ -346,6 +615,7 @@ export class CartRepository extends BaseRepository<ICart> {
           customer_email: "$customer.email",
           customer_phone: "$customer.phone",
           staff_name: "$staff.name",
+          staff_email: "$staff.email",
           voucher_code: "$voucher.code",
         },
       },
@@ -372,18 +642,19 @@ export class CartRepository extends BaseRepository<ICart> {
         status: CartStatus.ACTIVE,
         is_deleted: false,
       })
-      .lean();
+      .lean()
+      .exec();
   }
 
   /**
    * Apply voucher to cart
    */
-  public async applyVoucher(cartId: Types.ObjectId, voucherId: Types.ObjectId, voucherCode: string): Promise<void> {
+  public async applyVoucher(cartId: Types.ObjectId, voucher_id: Types.ObjectId, voucher_code: string): Promise<void> {
     await this.model.updateOne(
       { _id: cartId },
       {
-        voucher_id: voucherId,
-        voucher_code: voucherCode,
+        voucher_id,
+        voucher_code,
       },
     );
   }
@@ -398,6 +669,9 @@ export class CartRepository extends BaseRepository<ICart> {
         $unset: {
           voucher_id: "",
           voucher_code: "",
+          voucher_type: "",
+          voucher_value: 0,
+          voucher_discount: 0,
         },
       },
     );

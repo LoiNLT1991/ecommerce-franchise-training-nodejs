@@ -7,7 +7,7 @@ import {
     IsString,
     Min
 } from "class-validator";
-import { VoucherType } from "../voucher.enum";
+import { PriceType } from "../../../core";
 
 export class UpdateVoucherDto {  
   @IsOptional()
@@ -19,8 +19,8 @@ export class UpdateVoucherDto {
   description?: string;
 
   @IsOptional()
-  @IsEnum(VoucherType)
-  type?: VoucherType;
+  @IsEnum(PriceType)
+  type?: PriceType;
 
   @IsOptional()
   @Type(() => Number)

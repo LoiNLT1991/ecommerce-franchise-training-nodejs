@@ -7,6 +7,7 @@ export interface ICreateCartItemDto {
   product_franchise_id: Types.ObjectId;
   quantity: number;
   product_cart_price: number;
+  note?: string;
   
   options_hash: string;
   options?: ICartItemOptionDto[];

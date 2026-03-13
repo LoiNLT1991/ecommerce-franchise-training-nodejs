@@ -1,6 +1,6 @@
 import { Type } from "class-transformer";
 import { IsDate, IsEnum, IsNumber, IsOptional, IsString, Min } from "class-validator";
-import { PromotionType } from "../promotion.enum";
+import { PriceType } from "../../../core";
 
 export class UpdatePromotionDto {
   @IsOptional()
@@ -8,8 +8,8 @@ export class UpdatePromotionDto {
   name?: string;
 
   @IsOptional()
-  @IsEnum(PromotionType)
-  type?: PromotionType;
+  @IsEnum(PriceType)
+  type?: PriceType;
 
   @IsOptional()
   @Type(() => Number)

@@ -1,6 +1,6 @@
 import { Type } from "class-transformer";
 import { IsDate, IsEnum, IsMongoId, IsNotEmpty, IsNumber, IsOptional, IsString, Min } from "class-validator";
-import { PromotionType } from "../promotion.enum";
+import { PriceType } from "../../../core";
 
 export class CreatePromotionDto {
   @IsNotEmpty()
@@ -16,8 +16,8 @@ export class CreatePromotionDto {
   product_franchise_id?: string;
 
   @IsNotEmpty()
-  @IsEnum(PromotionType)
-  type!: PromotionType;
+  @IsEnum(PriceType)
+  type!: PriceType;
 
   @Type(() => Number)
   @IsNumber()

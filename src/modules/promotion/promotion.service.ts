@@ -81,10 +81,10 @@ export class PromotionService extends BaseCrudService<
       });
     }
 
-    if (dto.start_date < new Date()) {
+    if (dto.end_date < new Date()) {
       errors.push({
-        field: PromotionFieldName.START_DATE,
-        message: "Start date must be in the future",
+        field: PromotionFieldName.END_DATE,
+        message: "End date must be in the future",
       });
     }
 
@@ -241,5 +241,14 @@ export class PromotionService extends BaseCrudService<
       product_franchise_id: productFranchiseId,
       is_deleted: false,
     });
+  }
+
+  public async getAllAvailablePromotionsByFranchiseId(franchiseId: string): Promise<IPromotion[]> {
+    return this.promotionRepo.getAllAvailablePromotionsByFranchiseId(new Types.ObjectId(franchiseId));
+  }
+
+  // External dependencies
+  public async getActivePromotionsByFranchiseId(franchiseId: Types.ObjectId): Promise<IPromotion[]> {
+    return this.promotionRepo.getActivePromotionsByFranchiseId(franchiseId);
   }
 }

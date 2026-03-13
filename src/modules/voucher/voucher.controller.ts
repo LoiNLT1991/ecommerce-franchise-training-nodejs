@@ -46,13 +46,11 @@ export class VoucherController extends BaseCrudController<
     }
   };
 
-  public getAllVoucherByFranchiseId = async (req: Request, res: Response, next: NextFunction) => {
+  public getAllAvailableVouchersByFranchiseId = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { franchiseId } = req.params;
-
-      const data = await this.service.getAllVoucherByFranchiseId(franchiseId);
-
-      res.json({ success: true, data });
+      const items = await this.service.getAllAvailableVouchersByFranchiseId(franchiseId);
+      res.status(HttpStatus.Success).json(formatResponse(items));
     } catch (error) {
       next(error);
     }

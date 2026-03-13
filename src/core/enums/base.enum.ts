@@ -43,6 +43,12 @@ export enum CartStatus {
   CHECKED_OUT = "CHECKED_OUT",
 }
 
+export enum PriceType {
+  DEFAULT = "",
+  PERCENT = "PERCENT",
+  FIXED = "FIXED",
+}
+
 export enum BaseFieldName {
   ID = "_id",
   IS_ACTIVE = "is_active",
@@ -76,6 +82,7 @@ export enum BaseFieldName {
   CUSTOMER_ID = "customer_id",
   CUSTOMER_FRANCHISE_ID = "customer_franchise_id",
   STAFF_ID = "staff_id",
+  PROMOTION_ID = "promotion_id",
   VOUCHER_ID = "voucher_id",
   CART_ID = "cart_id",
   CART_ITEM_ID = "cart_item_id",
@@ -88,6 +95,7 @@ export enum BaseFieldName {
   SIZE = "size",
   PRICE_BASE = "price_base",
   NOTE = "note",
+  MESSAGE = "message",
   QUANTITY = "quantity",
   RESERVED_QUANTITY = "reserved_quantity",
   ALERT_THRESHOLD = "alert_threshold",
@@ -95,7 +103,6 @@ export enum BaseFieldName {
   CHANGE = "change",
   REASON = "reason",
   CREATED_BY = "created_by",
-
 
   // Add more fields as needed
   IS_VERIFIED = "is_verified",
@@ -124,7 +131,13 @@ export enum BaseFieldName {
   FINAL_AMOUNT = "final_amount",
   SUBTOTAL_AMOUNT = "subtotal_amount",
   LOYALTY_POINTS_USED = "loyalty_points_used",
+  PROMOTION_NAME = "promotion_name",
+  PROMOTION_TYPE = "promotion_type",
+  PROMOTION_VALUE = "promotion_value",
   VOUCHER_CODE = "voucher_code",
+  VOUCHER_NAME = "voucher_name",
+  VOUCHER_TYPE = "voucher_type",
+  VOUCHER_VALUE = "voucher_value",
   PRODUCT_CART_PRICE = "product_cart_price",
   DISCOUNT_AMOUNT = "discount_amount",
   LINE_TOTAL = "line_total",
@@ -136,8 +149,8 @@ export enum BaseFieldName {
 }
 
 export enum ShiftAssignmentStatus {
-    ASSIGNED = "ASSIGNED",
-    COMPLETED = "COMPLETED",
-    ABSENT = "ABSENT",
-    CANCELED = "CANCELED",
+  ASSIGNED = "ASSIGNED",
+  COMPLETED = "COMPLETED",
+  ABSENT = "ABSENT",
+  CANCELED = "CANCELED",
 }

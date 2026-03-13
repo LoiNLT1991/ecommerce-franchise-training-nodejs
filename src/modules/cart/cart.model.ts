@@ -1,5 +1,5 @@
 import mongoose, { HydratedDocument, Schema } from "mongoose";
-import { BaseFieldName, BASE_MODEL_FIELDS, CartStatus, COLLECTION_NAME } from "../../core";
+import { BASE_MODEL_FIELDS, BaseFieldName, CartStatus, COLLECTION_NAME, PriceType } from "../../core";
 import { ICart } from "./cart.interface";
 
 const CartSchemaEntity = new Schema({
@@ -19,24 +19,35 @@ const CartSchemaEntity = new Schema({
     required: false,
   },
   [BaseFieldName.STATUS]: { type: String, enum: Object.values(CartStatus), default: CartStatus.ACTIVE, required: true }, // ACTIVE / CHECKED_OUT
+  [BaseFieldName.ADDRESS]: { type: String, required: false },
+  [BaseFieldName.PHONE]: { type: String, required: false },
+  [BaseFieldName.MESSAGE]: { type: String, required: false },
+
+  // --- Promotion ---
+  [BaseFieldName.PROMOTION_DISCOUNT]: { type: Number, default: 0 },
+  [BaseFieldName.PROMOTION_ID]: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: COLLECTION_NAME.PROMOTION,
+    required: false,
+  },
+  [BaseFieldName.PROMOTION_TYPE]: { type: String, enum: Object.values(PriceType), default: PriceType.DEFAULT },
+  [BaseFieldName.PROMOTION_VALUE]: { type: Number, default: 0 },
 
   // --- Voucher ---
+  [BaseFieldName.VOUCHER_DISCOUNT]: { type: Number, default: 0 },
   [BaseFieldName.VOUCHER_ID]: {
     type: mongoose.Schema.Types.ObjectId,
     ref: COLLECTION_NAME.VOUCHER,
     required: false,
   },
   [BaseFieldName.VOUCHER_CODE]: { type: String, required: false },
-  [BaseFieldName.ADDRESS]: { type: String, required: false },
-  [BaseFieldName.PHONE]: { type: String, required: false },
-  [BaseFieldName.NOTE]: { type: String, required: false },
+  [BaseFieldName.VOUCHER_TYPE]: { type: String, enum: Object.values(PriceType), default: PriceType.DEFAULT },
+  [BaseFieldName.VOUCHER_VALUE]: { type: Number, default: 0 },
 
   // --- Loyalty ---
   [BaseFieldName.LOYALTY_POINTS_USED]: { type: Number, default: 0 }, // tổng point đã dùng cho cart này
 
   // --- Pricing ---
-  [BaseFieldName.PROMOTION_DISCOUNT]: { type: Number, default: 0 },
-  [BaseFieldName.VOUCHER_DISCOUNT]: { type: Number, default: 0 },
   [BaseFieldName.LOYALTY_DISCOUNT]: { type: Number, default: 0 },
   [BaseFieldName.SUBTOTAL_AMOUNT]: { type: Number, default: 0 }, // tổng tiền trước khi áp các mã giảm
   [BaseFieldName.FINAL_AMOUNT]: { type: Number, default: 0 }, // tổng tiền thật phải trả

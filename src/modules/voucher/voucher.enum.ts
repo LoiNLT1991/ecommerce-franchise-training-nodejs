@@ -1,8 +1,3 @@
-export enum VoucherType {
-  PERCENT = "PERCENT",
-  FIXED = "FIXED",
-}
-
 export enum VoucherFieldName {
   CODE = "code",
   FRANCHISE_ID = "franchise_id",

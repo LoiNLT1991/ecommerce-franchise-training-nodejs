@@ -31,6 +31,16 @@ export class PromotionController extends BaseCrudController<
     }
   };
 
+  public getAllAvailablePromotionsByFranchiseId = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { franchiseId } = req.params;
+      const items: IPromotion[] = await this.service.getAllAvailablePromotionsByFranchiseId(franchiseId);
+      res.status(HttpStatus.Success).json(formatResponse(items));
+    } catch (error) {
+      next(error);
+    }
+  };
+
   public changeStatus = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { id } = req.params;

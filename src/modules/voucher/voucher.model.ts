@@ -1,7 +1,7 @@
 import mongoose, { HydratedDocument, Schema } from "mongoose";
 import { BASE_MODEL_FIELDS, COLLECTION_NAME } from "../../core/constants";
-import { BaseFieldName } from "../../core/enums";
-import { VoucherFieldName, VoucherType } from "./voucher.enum";
+import { BaseFieldName, PriceType } from "../../core/enums";
+import { VoucherFieldName } from "./voucher.enum";
 import { IVoucher } from "./voucher.interface";
 
 const VoucherSchemaEntity = new Schema({
@@ -25,7 +25,7 @@ const VoucherSchemaEntity = new Schema({
   [VoucherFieldName.DESCRIPTION]: { type: String, default: "" },
   [VoucherFieldName.TYPE]: {
     type: String,
-    enum: Object.values(VoucherType),
+    enum: Object.values(PriceType),
     required: true,
   },
   [VoucherFieldName.VALUE]: { type: Number, min: 0, default: 0 },

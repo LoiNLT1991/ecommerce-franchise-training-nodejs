@@ -1,5 +1,4 @@
-import { Type } from "class-transformer";
-import { IsNotEmpty, IsNumber, IsOptional, IsString, Min } from "class-validator";
+import { IsOptional, IsString } from "class-validator";
 
 export class UpdateCartDto {
   @IsOptional()
@@ -12,6 +11,6 @@ export class UpdateCartDto {
 
   @IsOptional()
   @IsString()
-  note!: string;
+  message!: string;
 }
 

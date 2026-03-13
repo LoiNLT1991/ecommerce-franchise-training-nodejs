@@ -1,7 +1,7 @@
 import { Document, Types } from "mongoose";
-import { BaseFieldName } from "../../core/enums";
+import { BaseFieldName, PriceType } from "../../core/enums";
 import { IBase } from "../../core/interfaces";
-import { VoucherFieldName, VoucherType } from "./voucher.enum";
+import { VoucherFieldName } from "./voucher.enum";
 
 export interface IVoucher extends Document, IBase {
   [VoucherFieldName.CODE]: string;
@@ -12,7 +12,7 @@ export interface IVoucher extends Document, IBase {
   [VoucherFieldName.PRODUCT_FRANCHISE_ID]?: Types.ObjectId;
   product_id: string;
   product_name: string;
-  [VoucherFieldName.TYPE]: VoucherType;
+  [VoucherFieldName.TYPE]: PriceType;
   [VoucherFieldName.VALUE]: number;
   [VoucherFieldName.QUOTA_TOTAL]: number;
   [VoucherFieldName.QUOTA_USED]: number;
@@ -25,4 +25,5 @@ export interface IVoucher extends Document, IBase {
 
 export interface IVoucherQuery {
   getById(id: string): Promise<IVoucher | null>;
+  getActiveVoucherByCode(code: string, franchiseId: Types.ObjectId): Promise<IVoucher | null>;
 }

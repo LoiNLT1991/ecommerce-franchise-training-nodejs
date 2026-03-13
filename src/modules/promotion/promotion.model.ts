@@ -1,7 +1,7 @@
 import mongoose, { HydratedDocument, Schema } from "mongoose";
 import { BASE_MODEL_FIELDS, COLLECTION_NAME } from "../../core/constants";
-import { BaseFieldName } from "../../core/enums";
-import { PromotionFieldName, PromotionType } from "./promotion.enum";
+import { BaseFieldName, PriceType } from "../../core/enums";
+import { PromotionFieldName } from "./promotion.enum";
 import { IPromotion } from "./promotion.interface";
 
 const PromotionSchemaEntity = new Schema({
@@ -18,7 +18,7 @@ const PromotionSchemaEntity = new Schema({
   },
   [PromotionFieldName.TYPE]: {
     type: String,
-    enum: Object.values(PromotionType),
+    enum: Object.values(PriceType),
     required: true,
   },
   [PromotionFieldName.VALUE]: { type: Number, min: 0, default: 0 },

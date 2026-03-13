@@ -162,4 +162,30 @@ export class VoucherRepository extends BaseRepository<IVoucher> {
       },
     ];
   }
+
+  public async getActiveVoucherByCode(code: string, franchiseId: Types.ObjectId): Promise<IVoucher | null> {
+    const now = new Date();
+
+    return this.model.findOne({
+      code: new RegExp(`^${code}$`, "i"),
+      franchise_id: franchiseId,
+      is_active: true,
+      is_deleted: false,
+      start_date: { $lte: now },
+      end_date: { $gte: now },
+    });
+  }
+
+  public async getAllAvailableVouchersByFranchiseId(franchiseId: Types.ObjectId): Promise<IVoucher[]> {
+    const now = new Date();
+
+    return this.model
+      .find({
+        franchise_id: franchiseId,
+        is_active: true,
+        is_deleted: false,
+        end_date: { $gte: now },
+      })
+      .sort({ start_date: 1 }); // item gần hiện tại nhất lên trước
+  }
 }

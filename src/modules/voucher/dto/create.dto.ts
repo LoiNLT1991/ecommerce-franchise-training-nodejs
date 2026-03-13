@@ -1,6 +1,6 @@
 import { Type } from "class-transformer";
 import { IsDate, IsEnum, IsMongoId, IsNotEmpty, IsNumber, IsOptional, IsString, Min } from "class-validator";
-import { VoucherType } from "../voucher.enum";
+import { PriceType } from "../../../core";
 
 export class CreateVoucherDto {
   code!: string;
@@ -22,8 +22,8 @@ export class CreateVoucherDto {
   description?: string;
 
   @IsNotEmpty()
-  @IsEnum(VoucherType)
-  type!: VoucherType;
+  @IsEnum(PriceType)
+  type!: PriceType;
 
   @Type(() => Number)
   @IsNumber()

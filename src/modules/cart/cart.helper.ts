@@ -1,4 +1,4 @@
-import { CustomerAuthPayload, HttpException, HttpStatus, UserAuthPayload, UserType } from "../../core";
+import { CustomerAuthPayload, HttpException, HttpStatus, UserAuthPayload } from "../../core";
 import { ICartItem } from "../cart-item";
 import { IProductFranchise, IProductFranchiseQuery } from "../product-franchise";
 import { AddCartItemOptionDto, AddToCartDto } from "./dto/create.dto";
@@ -36,13 +36,13 @@ export class CartHelper {
   }
 
   public resolveCustomerAndStaff(payload: AddToCartDto, loggedUser: UserAuthPayload | CustomerAuthPayload) {
-    if (loggedUser.type === UserType.USER) {
+    if (loggedUser.context) {
       payload.staff_id = loggedUser.id;
 
       if (!payload.customer_id) {
-        throw new HttpException(HttpStatus.BadRequest, "Customer id is required");
+        throw new HttpException(HttpStatus.BadRequest, "Customer is required");
       }
-    } else if (loggedUser.type === UserType.CUSTOMER) {
+    } else {
       payload.customer_id = loggedUser.id;
     }
   }
@@ -98,12 +98,12 @@ export class CartHelper {
 
   public buildCartItemSnapshot(item: ICartItem) {
     return {
-      cartItemId: item._id.toString(),
-      productId: item.product_franchise_id.toString(),
+      cartItemId: String(item._id),
+      productId: String(item.product_franchise_id),
       quantity: item.quantity,
 
-      options: item.options.map((o) => ({
-        optionId: o.product_franchise_id.toString(),
+      options: item?.options?.map((o) => ({
+        optionId: String(o.product_franchise_id),
         quantity: o.quantity,
         price: o.price_snapshot,
       })),

@@ -4,8 +4,12 @@ import { CartItemModule } from "../cart-item";
 import { CustomerModule } from "../customer";
 import { FranchiseModule } from "../franchise";
 import { ProductFranchiseModule } from "../product-franchise";
+import { PromotionModule } from "../promotion";
+import { VoucherModule } from "../voucher";
 import { CartItemService } from "./cart-item.service";
 import { CartOptionItemService } from "./cart-option-item.service";
+import { CartPromotionService } from "./cart-promotion.service";
+import { CartVoucherService } from "./cart-voucher.service";
 import { CartController } from "./cart.controller";
 import { CartHelper } from "./cart.helper";
 import { CartRepository } from "./cart.repository";
@@ -18,6 +22,8 @@ export class CartModule extends BaseModule<CartRoute> {
     franchiseModule: FranchiseModule,
     productFranchiseModule: ProductFranchiseModule,
     cartItemModule: CartItemModule,
+    promotionModule: PromotionModule,
+    voucherModule: VoucherModule
   ) {
     super();
 
@@ -26,6 +32,8 @@ export class CartModule extends BaseModule<CartRoute> {
     const franchiseQuery = franchiseModule.getFranchiseQuery();
     const productFranchiseQuery = productFranchiseModule.getProductFranchiseQuery();
     const cartItemQuery = cartItemModule.getCartItemQuery();
+    const promotionQuery = promotionModule.getPromotionQuery();
+    const voucherQuery = voucherModule.getVoucherQuery();
 
     // ===== Internal dependencies =====
     const auditLogModule = new AuditLogModule();
@@ -34,6 +42,8 @@ export class CartModule extends BaseModule<CartRoute> {
     const cartHelper = new CartHelper(productFranchiseQuery);
     const cartItemService = new CartItemService(auditLogger, cartHelper, cartItemQuery);
     const cartItemOptionService = new CartOptionItemService(auditLogger, cartHelper, cartItemQuery);
+    const cartPromotionService = new CartPromotionService(promotionQuery);
+    const cartVoucherService = new CartVoucherService(voucherQuery);
 
     // Core service and Http layer
     const service = new CartService(
@@ -42,10 +52,13 @@ export class CartModule extends BaseModule<CartRoute> {
       cartHelper,
       cartItemService,
       cartItemOptionService,
+      cartPromotionService,
+      cartVoucherService,
       customerQuery,
       franchiseQuery,
       productFranchiseQuery,
       cartItemQuery,
+      voucherQuery
     );
 
     const controller = new CartController(service);

@@ -1,7 +1,7 @@
 import { Document, Types } from "mongoose";
-import { BaseFieldName } from "../../core/enums";
+import { BaseFieldName, PriceType } from "../../core/enums";
 import { IBase } from "../../core/interfaces";
-import { PromotionFieldName, PromotionType } from "./promotion.enum";
+import { PromotionFieldName } from "./promotion.enum";
 
 export interface IPromotion extends Document, IBase {
   [BaseFieldName.NAME]: string;
@@ -10,7 +10,7 @@ export interface IPromotion extends Document, IBase {
   [PromotionFieldName.PRODUCT_FRANCHISE_ID]?: Types.ObjectId;
   product_id?: string;
   product_name?: string;
-  [PromotionFieldName.TYPE]: PromotionType;
+  [PromotionFieldName.TYPE]: PriceType;
   [PromotionFieldName.VALUE]: number;
   [PromotionFieldName.START_DATE]: Date;
   [PromotionFieldName.END_DATE]: Date;
@@ -21,4 +21,5 @@ export interface IPromotion extends Document, IBase {
 
 export interface IPromotionQuery {
   getById(id: string): Promise<IPromotion | null>;
+  getActivePromotionsByFranchiseId(franchiseId: Types.ObjectId): Promise<IPromotion[]>;
 }

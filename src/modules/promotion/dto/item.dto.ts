@@ -1,4 +1,5 @@
-import { BaseItemDto } from "../../../core/dto";
+import { BaseItemDto } from "../../../core";
+
 
 export interface PromotionItemDto extends BaseItemDto {
   name: string;

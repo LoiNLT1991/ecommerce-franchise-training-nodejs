@@ -1,17 +1,17 @@
 import { Transform, Type } from "class-transformer";
 import {
-  IsDateString,
-  IsEnum,
-  IsMongoId,
-  IsNumber,
-  IsOptional,
-  Min,
+    IsDateString,
+    IsEnum,
+    IsMongoId,
+    IsNumber,
+    IsOptional,
+    Min,
 } from "class-validator";
+import { PriceType } from "../../../core";
 import {
-  BaseSearchItemDto,
-  SearchPaginationRequestModel,
+    BaseSearchItemDto,
+    SearchPaginationRequestModel,
 } from "../../../core/models";
-import { PromotionType } from "../promotion.enum";
 
 export class SearchItemDto extends BaseSearchItemDto {
   @IsOptional()
@@ -25,8 +25,8 @@ export class SearchItemDto extends BaseSearchItemDto {
   product_franchise_id?: string;
 
   @IsOptional()
-  @IsEnum(PromotionType)
-  type?: PromotionType;
+  @IsEnum(PriceType)
+  type?: PriceType;
 
   @IsOptional()
   @Transform(({ value }) => {

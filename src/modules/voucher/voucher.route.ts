@@ -2,7 +2,7 @@ import { Router } from "express";
 import { API_PATH, SYSTEM_AND_FRANCHISE_MANAGER_ROLES } from "../../core/constants";
 import { IRoute } from "../../core/interfaces";
 import { VoucherController } from "./voucher.controller";
-import { adminAuthMiddleware, requireMoreContext, validationMiddleware } from "../../core/middleware";
+import { adminAuthMiddleware, authMiddleware, requireMoreContext, validationMiddleware } from "../../core/middleware";
 import { CreateVoucherDto } from "./dto/create.dto";
 import { SearchPaginationItemDto } from "./dto/search.dto";
 import { UpdateVoucherDto } from "./dto/update.dto";
@@ -23,6 +23,9 @@ export default class VoucherRoute implements IRoute {
      *     description: Voucher related endpoints
      */
 
+    // GET /api/vouchers/franchise/:franchiseId - Get by franchise id
+    this.router.get(API_PATH.GET_VOUCHERS_BY_FRANCHISE, authMiddleware(), this.controller.getAllAvailableVouchersByFranchiseId);
+
     // PATCH /api/vouchers/:id/status - Change status
     this.router.patch(
       API_PATH.VOUCHER_CHANGE_STATUS,
@@ -36,7 +39,7 @@ export default class VoucherRoute implements IRoute {
       API_PATH.GET_VOUCHERS_BY_FRANCHISE,
       adminAuthMiddleware(),
       requireMoreContext(SYSTEM_AND_FRANCHISE_MANAGER_ROLES),
-      this.controller.getAllVoucherByFranchiseId,
+      this.controller.getAllAvailableVouchersByFranchiseId,
     );
 
     // GET /api/vouchers/product-franchise/:productFranchiseId - Get by product franchise id

@@ -29,8 +29,8 @@ export class PromotionRepository extends BaseRepository<IPromotion> {
 
     let query: Record<string, any> = {};
 
-    if (franchise_id) query.franchise_id = franchise_id;
-    if (product_franchise_id) query.product_franchise_id = product_franchise_id;
+    if (franchise_id) query.franchise_id = new Types.ObjectId(franchise_id);
+    if (product_franchise_id) query.product_franchise_id = new Types.ObjectId(product_franchise_id);
     if (type) query.type = type;
     if (value !== undefined) query.value = value;
 
@@ -126,5 +126,28 @@ export class PromotionRepository extends BaseRepository<IPromotion> {
         },
       },
     ];
+  }
+
+  public async getActivePromotionsByFranchiseId(franchiseId: Types.ObjectId): Promise<IPromotion[]> {
+    const now = new Date();
+    return this.model.find({
+      franchise_id: franchiseId,
+      start_date: { $lte: now },
+      end_date: { $gte: now },
+      is_deleted: false,
+    });
+  }
+
+  public async getAllAvailablePromotionsByFranchiseId(franchiseId: Types.ObjectId): Promise<IPromotion[]> {
+    const now = new Date();
+
+    return this.model
+      .find({
+        franchise_id: franchiseId,
+        is_active: true,
+        is_deleted: false,
+        end_date: { $gte: now },
+      })
+      .sort({ start_date: 1 }); // item gần hiện tại nhất lên trước
   }
 }

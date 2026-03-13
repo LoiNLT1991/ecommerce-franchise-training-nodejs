@@ -14,4 +14,11 @@ export class CartItemRepository extends BaseRepository<ICartItem> {
       is_deleted: false,
     });
   }
+
+  public async countItemsByCartId(cartId: Types.ObjectId): Promise<number> {
+    return this.model.countDocuments({
+      cart_id: cartId,
+      is_deleted: false,
+    });
+  }
 }

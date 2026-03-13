@@ -15,12 +15,21 @@ export class CartItemService implements ICartItemQuery {
     this.cartItemRepo = repo;
   }
 
+  public async createCartItem(payload: ICreateCartItemDto): Promise<ICartItem> {
+    // TODO: create auditLogger
+    return this.cartItemRepo.create(payload);
+  }
+
   public async getById(id: string): Promise<ICartItem | null> {
     return this.cartItemRepo.findById(id);
   }
 
   public async getItemsByCartId(cartId: Types.ObjectId): Promise<ICartItem[]> {
     return this.cartItemRepo.getItemsByCartId(cartId);
+  }
+
+  public async countItemsByCartId(cartId: Types.ObjectId): Promise<number> {
+    return this.cartItemRepo.countItemsByCartId(cartId);
   }
 
   public async findByIdForUpdate(id: string): Promise<ICartItem | null> {
@@ -33,11 +42,6 @@ export class CartItemService implements ICartItemQuery {
       product_franchise_id: payload.product_franchise_id,
       options_hash: payload.options_hash,
     });
-  }
-
-  public async createCartItem(payload: ICreateCartItemDto): Promise<ICartItem> {
-    // TODO: create auditLogger
-    return this.cartItemRepo.create(payload);
   }
 
   public async findDuplicateCartItem(payload: {

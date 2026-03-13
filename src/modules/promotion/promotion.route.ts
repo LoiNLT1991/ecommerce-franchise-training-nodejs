@@ -1,7 +1,14 @@
 import { Router } from "express";
-import { API_PATH, SYSTEM_AND_FRANCHISE_MANAGER_ROLES } from "../../core/constants";
-import { IRoute } from "../../core/interfaces";
-import { adminAuthMiddleware, requireMoreContext, validationMiddleware } from "../../core/middleware";
+
+import {
+  adminAuthMiddleware,
+  API_PATH,
+  authMiddleware,
+  IRoute,
+  requireMoreContext,
+  SYSTEM_AND_FRANCHISE_MANAGER_ROLES,
+  validationMiddleware,
+} from "../../core";
 import { CreatePromotionDto } from "./dto/create.dto";
 import { SearchPaginationItemDto } from "./dto/search.dto";
 import { UpdatePromotionDto } from "./dto/update.dto";
@@ -39,9 +46,8 @@ export default class PromotionRoute implements IRoute {
     // GET /api/promotions/franchise/:franchiseId - Get by franchise id
     this.router.get(
       API_PATH.GET_PROMOTIONS_BY_FRANCHISE,
-      adminAuthMiddleware(),
-      requireMoreContext(SYSTEM_AND_FRANCHISE_MANAGER_ROLES),
-      this.controller.getAllPromotionsByFranchiseId,
+      authMiddleware(),
+      this.controller.getAllAvailablePromotionsByFranchiseId,
     );
 
     // GET /api/promotions/product-franchise/:productFranchiseId - Get by product franchise name

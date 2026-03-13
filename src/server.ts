@@ -59,7 +59,14 @@ const voucherModule = new VoucherModule(productFranchiseModule);
 // Public module (export to client)
 const clientModule = new ClientModule(franchiseModule, categoryFranchiseModule, productFranchiseModule);
 const cartItemModule = new CartItemModule();
-const cartModule = new CartModule(customerModule, franchiseModule, productFranchiseModule, cartItemModule);
+const cartModule = new CartModule(
+  customerModule,
+  franchiseModule,
+  productFranchiseModule,
+  cartItemModule,
+  promotionModule,
+  voucherModule,
+);
 
 const shiftModule = new ShiftModule();
 const shiftAssignmentModule = new ShiftAssignmentModule(userModule, shiftModule, userFranchiseRoleModule);

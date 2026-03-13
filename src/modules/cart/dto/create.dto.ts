@@ -28,6 +28,10 @@ export class AddToCartDto {
 
   @IsOptional()
   @IsString()
+  message!: string;
+
+  @IsOptional()
+  @IsString()
   note!: string;
 
   // optional options

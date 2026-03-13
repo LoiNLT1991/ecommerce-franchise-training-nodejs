@@ -10,12 +10,16 @@ import {
   MSG_BUSINESS,
   UserAuthPayload,
 } from "../../core";
-import { IAuditLogger } from "../audit-log";
+import { AuditAction, AuditEntityType, IAuditLogger } from "../audit-log";
 import { ICartItemQuery } from "../cart-item";
 import { ICustomerQuery } from "../customer";
 import { IFranchiseQuery } from "../franchise";
 import { IProductFranchiseQuery } from "../product-franchise";
+import { IVoucherQuery } from "../voucher";
+import { CartItemService } from "./cart-item.service";
 import { CartOptionItemService } from "./cart-option-item.service";
+import { CartPromotionService } from "./cart-promotion.service";
+import { CartVoucherService } from "./cart-voucher.service";
 import { CartHelper } from "./cart.helper";
 import { ICart } from "./cart.interface";
 import { CartRepository } from "./cart.repository";
@@ -23,7 +27,7 @@ import { AddToCartDto, CreateCartDto } from "./dto/create.dto";
 import { UpdateQuantityOptionItemDto } from "./dto/optionItem.dto";
 import { SearchPaginationItemDto } from "./dto/search.dto";
 import { UpdateCartDto } from "./dto/update.dto";
-import { CartItemService } from "./cart-item.service";
+import { ApplyVoucherDto } from "./dto/voucher.dto";
 
 const AUDIT_FIELDS_ITEM = [
   BaseFieldName.FRANCHISE_ID,
@@ -40,10 +44,13 @@ export class CartService extends BaseCrudService<ICart, CreateCartDto, UpdateCar
     private readonly cartHelper: CartHelper,
     private readonly cartItemService: CartItemService,
     private readonly cartOptionItemService: CartOptionItemService,
+    private readonly cartPromotionService: CartPromotionService,
+    private readonly cartVoucherService: CartVoucherService,
     private readonly customerQuery: ICustomerQuery,
     private readonly franchiseQuery: IFranchiseQuery,
     private readonly productFranchiseQuery: IProductFranchiseQuery,
     private readonly cartItemQuery: ICartItemQuery,
+    private readonly voucherQuery: IVoucherQuery,
   ) {
     super(repo);
     this.cartRepo = repo;
@@ -90,23 +97,23 @@ export class CartService extends BaseCrudService<ICart, CreateCartDto, UpdateCar
      */
     this.cartHelper.resolveCustomerAndStaff(payload, loggedUser);
 
-    const { franchise_id, customer_id, product_franchise_id, quantity, options, address, phone } = payload;
+    const { staff_id, franchise_id, customer_id, product_franchise_id, quantity, options, address, phone, note } =
+      payload;
 
     /**
      * STEP 1 — Validate franchise
      */
     const franchise = await this.franchiseQuery.getById(franchise_id);
     if (!franchise) {
-      throw new HttpException(HttpStatus.BadRequest, MSG_BUSINESS.ITEM_NOT_FOUND_WITH_NAME("Franchise"));
+      throw new HttpException(HttpStatus.BAD_REQUEST, MSG_BUSINESS.ITEM_NOT_FOUND_WITH_NAME("Franchise"));
     }
 
     /**
      * STEP 2 — Validate main product
      */
     const productFranchise = await this.productFranchiseQuery.getItemActive(product_franchise_id);
-
     if (!productFranchise || productFranchise.franchise_id.toString() !== franchise_id) {
-      throw new HttpException(HttpStatus.BadRequest, "Product not available in this franchise");
+      throw new HttpException(HttpStatus.BAD_REQUEST, "Product not available in this franchise");
     }
 
     /**
@@ -120,19 +127,9 @@ export class CartService extends BaseCrudService<ICart, CreateCartDto, UpdateCar
     const { normalizedOptions, optionsHash } = this.cartHelper.buildOptionsHash(options);
 
     /**
-     * STEP 5 — Get or create cart
+     * STEP 5 — Get or create ACTIVE cart
      */
-    let cart = await this.cartRepo.getCartStatusActive(customer_id, franchise_id);
-
-    if (!cart) {
-      cart = await this.cartRepo.create({
-        customer_id: new Types.ObjectId(customer_id),
-        franchise_id: new Types.ObjectId(franchise_id),
-        status: CartStatus.ACTIVE,
-        address: address,
-        phone: phone,
-      });
-    }
+    const cart = await this.getOrCreateActiveCart(customer_id, franchise_id, address, phone, staff_id);
 
     /**
      * STEP 6 — Check existing cart item
@@ -153,13 +150,14 @@ export class CartService extends BaseCrudService<ICart, CreateCartDto, UpdateCar
      */
     if (existingItem) {
       existingItem.quantity += quantity;
-
+      existingItem.note = note || "";
       await existingItem.save();
     } else {
       await this.cartItemQuery.createCartItem({
         cart_id: cart._id,
         product_franchise_id: productFranchise._id,
         quantity,
+        note: note || "",
         product_cart_price: productFranchise.price_base,
         options_hash: optionsHash,
         options: optionDocs,
@@ -180,7 +178,7 @@ export class CartService extends BaseCrudService<ICart, CreateCartDto, UpdateCar
   public async removeCartItem(cartItemId: string, loggedUser: UserAuthPayload | CustomerAuthPayload) {
     const cartItem = await this.cartItemQuery.getById(cartItemId);
 
-    if (!cartItem) throw new Error("Cart item not found");
+    if (!cartItem) throw new HttpException(HttpStatus.BAD_REQUEST, "Cart item not found");
 
     await this.cartItemService.removeCartItem(cartItemId, loggedUser);
 
@@ -195,7 +193,7 @@ export class CartService extends BaseCrudService<ICart, CreateCartDto, UpdateCar
   ) {
     const cartItem = await this.cartOptionItemService.updateOptionItem(payload, loggedUser);
 
-    if (!cartItem) throw new Error("Cart item not found");
+    if (!cartItem) throw new HttpException(HttpStatus.BAD_REQUEST, "Cart item not found");
 
     await this.recalculateCart(cartItem.cart_id);
 
@@ -208,43 +206,15 @@ export class CartService extends BaseCrudService<ICart, CreateCartDto, UpdateCar
   ) {
     const cartItem = await this.cartOptionItemService.removeOptionItem(payload, loggedUser);
 
-    if (!cartItem) throw new Error("Cart item not found");
+    if (!cartItem) throw new HttpException(HttpStatus.BAD_REQUEST, "Cart item not found");
 
     await this.recalculateCart(cartItem.cart_id);
 
     return this.cartRepo.getCartDetail(cartItem.cart_id);
   }
 
-  private async recalculateCart(cartId: Types.ObjectId) {
-    const items = await this.cartItemQuery.getItemsByCartId(cartId);
-
-    let subtotal = 0;
-
-    for (const item of items) {
-      const optionTotal = (item.options || []).reduce((sum, opt) => sum + opt.quantity * opt.price_snapshot, 0);
-
-      const lineTotal = item.quantity * item.product_cart_price + optionTotal;
-
-      const finalLineTotal = lineTotal - (item.discount_amount || 0);
-
-      item.line_total = lineTotal;
-      item.final_line_total = finalLineTotal;
-
-      await item.save();
-
-      subtotal += finalLineTotal;
-    }
-
-    const cart = await this.cartRepo.findByIdForUpdate(cartId.toString());
-
-    if(!cart) throw new Error("Cart not found");
-
-    cart.subtotal_amount = subtotal;
-
-    cart.final_amount =
-      subtotal - (cart.promotion_discount || 0) - (cart.voucher_discount || 0) - (cart.loyalty_discount || 0);
-
-    await cart.save();
+  public async getCartsByCustomer(customerId: string, status?: CartStatus) {
+    return this.cartRepo.getCartsByCustomer(customerId, status);
   }
 
   public async getCartDetail(cartId: string): Promise<ICart> {
@@ -255,9 +225,202 @@ export class CartService extends BaseCrudService<ICart, CreateCartDto, UpdateCar
     return item;
   }
 
+  public async countCartsByCustomer(customerId: string, status?: CartStatus): Promise<number> {
+    return this.cartRepo.countCartsByCustomer(customerId, status);
+  }
+
+  public async countCartItemsInCart(id: string): Promise<number> {
+    const cartId = new Types.ObjectId(id);
+    return this.cartItemQuery.countItemsByCartId(cartId);
+  }
+
   public async getActiveCart(customerId: string, franchiseId: string): Promise<ICart | null> {
     const cart = await this.cartRepo.getCartStatusActive(customerId, franchiseId);
     if (!cart) return null;
     return this.cartRepo.getCartDetail(cart._id);
+  }
+
+  private async getOrCreateActiveCart(
+    customerId: string,
+    franchiseId: string,
+    address?: string,
+    phone?: string,
+    staff_id?: string,
+  ) {
+    let cart = await this.cartRepo.getCartStatusActive(customerId, franchiseId);
+
+    if (cart) {
+      return cart;
+    }
+
+    return this.cartRepo.create({
+      customer_id: new Types.ObjectId(customerId),
+      franchise_id: new Types.ObjectId(franchiseId),
+      status: CartStatus.ACTIVE,
+      address,
+      phone,
+      staff_id: staff_id ? new Types.ObjectId(staff_id) : undefined,
+    });
+  }
+
+  public async applyVoucher(
+    id: string,
+    payload: ApplyVoucherDto,
+    loggedUser: UserAuthPayload | CustomerAuthPayload,
+  ): Promise<void> {
+    const { voucher_code } = payload;
+    const cartId = new Types.ObjectId(id);
+
+    // 1: Load cart
+    const finalItem = await this.cartRepo.getCartDetail(cartId);
+    const oldSnapshot = this.cartHelper.buildCartItemSnapshot(finalItem);
+
+    // 2: Load voucher
+    const voucher = await this.voucherQuery.getActiveVoucherByCode(voucher_code, finalItem.franchise_id);
+
+    if (!voucher) throw new HttpException(HttpStatus.BAD_REQUEST, "Voucher not found");
+
+    if (voucher.code === voucher_code) {
+      throw new HttpException(HttpStatus.BAD_REQUEST, "Cart has already applied this voucher");
+    }
+
+    if (voucher.quota_used >= voucher.quota_total || voucher.quota_total === 0) {
+      throw new HttpException(HttpStatus.BAD_REQUEST, "Voucher is out of quota, not available!");
+    }
+
+    // 3: Apply voucher
+    await this.cartRepo.applyVoucher(cartId, voucher._id, voucher_code);
+
+    // 4: Recalculate
+    await this.recalculateCart(cartId);
+
+    // 5: Build snapshot
+    const newSnapshot = this.cartHelper.buildCartItemSnapshot(finalItem);
+
+    // 6: Audit
+    await this.auditLogger.log({
+      entityType: AuditEntityType.CART,
+      entityId: String(finalItem._id),
+      action: AuditAction.APPLY_VOUCHER,
+      oldData: oldSnapshot,
+      newData: newSnapshot,
+      changedBy: loggedUser.id,
+    });
+  }
+
+  public async removeVoucher(id: string, loggedUser: UserAuthPayload | CustomerAuthPayload): Promise<void> {
+    const cartId = new Types.ObjectId(id);
+
+    // 1: Load cart
+    const finalItem = await this.cartRepo.getCartDetail(cartId);
+    const oldSnapshot = this.cartHelper.buildCartItemSnapshot(finalItem);
+
+    if (!finalItem.voucher_id) {
+      throw new HttpException(
+        HttpStatus.BAD_REQUEST,
+        "Cart does not have voucher applied, or voucher has been removed!",
+      );
+    }
+
+    // 2: Remove voucher
+    await this.cartRepo.removeVoucher(cartId);
+
+    // 3: Recalculate
+    await this.recalculateCart(cartId);
+
+    // 4: Build snapshot
+    const newSnapshot = this.cartHelper.buildCartItemSnapshot(finalItem);
+
+    // 5: Audit
+    await this.auditLogger.log({
+      entityType: AuditEntityType.CART,
+      entityId: String(finalItem._id),
+      action: AuditAction.REMOVE_VOUCHER,
+      oldData: oldSnapshot,
+      newData: newSnapshot,
+      changedBy: loggedUser.id,
+    });
+  }
+
+  private async recalculateCart(cartId: Types.ObjectId) {
+    // 1. Load cart items
+    const items = await this.cartItemQuery.getItemsByCartId(cartId);
+
+    let subtotal = 0;
+
+    /**
+     * Recalculate item totals
+     */
+    for (const item of items) {
+      const optionTotal = (item.options || []).reduce((sum, opt) => sum + opt.quantity * opt.price_snapshot, 0);
+
+      const lineTotal = item.quantity * item.product_cart_price + optionTotal;
+
+      const discountAmount = item.discount_amount || 0;
+      const finalLineTotal = lineTotal - discountAmount;
+
+      // update item fields
+      item.line_total = lineTotal;
+      item.final_line_total = finalLineTotal;
+
+      subtotal += finalLineTotal;
+    }
+
+    /**
+     * Save updated items
+     */
+    for (const item of items) {
+      await item.save();
+    }
+
+    /**
+     * Load cart (with lock)
+     */
+    const cart = await this.cartRepo.findByIdForUpdate(cartId.toString());
+
+    if (!cart) throw new HttpException(HttpStatus.BAD_REQUEST, "Cart not found");
+
+    /**
+     * Update subtotal
+     */
+    cart.subtotal_amount = subtotal;
+
+    /**
+     * Apply promotion
+     */
+    const promotionResult = await this.cartPromotionService.calculatePromotion(cart, items);
+    cart.promotion_id = promotionResult.promotionId;
+    cart.promotion_type = promotionResult.type;
+    cart.promotion_value = promotionResult.value;
+    cart.promotion_discount = promotionResult.discount;
+
+    /**
+     * Apply voucher
+     */
+    const voucherResult = await this.cartVoucherService.calculateVoucher(cart, subtotal);
+    cart.voucher_id = voucherResult.voucherId;
+    cart.voucher_code = voucherResult.code;
+    cart.voucher_type = voucherResult.type;
+    cart.voucher_value = voucherResult.value;
+    cart.voucher_discount = voucherResult.discount;
+
+    /**
+     * Apply loyalty
+     */
+    TODO: "Apply loyalty";
+    // const loyaltyResult = await this.loyaltyService.calculateLoyalty(cart);
+    const loyaltyDiscount = 0;
+
+    cart.loyalty_discount = loyaltyDiscount;
+
+    /**
+     * Calculate final amount
+     */
+    cart.final_amount = subtotal - promotionResult.discount - voucherResult.discount - loyaltyDiscount;
+
+    /**
+     * Save cart
+     */
+    await cart.save();
   }
 }

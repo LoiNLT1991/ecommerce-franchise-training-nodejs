@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import {
   AuthenticatedUserRequest,
   BaseCrudController,
+  CartStatus,
   CustomerAuthPayload,
   formatResponse,
   HttpStatus,
@@ -38,11 +39,43 @@ export class CartController extends BaseCrudController<
     }
   };
 
+  public getCartsByCustomer = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { customerId } = req.params;
+      const { status } = req.query;
+      const items = await this.service.getCartsByCustomer(customerId, status as CartStatus);
+      res.status(HttpStatus.Success).json(formatResponse(items));
+    } catch (error) {
+      next(error);
+    }
+  };
+
   public getItem = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { id } = req.params;
       const item: ICart = await this.service.getCartDetail(id);
       res.status(HttpStatus.Success).json(formatResponse(item));
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  public countCartsByCustomer = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { customerId } = req.params;
+      const { status } = req.query;
+      const item: number = await this.service.countCartsByCustomer(customerId, status as CartStatus);
+      res.status(HttpStatus.Success).json(formatResponse({ count: item }));
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  public countCartItemsInCart = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { id } = req.params;
+      const item: number = await this.service.countCartItemsInCart(id);
+      res.status(HttpStatus.Success).json(formatResponse({ count: item }));
     } catch (error) {
       next(error);
     }
@@ -73,6 +106,28 @@ export class CartController extends BaseCrudController<
     try {
       const loggedUser: UserAuthPayload | CustomerAuthPayload = (req as AuthenticatedUserRequest)?.user;
       await this.service.removeOptionItem(req.body, loggedUser);
+      res.status(HttpStatus.Success).json(formatResponse(null));
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  public applyVoucher = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { id } = req.params;
+      const loggedUser: UserAuthPayload | CustomerAuthPayload = (req as AuthenticatedUserRequest)?.user;
+      await this.service.applyVoucher(id, req.body, loggedUser);
+      res.status(HttpStatus.Success).json(formatResponse(null));
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  public removeVoucher = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { id } = req.params;
+      const loggedUser: UserAuthPayload | CustomerAuthPayload = (req as AuthenticatedUserRequest)?.user;
+      await this.service.removeVoucher(id, loggedUser);
       res.status(HttpStatus.Success).json(formatResponse(null));
     } catch (error) {
       next(error);

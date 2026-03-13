@@ -15,6 +15,7 @@ const CartItemSchemaEntity = new Schema({
     required: true,
     index: true,
   },
+  [BaseFieldName.NOTE]: { type: String, required: false },
   [BaseFieldName.QUANTITY]: { type: Number, required: true, min: 1, default: 1 },
   [BaseFieldName.PRODUCT_CART_PRICE]: { type: Number, default: 0, required: true },
   [BaseFieldName.DISCOUNT_AMOUNT]: { type: Number, default: 0 },

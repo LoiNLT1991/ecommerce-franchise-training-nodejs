@@ -183,12 +183,15 @@ export const API_PATH = {
   // cart, cartItem
   CART: "/api/carts",
   CART_ID: "/api/carts/:id",
+  COUNT_CART_ITEM: "/api/carts/:id/count-cart-item",
+  COUNT_CART_BY_CUSTOMER: "/api/carts/customer/:customerId/count-cart",
   CART_ITEM: "/api/carts/items",
+  GET_CARTS_BY_CUSTOMER: "/api/carts/customer/:customerId",
+  CART_ITEM_STAFF: "/api/carts/items/staff",
   CART_ITEM_ID: "/api/carts/items/:cartItemId",
   UPDATE_OPTION_ITEM: "/api/carts/items/update-option",
   REMOVE_OPTION_ITEM: "/api/carts/items/remove-option",
   ADD_CART_ITEM: "/api/carts/items",
-  CART_VOUCHER: "/api/carts/voucher",
-  APPLY_VOUCHER: "/api/carts/apply-voucher",
-  REMOVE_VOUCHER: "/api/carts/remove-voucher/:cartItemId",
+  APPLY_VOUCHER: "/api/carts/:id/apply-voucher",
+  REMOVE_VOUCHER: "/api/carts/:id/remove-voucher",
 };

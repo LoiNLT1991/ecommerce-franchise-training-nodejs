@@ -1,8 +1,3 @@
-export enum PromotionType {
-  PERCENT = "PERCENT",
-  FIXED = "FIXED",
-}
-
 export enum PromotionFieldName {
   FRANCHISE_ID = "franchise_id",
   FRANCHISE_NAME = "franchise_name",
