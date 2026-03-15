@@ -1,3 +1,4 @@
+import { Types } from "mongoose";
 import { CustomerAuthPayload, HttpException, HttpStatus, UserAuthPayload } from "../../core";
 import { ICartItem } from "../cart-item";
 import { IProductFranchise, IProductFranchiseQuery } from "../product-franchise";
@@ -16,7 +17,7 @@ export class CartHelper {
       return toppingsMap;
     }
 
-    const toppingIds = [...new Set(options.map((o) => o.product_franchise_id))];
+    const toppingIds = [...new Set(options.map((o) => new Types.ObjectId(o.product_franchise_id)))];
 
     const toppings = await this.productFranchiseQuery.getItemsActiveByIds(toppingIds);
 

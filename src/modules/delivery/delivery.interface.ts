@@ -1,4 +1,4 @@
-import { Types } from "mongoose";
+import { Document, Types } from "mongoose";
 import { BaseFieldName, DeliveryStatus, IBase } from "../../core";
 
 export interface IDelivery extends Document, IBase {
@@ -16,4 +16,8 @@ export interface IDelivery extends Document, IBase {
   [BaseFieldName.PICKED_UP_AT]: Date;
   [BaseFieldName.DELIVERED_AT]: Date;
   [BaseFieldName.FAILED_REASON]?: string;
+}
+
+export interface IDeliveryQuery {
+  getById(id: string): Promise<IDelivery | null>;
 }

@@ -1,4 +1,4 @@
-import { Types } from "mongoose";
+import mongoose, { Types } from "mongoose";
 import {
   BaseCrudService,
   BaseFieldName,
@@ -8,12 +8,16 @@ import {
   HttpException,
   HttpStatus,
   MSG_BUSINESS,
+  OrderType,
   UserAuthPayload,
 } from "../../core";
 import { AuditAction, AuditEntityType, IAuditLogger } from "../audit-log";
 import { ICartItemQuery } from "../cart-item";
 import { ICustomerQuery } from "../customer";
 import { IFranchiseQuery } from "../franchise";
+import { IInventoryQuery } from "../inventory";
+import { IOrderQuery } from "../order";
+import { IPaymentQuery } from "../payment";
 import { IProductFranchiseQuery } from "../product-franchise";
 import { IVoucherQuery } from "../voucher";
 import { CartItemService } from "./cart-item.service";
@@ -51,6 +55,9 @@ export class CartService extends BaseCrudService<ICart, CreateCartDto, UpdateCar
     private readonly productFranchiseQuery: IProductFranchiseQuery,
     private readonly cartItemQuery: ICartItemQuery,
     private readonly voucherQuery: IVoucherQuery,
+    private readonly orderQuery: IOrderQuery,
+    private readonly paymentQuery: IPaymentQuery,
+    private readonly inventoryQuery: IInventoryQuery,
   ) {
     super(repo);
     this.cartRepo = repo;
@@ -213,16 +220,16 @@ export class CartService extends BaseCrudService<ICart, CreateCartDto, UpdateCar
     return this.cartRepo.getCartDetail(cartItem.cart_id);
   }
 
-  public async getCartsByCustomer(customerId: string, status?: CartStatus) {
-    return this.cartRepo.getCartsByCustomer(customerId, status);
-  }
-
   public async getCartDetail(cartId: string): Promise<ICart> {
     const item = await this.cartRepo.getCartDetail(new Types.ObjectId(cartId));
     if (!item) {
       throw new HttpException(HttpStatus.BadRequest, MSG_BUSINESS.ITEM_NOT_FOUND);
     }
     return item;
+  }
+
+  public async getCartsByCustomer(customerId: string, status?: CartStatus) {
+    return this.cartRepo.getCartsByCustomer(customerId, status);
   }
 
   public async countCartsByCustomer(customerId: string, status?: CartStatus): Promise<number> {
@@ -342,6 +349,99 @@ export class CartService extends BaseCrudService<ICart, CreateCartDto, UpdateCar
     });
   }
 
+  public async checkoutCart(id: string, loggedUser: UserAuthPayload | CustomerAuthPayload): Promise<ICart> {
+    const session = await mongoose.startSession();
+
+    try {
+      session.startTransaction();
+
+      // 1: Load cart
+      const cart = await this.cartRepo.findActiveCartById(id, session);
+      if (!cart) {
+        throw new HttpException(HttpStatus.BadRequest, "Cart not found or not active");
+      }
+
+      // 2: Check if cart is empty
+      if (!cart.cart_items?.length) {
+        throw new HttpException(HttpStatus.BadRequest, "Cart is empty");
+      }
+
+      // 3: Validate cart (product + option + stock)
+      await this.validateCartBeforeCheckout(cart);
+
+      // 4: Create order
+      const order = await this.orderQuery.createOrder(cart, loggedUser, session);
+
+      // 5: Create payment
+      await this.paymentQuery.createPayment(order, loggedUser, session);
+
+      // 6: Update cart status
+      await this.cartRepo.updateStatus(id, CartStatus.CHECKED_OUT, session);
+
+      // 7: Return updated cart
+      const updatedCart = await this.cartRepo.findById(id);
+
+      if (!updatedCart) {
+        throw new HttpException(HttpStatus.BadRequest, "Cart not found");
+      }
+
+      // 8: Commit
+      await session.commitTransaction();
+
+      // 9: Audit log
+      await this.auditLogger.log({
+        entityType: AuditEntityType.CART,
+        entityId: id,
+        action: AuditAction.CART_CHECKOUT,
+        oldData: { status: cart.status },
+        newData: { status: CartStatus.CHECKED_OUT },
+        changedBy: loggedUser.id,
+      });
+
+      return updatedCart;
+    } catch (error: any) {
+      await session.abortTransaction();
+
+      if (error instanceof HttpException) {
+        throw error;
+      }
+
+      throw new HttpException(HttpStatus.BadRequest, error?.message || "Checkout cart failed");
+    } finally {
+      await session.endSession();
+    }
+  }
+
+  public async cancelCart(id: string, loggedUser: UserAuthPayload | CustomerAuthPayload): Promise<ICart> {
+    // 0: Check status
+    const cart = await this.cartRepo.findActiveCartById(id);
+    if (!cart) {
+      throw new HttpException(HttpStatus.BadRequest, "Cart not found or not active");
+    }
+
+    // 1: Update cart status
+    await this.cartRepo.updateStatus(id, CartStatus.CANCELED);
+
+    // 2: Return updated cart
+    const updatedCart = await this.cartRepo.findById(id);
+
+    // 3: Audit log
+    await this.auditLogger.log({
+      entityType: AuditEntityType.CART,
+      entityId: id,
+      action: AuditAction.CART_CANCEL,
+      oldData: { status: CartStatus.ACTIVE },
+      newData: { status: CartStatus.CANCELED },
+      changedBy: loggedUser.id,
+    });
+
+    if (!updatedCart) {
+      throw new HttpException(HttpStatus.BadRequest, "Cart not found");
+    }
+
+    return updatedCart;
+  }
+
   private async recalculateCart(cartId: Types.ObjectId) {
     // 1. Load cart items
     const items = await this.cartItemQuery.getItemsByCartId(cartId);
@@ -352,7 +452,10 @@ export class CartService extends BaseCrudService<ICart, CreateCartDto, UpdateCar
      * Recalculate item totals
      */
     for (const item of items) {
-      const optionTotal = (item.options || []).reduce((sum, opt) => sum + opt.quantity * opt.price_snapshot, 0);
+      const optionTotal = (item.options || []).reduce(
+        (sum, opt) => sum + opt.quantity * item.quantity * opt.price_snapshot,
+        0,
+      );
 
       const lineTotal = item.quantity * item.product_cart_price + optionTotal;
 
@@ -369,9 +472,7 @@ export class CartService extends BaseCrudService<ICart, CreateCartDto, UpdateCar
     /**
      * Save updated items
      */
-    for (const item of items) {
-      await item.save();
-    }
+    await this.cartItemQuery.updateBulkCartItems(items);
 
     /**
      * Load cart (with lock)
@@ -422,5 +523,61 @@ export class CartService extends BaseCrudService<ICart, CreateCartDto, UpdateCar
      * Save cart
      */
     await cart.save();
+  }
+
+  private async validateCartBeforeCheckout(cart: ICart) {
+    const productIds = new Set<Types.ObjectId>();
+
+    for (const item of cart.cart_items) {
+      productIds.add(item.product_franchise_id);
+
+      if (item.options?.length) {
+        for (const option of item.options) {
+          productIds.add(option.product_franchise_id);
+        }
+      }
+    }
+
+    const ids = Array.from(productIds);
+
+    // load products
+    const products = await this.productFranchiseQuery.getItemsActiveByIds(ids);
+
+    // load stocks
+    const stocks = await this.inventoryQuery.getByProductFranchiseIds(ids);
+
+    const productMap = new Map(products.map((p) => [String(p._id), p]));
+
+    const stockMap = new Map(stocks.map((s) => [String(s.product_franchise_id), s]));
+
+    for (const item of cart.cart_items) {
+      const product = productMap.get(String(item.product_franchise_id));
+
+      if (!product) {
+        throw new HttpException(HttpStatus.BadRequest, "Product is unavailable");
+      }
+
+      const stock = stockMap.get(String(item.product_franchise_id));
+
+      if (!stock || stock.quantity < item.quantity) {
+        throw new HttpException(HttpStatus.BadRequest, "Product out of stock");
+      }
+
+      if (item.options?.length) {
+        for (const option of item.options) {
+          const optionProduct = productMap.get(String(option.product_franchise_id));
+
+          if (!optionProduct) {
+            throw new HttpException(HttpStatus.BadRequest, "Option product unavailable");
+          }
+
+          const optionStock = stockMap.get(String(option.product_franchise_id));
+
+          if (!optionStock || optionStock.quantity < option.quantity) {
+            throw new HttpException(HttpStatus.BadRequest, "Option out of stock");
+          }
+        }
+      }
+    }
   }
 }

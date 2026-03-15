@@ -1,5 +1,6 @@
 import { Document, Types } from "mongoose";
 import { BaseFieldName, CartStatus, IBase, PriceType } from "../../core";
+import { ICartItem } from "../cart-item";
 
 export interface ICart extends Document, IBase {
   [BaseFieldName.FRANCHISE_ID]: Types.ObjectId;
@@ -27,6 +28,7 @@ export interface ICart extends Document, IBase {
   [BaseFieldName.LOYALTY_DISCOUNT]: number;
   [BaseFieldName.SUBTOTAL_AMOUNT]: number;
   [BaseFieldName.FINAL_AMOUNT]: number;
+  [BaseFieldName.CART_ITEMS]: ICartItem[];
 }
 
 export interface IPromotionResult {

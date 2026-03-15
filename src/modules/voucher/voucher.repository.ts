@@ -1,4 +1,4 @@
-import { Types } from "mongoose";
+import { ClientSession, Types } from "mongoose";
 import { MSG_BUSINESS } from "../../core/constants";
 import { HttpStatus } from "../../core/enums";
 import { HttpException } from "../../core/exceptions";
@@ -187,5 +187,24 @@ export class VoucherRepository extends BaseRepository<IVoucher> {
         end_date: { $gte: now },
       })
       .sort({ start_date: 1 }); // item gần hiện tại nhất lên trước
+  }
+
+  public async decreaseQuotaById(id: Types.ObjectId, session?: ClientSession): Promise<boolean> {
+    const result = await this.model.updateOne(
+      {
+        _id: id,
+        $expr: { $lt: ["$quota_used", "$quota"] },
+      },
+      { $inc: { quota_used: 1 } },
+      { session },
+    );
+    return result.modifiedCount > 0;
+  }
+
+  public async increaseQuotaById(voucherId: Types.ObjectId, session?: ClientSession): Promise<boolean> {
+    const query = this.model.findByIdAndUpdate(voucherId, { $inc: { quota_used: -1 } }, { new: true });
+    if (session) query.session(session);
+    const updatedVoucher = await query;
+    return !!updatedVoucher;
   }
 }

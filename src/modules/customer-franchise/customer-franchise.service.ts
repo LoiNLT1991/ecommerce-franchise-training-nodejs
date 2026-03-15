@@ -1,13 +1,31 @@
-import { Types } from "mongoose";
-import { BaseCrudService, BaseFieldName, HttpException, HttpStatus, MSG_BUSINESS } from "../../core";
+import { ClientSession, Types } from "mongoose";
+import {
+  BaseCrudService,
+  BaseFieldName,
+  CustomerAuthPayload,
+  HttpException,
+  HttpStatus,
+  LoyaltyTransactionType,
+  MSG_BUSINESS,
+  UserAuthPayload,
+  UserType,
+} from "../../core";
 import { AuditAction, AuditEntityType, IAuditLogger, pickAuditSnapshot } from "../audit-log";
 import { ICustomerQuery } from "../customer";
 import { IFranchiseQuery } from "../franchise";
-import { ICustomerFranchise, ICustomerFranchiseQuery } from "./customer-franchise.interface";
+import {
+  IAddPointPayload,
+  ICustomerFranchise,
+  ICustomerFranchiseQuery,
+  IRestoreUsedPointsPayload,
+  IRevertPointPayload,
+} from "./customer-franchise.interface";
 import { CustomerFranchiseRepository } from "./customer-franchise.repository";
-import CreateCustomerFranchiseDto from "./dto/create.dto";
+import CreateCustomerFranchiseDto, { ICreateCustomerFranchiseDto } from "./dto/create.dto";
 import { SearchPaginationItemDto } from "./dto/search.dto";
 import UpdateCustomerFranchiseDto from "./dto/update.dto";
+import { ILoyaltyTransactionLogger } from "../loyalty-transaction";
+import { ILoyaltyRuleQuery } from "../loyalty-rule";
 
 export const AUDIT_FIELDS_ITEM = [
   BaseFieldName.FRANCHISE_ID,
@@ -35,6 +53,8 @@ export default class CustomerFranchiseService
     private readonly auditLogger: IAuditLogger,
     private readonly franchiseQuery: IFranchiseQuery,
     private readonly customerQuery: ICustomerQuery,
+    private readonly loyaltyRuleQuery: ILoyaltyRuleQuery,
+    private readonly loyaltyTransactionLogger: ILoyaltyTransactionLogger,
   ) {
     super(repo);
     this.customerFranchiseRepo = repo;
@@ -55,20 +75,21 @@ export default class CustomerFranchiseService
   // ===== END CRUD =====
 
   // Interface ICustomerFranchiseQuery
-  public async createItem(
-    payload: CreateCustomerFranchiseDto,
+  public async createCustomerFranchise(
+    payload: ICreateCustomerFranchiseDto,
     loggedUserId: string,
+    session?: ClientSession,
   ): Promise<ICustomerFranchise | null> {
     const { franchise_id, customer_id } = payload;
 
     // Validate customer
-    const customer = await this.customerQuery.getById(customer_id);
+    const customer = await this.customerQuery.getById(String(customer_id));
     if (!customer) {
       throw new HttpException(HttpStatus.BadRequest, "Customer not found");
     }
 
     // Validate franchise
-    const franchise = await this.franchiseQuery.getById(franchise_id);
+    const franchise = await this.franchiseQuery.getById(String(franchise_id));
     if (!franchise) {
       throw new HttpException(HttpStatus.BadRequest, "Franchise not found");
     }
@@ -87,11 +108,14 @@ export default class CustomerFranchiseService
     }
 
     // Create new CustomerFranchise
-    const item = await this.repo.create({
-      ...payload,
-      customer_id: customerObjectId,
-      franchise_id: franchiseObjectId,
-    });
+    const item = await this.repo.create(
+      {
+        ...payload,
+        customer_id: customerObjectId,
+        franchise_id: franchiseObjectId,
+      },
+      session,
+    );
 
     // Audit Log
     const snapshot = pickAuditSnapshot(item, AUDIT_FIELDS_ITEM);
@@ -104,5 +128,163 @@ export default class CustomerFranchiseService
     });
 
     return item;
+  }
+
+  public async findByCustomerAndFranchise(
+    customerId: Types.ObjectId,
+    franchiseId: Types.ObjectId,
+    session?: ClientSession,
+  ): Promise<ICustomerFranchise | null> {
+    return this.customerFranchiseRepo.findByCustomerAndFranchise(customerId, franchiseId, session);
+  }
+
+  public async addPoints(payload: IAddPointPayload, session?: ClientSession): Promise<boolean> {
+    const { orderId, customerId, franchiseId, final_amount, loggedUser } = payload;
+
+    // 1: Get loyalty rule
+    const loyaltyRule = await this.loyaltyRuleQuery.getItemByFranchiseId(String(franchiseId), session);
+
+    if (!loyaltyRule) {
+      throw new HttpException(
+        HttpStatus.BadRequest,
+        "Loyalty rule not found. Please contact admin set loyalty rule for this franchise!",
+      );
+    }
+
+    if (!loyaltyRule.earn_amount_per_point || loyaltyRule.earn_amount_per_point <= 0) {
+      throw new HttpException(HttpStatus.BadRequest, "Invalid loyalty rule configuration");
+    }
+
+    // 2: Calculate points
+    const earnedPoints = Math.floor(final_amount / loyaltyRule.earn_amount_per_point);
+    if (earnedPoints <= 0) {
+      throw new HttpException(HttpStatus.BadRequest, "Invalid loyalty rule configuration");
+    }
+
+    // 3: Update point
+    const updatePoint = await this.customerFranchiseRepo.addPoints(customerId, franchiseId, earnedPoints, session);
+    if (!updatePoint) {
+      throw new HttpException(HttpStatus.BadRequest, "Add points failed");
+    }
+
+    // 4. Get customer franchise
+    const customerFranchise = await this.customerFranchiseRepo.findByCustomerAndFranchise(
+      customerId,
+      franchiseId,
+      session,
+    );
+
+    if (!customerFranchise) {
+      throw new HttpException(HttpStatus.BadRequest, "Customer franchise not found");
+    }
+
+    // 5. Log loyalty transaction
+    await this.loyaltyTransactionLogger.logLoyaltyTransaction(
+      {
+        customer_franchise_id: customerFranchise._id,
+        order_id: orderId,
+        point_change: earnedPoints,
+        type: LoyaltyTransactionType.EARN,
+        reason: "Order confirmed",
+        changed_by_staff: loggedUser.type === UserType.USER ? new Types.ObjectId(loggedUser.id) : undefined,
+        changed_by_customer: loggedUser.type === UserType.CUSTOMER ? new Types.ObjectId(loggedUser.id) : undefined,
+      },
+      session,
+    );
+
+    return true;
+  }
+
+  public async revertPoints(payload: IRevertPointPayload, session?: ClientSession): Promise<boolean> {
+    const { orderId, customerId, franchiseId, refundReason, loggedUser } = payload;
+
+    // 1️⃣ Get loyalty transaction (EARN)
+    const earnTransaction = await this.loyaltyTransactionLogger.findEarnByOrderId(String(orderId), session);
+
+    if (!earnTransaction) {
+      throw new HttpException(HttpStatus.BadRequest, "Loyalty transaction not found");
+    }
+
+    const earnedPoints = earnTransaction.point_change;
+    if (earnedPoints <= 0) {
+      throw new HttpException(HttpStatus.BadRequest, "Invalid earned points");
+    }
+
+    // 2️⃣ Revert points
+    const revertPoint = await this.customerFranchiseRepo.addPoints(customerId, franchiseId, -earnedPoints, session);
+
+    if (!revertPoint) {
+      throw new HttpException(HttpStatus.BadRequest, "Revert points failed");
+    }
+
+    // 3️⃣ Get customer franchise
+    const customerFranchise = await this.customerFranchiseRepo.findByCustomerAndFranchise(
+      customerId,
+      franchiseId,
+      session,
+    );
+
+    if (!customerFranchise) {
+      throw new HttpException(HttpStatus.BadRequest, "Customer franchise not found");
+    }
+
+    // 4️⃣ Log loyalty transaction
+    await this.loyaltyTransactionLogger.logLoyaltyTransaction(
+      {
+        customer_franchise_id: customerFranchise._id,
+        order_id: orderId,
+        point_change: -earnedPoints,
+        type: LoyaltyTransactionType.REFUND,
+        reason: refundReason,
+        changed_by_staff: loggedUser.type === UserType.USER ? new Types.ObjectId(loggedUser.id) : undefined,
+        changed_by_customer: loggedUser.type === UserType.CUSTOMER ? new Types.ObjectId(loggedUser.id) : undefined,
+      },
+      session,
+    );
+
+    return true;
+  }
+
+  public async restoreUsedPoints(payload: IRestoreUsedPointsPayload, session?: ClientSession): Promise<boolean> {
+    const { orderId, customerId, franchiseId, points, refundReason, loggedUser } = payload;
+
+    // 1️⃣ Validate points
+    if (!points || points <= 0) {
+      return true;
+    }
+
+    // 2️⃣ Restore points
+    const restorePoint = await this.customerFranchiseRepo.addPoints(customerId, franchiseId, points, session);
+
+    if (!restorePoint) {
+      throw new HttpException(HttpStatus.BadRequest, "Restore used points failed");
+    }
+
+    // 3️⃣ Get customer franchise
+    const customerFranchise = await this.customerFranchiseRepo.findByCustomerAndFranchise(
+      customerId,
+      franchiseId,
+      session,
+    );
+
+    if (!customerFranchise) {
+      throw new HttpException(HttpStatus.BadRequest, "Customer franchise not found");
+    }
+
+    // 4️⃣ Log loyalty transaction
+    await this.loyaltyTransactionLogger.logLoyaltyTransaction(
+      {
+        customer_franchise_id: customerFranchise._id,
+        order_id: orderId,
+        point_change: points,
+        type: LoyaltyTransactionType.RESTORE,
+        reason: refundReason || "Restore used points due to refund",
+        changed_by_staff: loggedUser.type === UserType.USER ? new Types.ObjectId(loggedUser.id) : undefined,
+        changed_by_customer: loggedUser.type === UserType.CUSTOMER ? new Types.ObjectId(loggedUser.id) : undefined,
+      },
+      session,
+    );
+
+    return true;
   }
 }

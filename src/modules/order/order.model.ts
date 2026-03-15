@@ -38,7 +38,7 @@ const OrderSchemaEntity = new Schema({
   [BaseFieldName.STATUS]: {
     type: String,
     enum: Object.values(OrderStatus),
-    default: OrderStatus.CONFIRMED,
+    default: OrderStatus.DRAFT,
   },
 
   [BaseFieldName.ADDRESS]: { type: String, required: false },
@@ -70,9 +70,10 @@ const OrderSchemaEntity = new Schema({
   [BaseFieldName.LOYALTY_POINTS_USED]: { type: Number, default: 0 }, // tổng point đã dùng
 
   // lifecycle
-  [BaseFieldName.CONFIRMED_AT]: { type: Date },
-  [BaseFieldName.COMPLETED_AT]: { type: Date, default: Date.now },
-  [BaseFieldName.CANCELLED_AT]: { type: Date, default: Date.now },
+  [BaseFieldName.DRAFT_AT]: { type: Date },
+  [BaseFieldName.CONFIRMED_AT]: { type: Date, default: null },
+  [BaseFieldName.COMPLETED_AT]: { type: Date, default: null },
+  [BaseFieldName.CANCELLED_AT]: { type: Date, default: null },
   [BaseFieldName.FAILED_REASON]: { type: String, required: false },
 
   [BaseFieldName.CREATED_BY]: {
@@ -93,5 +94,5 @@ OrderSchemaEntity.virtual("order_items", {
 });
 
 export type OrderDocument = HydratedDocument<IOrder>;
-const CartSchema = mongoose.model<OrderDocument>(COLLECTION_NAME.ORDER, OrderSchemaEntity);
-export default CartSchema;
+const OrderSchema = mongoose.model<OrderDocument>(COLLECTION_NAME.ORDER, OrderSchemaEntity);
+export default OrderSchema;

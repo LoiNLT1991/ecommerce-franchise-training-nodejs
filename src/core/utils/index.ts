@@ -1,4 +1,4 @@
-import { genVoucherCode } from "./code";
+import { genOrderCode, genPaymentCode, genVoucherCode } from "./code";
 import { sendMail } from "./email";
 import {
   encodePassword,
@@ -23,7 +23,9 @@ export {
   formatResponse,
   formatSearchPaginationResponse,
   generateRandomPassword,
+  genOrderCode,
   genVoucherCode,
+  genPaymentCode,
   isEmptyPlainObject,
   logger,
   normalizeParam,

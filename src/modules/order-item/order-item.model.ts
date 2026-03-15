@@ -17,7 +17,7 @@ const OrderItemSchemaEntity = new Schema({
   },
 
   [BaseFieldName.QUANTITY]: { type: Number, required: true, min: 1, default: 1 },
-  [BaseFieldName.PRODUCT_CART_PRICE]: { type: Number, default: 0, required: true },
+  [BaseFieldName.PRICE_SNAPSHOT]: { type: Number, default: 0, required: true },
   [BaseFieldName.DISCOUNT_AMOUNT]: { type: Number, default: 0 },
   [BaseFieldName.LINE_TOTAL]: { type: Number, default: 0 },
   [BaseFieldName.FINAL_LINE_TOTAL]: { type: Number, default: 0 },
@@ -38,8 +38,6 @@ const OrderItemSchemaEntity = new Schema({
 
   ...BASE_MODEL_FIELDS,
 });
-
-OrderItemSchemaEntity.index({ order_id: 1 });
 
 export type OrderItemDocument = HydratedDocument<IOrderItem>;
 const OrderItemSchema = mongoose.model<OrderItemDocument>(COLLECTION_NAME.ORDER_ITEM, OrderItemSchemaEntity);

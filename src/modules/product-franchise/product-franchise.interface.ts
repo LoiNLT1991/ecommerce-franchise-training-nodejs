@@ -16,10 +16,10 @@ export interface IProductFranchise extends Document, IBase {
 
 export interface IProductFranchiseQuery {
   getById(id: string): Promise<IProductFranchise | null>;
+  getItemsActiveByIds(ids: Types.ObjectId[]): Promise<IProductFranchise[]>;
   getItemActive(id: string): Promise<IProductFranchise | null>;
   getProductsByFranchiseId(franchiseId: string): Promise<PublicProductFranchiseItemDto[]>;
   getMenuByFranchise(franchiseId: string, categoryId?: string): Promise<PublicProductItemDto[]>;
   getPublicProducts(franchiseId: string, categoryId?: string): Promise<PublicProductItemDto[]>;
   getPublicProductDetail(franchiseId: string, productId: string): Promise<PublicProductDetailDto | null>;
-  getItemsActiveByIds(ids: string[]): Promise<IProductFranchise[]>;
 }

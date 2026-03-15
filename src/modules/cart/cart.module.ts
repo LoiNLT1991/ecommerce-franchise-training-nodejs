@@ -3,6 +3,9 @@ import { AuditLogModule } from "../audit-log";
 import { CartItemModule } from "../cart-item";
 import { CustomerModule } from "../customer";
 import { FranchiseModule } from "../franchise";
+import { InventoryModule } from "../inventory";
+import { OrderModule } from "../order";
+import { PaymentModule } from "../payment";
 import { ProductFranchiseModule } from "../product-franchise";
 import { PromotionModule } from "../promotion";
 import { VoucherModule } from "../voucher";
@@ -23,7 +26,10 @@ export class CartModule extends BaseModule<CartRoute> {
     productFranchiseModule: ProductFranchiseModule,
     cartItemModule: CartItemModule,
     promotionModule: PromotionModule,
-    voucherModule: VoucherModule
+    voucherModule: VoucherModule,
+    orderModule: OrderModule,
+    paymentModule: PaymentModule,
+    inventoryModule: InventoryModule,
   ) {
     super();
 
@@ -34,6 +40,9 @@ export class CartModule extends BaseModule<CartRoute> {
     const cartItemQuery = cartItemModule.getCartItemQuery();
     const promotionQuery = promotionModule.getPromotionQuery();
     const voucherQuery = voucherModule.getVoucherQuery();
+    const orderQuery = orderModule.getOrderQuery();
+    const paymentQuery = paymentModule.getPaymentQuery();
+    const inventoryQuery = inventoryModule.getInventoryQuery();
 
     // ===== Internal dependencies =====
     const auditLogModule = new AuditLogModule();
@@ -58,7 +67,10 @@ export class CartModule extends BaseModule<CartRoute> {
       franchiseQuery,
       productFranchiseQuery,
       cartItemQuery,
-      voucherQuery
+      voucherQuery,
+      orderQuery,
+      paymentQuery,
+      inventoryQuery,
     );
 
     const controller = new CartController(service);

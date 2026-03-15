@@ -29,7 +29,6 @@ const RefundSchemaEntity = new Schema({
   ...BASE_MODEL_FIELDS,
 });
 
-RefundSchemaEntity.index({ payment_id: 1 });
 RefundSchemaEntity.index({ created_at: -1 });
 
 export type RefundDocument = HydratedDocument<IRefund>;

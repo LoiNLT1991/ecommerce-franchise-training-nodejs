@@ -29,4 +29,5 @@ export interface ICartItemQuery {
     options_hash: string;
     exclude_id: Types.ObjectId;
   }): Promise<ICartItem | null>;
+  updateBulkCartItems(items: ICartItem[]): Promise<void>;
 }

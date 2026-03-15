@@ -1,4 +1,4 @@
-import { Types } from "mongoose";
+import { ClientSession, Types } from "mongoose";
 import { MSG_BUSINESS } from "../../core";
 import { BaseFieldName, HttpStatus } from "../../core/enums";
 import { HttpException } from "../../core/exceptions";
@@ -50,7 +50,7 @@ export class VoucherService
     let code = genVoucherCode();
 
     // 0: check unique
-    while (await this.repo.existsByField(VoucherFieldName.CODE, code)) {
+    while (await this.repo.existsByField(BaseFieldName.CODE, code)) {
       code = genVoucherCode();
     }
 
@@ -232,11 +232,20 @@ export class VoucherService
     });
   }
 
+  // External dependencies
   public async getById(id: string): Promise<IVoucher | null> {
     return this.voucherRepo.getItem(id);
   }
 
   public async getActiveVoucherByCode(code: string, franchiseId: Types.ObjectId): Promise<IVoucher | null> {
     return this.voucherRepo.getActiveVoucherByCode(code, franchiseId);
+  }
+
+  public async decreaseQuotaById(id: Types.ObjectId, session?: ClientSession): Promise<boolean> {
+    return this.voucherRepo.decreaseQuotaById(id, session);
+  }
+
+  public async increaseQuotaById(id: Types.ObjectId, session?: ClientSession): Promise<boolean> {
+    return this.voucherRepo.increaseQuotaById(id, session);
   }
 }

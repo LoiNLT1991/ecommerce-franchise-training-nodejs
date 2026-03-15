@@ -274,7 +274,7 @@ export class ProductFranchiseService
     return this.productFranchiseRepo.getPublicProductDetail(franchiseId, productId);
   }
 
-  public async getItemsActiveByIds(ids: string[]): Promise<IProductFranchise[]> {
+  public async getItemsActiveByIds(ids: Types.ObjectId[]): Promise<IProductFranchise[]> {
     return this.productFranchiseRepo.findItemsActiveByIds(ids);
   }
 

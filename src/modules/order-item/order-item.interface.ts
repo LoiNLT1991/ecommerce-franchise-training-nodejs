@@ -1,5 +1,6 @@
-import { Types } from "mongoose";
+import { ClientSession, Document, Types } from "mongoose";
 import { BaseFieldName, IBase, IDetailItemOption } from "../../core";
+import { ICreateOrderItemDto } from "./dto/create.dto";
 
 export interface IOrderItem extends Document, IBase {
   [BaseFieldName.ORDER_ID]: Types.ObjectId;
@@ -12,4 +13,10 @@ export interface IOrderItem extends Document, IBase {
   [BaseFieldName.FINAL_LINE_TOTAL]: number;
   [BaseFieldName.OPTIONS_HASH]: string;
   [BaseFieldName.OPTIONS]: IDetailItemOption[];
+}
+
+export interface IOrderItemQuery {
+  createOderItem(payload: ICreateOrderItemDto): Promise<IOrderItem>;
+  createOrderItems(payload: ICreateOrderItemDto[], session?: ClientSession): Promise<IOrderItem[]>;
+  getById(id: string): Promise<IOrderItem | null>;
 }

@@ -49,6 +49,12 @@ export default class CartRoute implements IRoute {
     // GET domain:/api/carts/:id/count-cart-item - Count cart item in cart
     this.router.get(API_PATH.COUNT_CART_ITEM, customerAuthMiddleware(), this.controller.countCartItemsInCart);
 
+    // PUT domain:/api/carts/:id/checkout - Checkout cart
+    this.router.put(API_PATH.CHECKOUT_CART, authMiddleware(), this.controller.checkoutCart);
+
+    // PUT domain:/api/carts/:id/cancel - Cancel cart
+    this.router.put(API_PATH.CANCEL_CART, authMiddleware(), this.controller.cancelCart);
+
     // POST domain:/api/carts/items - Add cart, add or update cart item, add option in cart item
     this.router.post(
       API_PATH.CART_ITEM,
@@ -66,7 +72,7 @@ export default class CartRoute implements IRoute {
     );
 
     // GET domain:/api/carts/:id - Get item
-    this.router.get(API_PATH.CART_ID, authMiddleware(), this.controller.getItem);
+    this.router.get(API_PATH.CART_ID, authMiddleware(), this.controller.getCartDetail);
 
     // PUT domain:/api/carts/:id - Update item
     this.router.put(

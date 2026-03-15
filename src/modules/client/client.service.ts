@@ -1,3 +1,4 @@
+import { HttpException, HttpStatus } from "../../core";
 import { IAuditLogger } from "../audit-log";
 import { ICategoryFranchiseQuery, PublicCategoryFranchiseItemDto } from "../category-franchise";
 import { IFranchise, IFranchiseQuery, IFranchiseQueryResult } from "../franchise";
@@ -48,6 +49,12 @@ export class ClientService {
 
   // Get loyalty rule by franchise
   public async getLoyaltyRuleByFranchise(franchiseId: string): Promise<ILoyaltyRule> {
-    return this.loyaltyRuleQuery.getRoyaltyRuleByFranchiseId(franchiseId);
+    const item = await this.loyaltyRuleQuery.getItemByFranchiseId(franchiseId);
+    
+    if (!item) {
+      throw new HttpException(HttpStatus.BadRequest, "Loyalty rule not found");
+    }
+
+    return item;
   }
 }

@@ -1,3 +1,4 @@
+import { ClientSession } from "mongoose";
 import { BaseCrudService, BaseFieldName, HttpException, HttpStatus, IError } from "../../core";
 import { AuditAction, AuditEntityType, buildAuditDiff, IAuditLogger, pickAuditSnapshot } from "../audit-log";
 import CreateLoyaltyRuleDto from "./dto/create.dto";
@@ -184,11 +185,7 @@ export class LoyaltyRuleService
     return this.loyaltyRuleRepo.findById(id);
   }
 
-  public async getRoyaltyRuleByFranchiseId(franchiseId: string): Promise<ILoyaltyRule> {
-    const item = await this.loyaltyRuleRepo.getByFranchiseId(franchiseId);
-    if (!item) {
-      throw new HttpException(HttpStatus.BadRequest, "Loyalty rule not found");
-    }
-    return item;
+  public async getItemByFranchiseId(franchiseId: string, session?: ClientSession): Promise<ILoyaltyRule | null> {
+    return this.loyaltyRuleRepo.getByFranchiseId(franchiseId, session);
   }
 }

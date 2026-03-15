@@ -131,6 +131,13 @@ export class InventoryRepository extends BaseRepository<IInventory> {
     return this.model.findOne({ product_franchise_id: productFranchiseId }, null, { session });
   }
 
+  // Find inventory ids by product franchise ids
+  public async getByProductFranchiseIds(
+    productFranchiseIds: Types.ObjectId[],
+    session?: ClientSession,
+  ): Promise<IInventory[]> {
+    return this.model.find({ product_franchise_id: { $in: productFranchiseIds } }, null, { session });
+  }
   // Reserve stock for an order
   public async reserveStock(productFranchiseId: string, quantity: number, session?: ClientSession): Promise<boolean> {
     const result = await this.model.updateOne(

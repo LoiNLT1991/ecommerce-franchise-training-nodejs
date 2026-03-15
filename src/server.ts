@@ -11,14 +11,21 @@ import { ClientModule } from "./modules/client";
 import { CustomerModule } from "./modules/customer";
 import { CustomerAuthModule } from "./modules/customer-auth";
 import { CustomerFranchiseModule } from "./modules/customer-franchise";
+import { DeliveryModule } from "./modules/delivery";
 import { FranchiseModule } from "./modules/franchise";
 import { IndexModule } from "./modules/index";
 import { InventoryModule } from "./modules/inventory";
 import { LoyaltyRuleModule } from "./modules/loyalty-rule";
+import { LoyaltyTransactionModule } from "./modules/loyalty-transaction";
+import { OrderModule } from "./modules/order";
+import { OrderItemModule } from "./modules/order-item";
+import { OrderStatusLogModule } from "./modules/order-status-log";
+import { PaymentModule } from "./modules/payment";
 import { ProductModule } from "./modules/product";
 import { ProductCategoryFranchiseModule } from "./modules/product-category-franchise";
 import { ProductFranchiseModule } from "./modules/product-franchise";
 import { PromotionModule } from "./modules/promotion/promotion.module";
+import { RefundModule } from "./modules/refund";
 import { RoleModule } from "./modules/role";
 import { ShiftModule } from "./modules/shift";
 import { ShiftAssignmentModule } from "./modules/shift-assignment";
@@ -41,6 +48,8 @@ const customerModule = new CustomerModule();
 const categoryModule = new CategoryModule();
 const productModule = new ProductModule();
 const loyaltyRuleModule = new LoyaltyRuleModule();
+const loyaltyTransactionModule = new LoyaltyTransactionModule();
+const shiftModule = new ShiftModule();
 
 // ===== Dependent modules =====
 const userFranchiseRoleModule = new UserFranchiseRoleModule(userModule, roleModule, franchiseModule);
@@ -54,9 +63,15 @@ const productCategoryFranchiseModule = new ProductCategoryFranchiseModule(
 );
 const inventoryModule = new InventoryModule(productModule, productFranchiseModule);
 const customerAuthModule = new CustomerAuthModule(customerModule);
-const customerFranchiseModule = new CustomerFranchiseModule(franchiseModule, customerModule);
+const customerFranchiseModule = new CustomerFranchiseModule(
+  franchiseModule,
+  customerModule,
+  loyaltyRuleModule,
+  loyaltyTransactionModule,
+);
 const promotionModule = new PromotionModule(productFranchiseModule);
 const voucherModule = new VoucherModule(productFranchiseModule);
+const shiftAssignmentModule = new ShiftAssignmentModule(userModule, shiftModule, userFranchiseRoleModule);
 
 // Public module (export to client)
 const clientModule = new ClientModule(
@@ -65,6 +80,10 @@ const clientModule = new ClientModule(
   productFranchiseModule,
   loyaltyRuleModule,
 );
+const orderStatusLogModule = new OrderStatusLogModule();
+const orderItemModule = new OrderItemModule();
+const orderModule = new OrderModule(orderStatusLogModule, orderItemModule, customerFranchiseModule);
+const paymentModule = new PaymentModule(orderModule, voucherModule, customerFranchiseModule);
 const cartItemModule = new CartItemModule();
 const cartModule = new CartModule(
   customerModule,
@@ -73,11 +92,13 @@ const cartModule = new CartModule(
   cartItemModule,
   promotionModule,
   voucherModule,
+  orderModule,
+  paymentModule,
+  inventoryModule,
 );
+const deliveryModule = new DeliveryModule();
+const refundModule = new RefundModule();
 
-const shiftModule = new ShiftModule();
-const shiftAssignmentModule = new ShiftAssignmentModule(userModule, shiftModule, userFranchiseRoleModule);
-shiftModule.setShiftAssignmentQuery(shiftAssignmentModule.getShiftAssignmentQuery());
 // ===== Register routes =====
 const routes = [
   indexModule.getRoute(),
@@ -100,12 +121,17 @@ const routes = [
   voucherModule.getRoute(),
   shiftModule.getRoute(),
   shiftAssignmentModule.getRoute(),
-  loyaltyRuleModule.getRoute(),
 
   // Public route
   clientModule.getRoute(),
   cartItemModule.getRoute(),
   cartModule.getRoute(),
+  orderModule.getRoute(),
+  paymentModule.getRoute(),
+  deliveryModule.getRoute(),
+  refundModule.getRoute(),
+  loyaltyRuleModule.getRoute(),
+  loyaltyTransactionModule.getRoute(),
 ];
 
 async function bootstrap() {

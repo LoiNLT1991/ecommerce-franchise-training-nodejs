@@ -217,7 +217,7 @@ export class ProductFranchiseRepository extends BaseRepository<IProductFranchise
   // TODO: do after
   // B: Business / Menu
 
-  public async findItemsActiveByIds(ids: string[]): Promise<IProductFranchise[]> {
+  public async findItemsActiveByIds(ids: Types.ObjectId[]): Promise<IProductFranchise[]> {
     return this.model.find({ _id: { $in: ids }, is_active: true });
   }
 

@@ -23,18 +23,35 @@ export class BaseRepository<T extends Document> {
   }
 
   public async insertMany(data: Partial<T>[], session?: ClientSession): Promise<T[]> {
-    const docs = session
-      ? await this.model.insertMany(data, { session })
-      : await this.model.insertMany(data);
+    const docs = session ? await this.model.insertMany(data, { session }) : await this.model.insertMany(data);
 
     return docs.map((doc) => this.toObject(doc));
   }
 
-  public async findById(id: string, is_deleted = false): Promise<T | null> {
+  public async findById(id: string, options?: { is_deleted?: boolean }): Promise<T | null> {
     const objectId = new Types.ObjectId(id);
 
-    const doc = await this.model.findOne({ _id: objectId, is_deleted });
-    return doc ? this.toObject(doc) : null;
+    return this.model
+      .findOne({
+        _id: objectId,
+        is_deleted: options?.is_deleted ?? false,
+      })
+      .exec();
+  }
+
+  public async findByIdWithSession(id: string, session?: ClientSession): Promise<T | null> {
+    const objectId = new Types.ObjectId(id);
+
+    const query = this.model.findOne({
+      _id: objectId,
+      is_deleted: false,
+    });
+
+    if (session) {
+      query.session(session);
+    }
+
+    return query.exec();
   }
 
   public async findByIdForUpdate(id: string) {

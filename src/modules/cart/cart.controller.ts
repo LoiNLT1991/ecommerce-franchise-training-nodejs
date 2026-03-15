@@ -6,6 +6,7 @@ import {
   CustomerAuthPayload,
   formatResponse,
   HttpStatus,
+  OrderType,
   UserAuthPayload,
 } from "../../core";
 import { ICart } from "./cart.interface";
@@ -39,22 +40,22 @@ export class CartController extends BaseCrudController<
     }
   };
 
+  public getCartDetail = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { id } = req.params;
+      const item: ICart = await this.service.getCartDetail(id);
+      res.status(HttpStatus.Success).json(formatResponse(item));
+    } catch (error) {
+      next(error);
+    }
+  };
+
   public getCartsByCustomer = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { customerId } = req.params;
       const { status } = req.query;
       const items = await this.service.getCartsByCustomer(customerId, status as CartStatus);
       res.status(HttpStatus.Success).json(formatResponse(items));
-    } catch (error) {
-      next(error);
-    }
-  };
-
-  public getItem = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const { id } = req.params;
-      const item: ICart = await this.service.getCartDetail(id);
-      res.status(HttpStatus.Success).json(formatResponse(item));
     } catch (error) {
       next(error);
     }
@@ -129,6 +130,28 @@ export class CartController extends BaseCrudController<
       const loggedUser: UserAuthPayload | CustomerAuthPayload = (req as AuthenticatedUserRequest)?.user;
       await this.service.removeVoucher(id, loggedUser);
       res.status(HttpStatus.Success).json(formatResponse(null));
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  public checkoutCart = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { id } = req.params;
+      const loggedUser: UserAuthPayload | CustomerAuthPayload = (req as AuthenticatedUserRequest)?.user;
+      const item: ICart = await this.service.checkoutCart(id, loggedUser);
+      res.status(HttpStatus.Success).json(formatResponse(item));
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  public cancelCart = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { id } = req.params;
+      const loggedUser: UserAuthPayload | CustomerAuthPayload = (req as AuthenticatedUserRequest)?.user;
+      const item: ICart = await this.service.cancelCart(id, loggedUser);
+      res.status(HttpStatus.Success).json(formatResponse(item));
     } catch (error) {
       next(error);
     }

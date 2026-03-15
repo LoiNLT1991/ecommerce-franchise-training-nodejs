@@ -87,6 +87,9 @@ export const API_PATH = {
   LOYALTY_RULE_ID: "/api/loyalty-rules/:id",
   GET_LOYALTY_RULE_BY_FRANCHISE: "/api/loyalty-rules/franchise/:franchiseId",
 
+  // loyalty transaction
+  LOYALTY_TRANSACTION: "/api/loyalty-transactions",
+
   // categories
   CATEGORY: "/api/categories",
   CATEGORY_SEARCH: "/api/categories/search",
@@ -201,4 +204,39 @@ export const API_PATH = {
   ADD_CART_ITEM: "/api/carts/items",
   APPLY_VOUCHER: "/api/carts/:id/apply-voucher",
   REMOVE_VOUCHER: "/api/carts/:id/remove-voucher",
+  CHECKOUT_CART: "/api/carts/:id/checkout",
+  CANCEL_CART: "/api/carts/:id/cancel",
+
+  // order
+  ORDER: "/api/orders",
+  ORDER_ID: "/api/orders/:id",
+  ORDER_CODE: "/api/orders/code",
+  ORDER_SEARCH: "/api/orders/search",
+  ORDER_RESTORE: "/api/orders/:id/restore",
+  ORDER_CHANGE_STATUS: "/api/orders/:id/status",
+  ORDER_BY_STAFF: "/api/orders/staff/:staffId",
+  ORDER_BY_FRANCHISE: "/api/orders/franchise/:franchiseId",
+  GET_ORDER_BY_CART: "/api/orders/cart/:cartId",
+  GET_ORDERS_BY_CUSTOMER: "/api/orders/customer/:customerId",
+  GET_ORDERS_BY_FRANCHISE: "/api/orders/franchise/:franchiseId",
+
+  // order status logs
+  ORDER_STATUS_LOG: "/api/order-status-logs",
+
+  // payment
+  PAYMENT: "/api/payments",
+  PAYMENT_ID: "/api/payments/:id",
+  PAYMENT_CODE: "/api/payments/code",
+  CONFIRM_PAYMENT: "/api/payments/:id/confirm",
+  REFUND_PAYMENT: "/api/payments/:id/refund",
+  RETRY_PAYMENT: "/api/payments/:id/retry",
+  PAYMENT_FAILED: "/api/payments/:id/failed",
+  GET_PAYMENT_BY_ORDER: "/api/payments/order/:orderId",
+  GET_PAYMENTS_BY_CUSTOMER: "/api/payments/customer/:customerId",
+
+  // refund
+  REFUND: "/api/refunds",
+
+  // delivery
+  DELIVERY: "/api/deliveries",
 };

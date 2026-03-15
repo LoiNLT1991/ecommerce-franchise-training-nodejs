@@ -1,4 +1,4 @@
-import { Document, Types } from "mongoose";
+import { ClientSession, Document, Types } from "mongoose";
 import { IBase } from "../../core";
 import { BaseFieldName } from "../../core/enums";
 import { InventoryReferenceType, InventoryType } from "./inventory.enum";
@@ -28,4 +28,5 @@ export interface IInventoryLog extends Document {
 export interface IInventoryQuery {
   getById(id: string): Promise<IInventory | null>;
   getByProductFranchiseId(productFranchiseId: string): Promise<IInventory | null>;
+  getByProductFranchiseIds(productFranchiseIds: Types.ObjectId[], session?: ClientSession): Promise<IInventory[]>;
 }

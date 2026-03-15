@@ -55,7 +55,7 @@ export abstract class BaseCrudService<T extends Document, CreateDto, UpdateDto, 
   }
 
   async restore(id: string, loggedUserId: string): Promise<void> {
-    const item = await this.repo.findById(id, true);
+    const item = await this.repo.findById(id, { is_deleted: true });
     if (!item) throw new HttpException(HttpStatus.BadRequest, MSG_BUSINESS.ITEM_NOT_FOUND_OR_RESTORED);
     await this.beforeRestore(item, loggedUserId);
     await this.repo.restoreById(id);

@@ -21,9 +21,15 @@ const LoyaltyTransactionSchemaEntity = new Schema({
   [BaseFieldName.POINT_CHANGE]: { type: Number, required: true },
   [BaseFieldName.REASON]: { type: String, required: false },
 
-  [BaseFieldName.CREATED_BY]: {
+  [BaseFieldName.CHANGED_BY_STAFF]: {
     type: mongoose.Schema.Types.ObjectId,
     ref: COLLECTION_NAME.USER,
+    required: false,
+  },
+
+  [BaseFieldName.CHANGED_BY_CUSTOMER]: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: COLLECTION_NAME.CUSTOMER,
     required: false,
   },
 
@@ -31,7 +37,6 @@ const LoyaltyTransactionSchemaEntity = new Schema({
 });
 
 LoyaltyTransactionSchemaEntity.index({ customer_franchise_id: 1, created_at: -1 });
-LoyaltyTransactionSchemaEntity.index({ order_id: 1 });
 
 export type LoyaltyTransactionDocument = HydratedDocument<ILoyaltyTransaction>;
 const LoyaltyTransactionSchema = mongoose.model<LoyaltyTransactionDocument>(

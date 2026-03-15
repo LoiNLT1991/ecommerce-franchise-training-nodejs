@@ -1,10 +1,24 @@
-import { BaseRepository } from "../../core";
+import { ClientSession, Types } from "mongoose";
+import { BaseFieldName, BaseRepository, LoyaltyTransactionType } from "../../core";
 import { ILoyaltyTransaction } from "./loyalty-transaction.interface";
 import LoyaltyTransactionSchema from "./loyalty-transaction.model";
 
 export class LoyaltyTransactionRepository extends BaseRepository<ILoyaltyTransaction> {
   constructor() {
     super(LoyaltyTransactionSchema);
+  }
+
+  public async findEarnByOrderId(orderId: string, session?: ClientSession): Promise<ILoyaltyTransaction | null> {
+    const query = this.model.findOne({
+      [BaseFieldName.ORDER_ID]: new Types.ObjectId(orderId),
+      [BaseFieldName.TYPE]: LoyaltyTransactionType.EARN,
+    });
+
+    if (session) {
+      query.session(session);
+    }
+
+    return query;
   }
 
   /**

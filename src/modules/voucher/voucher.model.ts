@@ -15,6 +15,7 @@ const VoucherSchemaEntity = new Schema({
     type: Schema.Types.ObjectId,
     ref: COLLECTION_NAME.FRANCHISE,
     required: true,
+    index: true,
   },
   [BaseFieldName.PRODUCT_FRANCHISE_ID]: {
     type: Schema.Types.ObjectId,
@@ -41,8 +42,6 @@ const VoucherSchemaEntity = new Schema({
 
   ...BASE_MODEL_FIELDS,
 });
-
-VoucherSchemaEntity.index({ franchise_id: 1 });
 
 VoucherSchemaEntity.index({
   franchise_id: 1,

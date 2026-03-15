@@ -1,4 +1,4 @@
-import { Types } from "mongoose";
+import { ClientSession, Types } from "mongoose";
 import { BaseRepository, formatItemsQuery } from "../../core";
 import { ILoyaltyRule } from "./loyalty-rule.interface";
 import LoyaltyRuleSchema from "./loyalty-rule.model";
@@ -112,12 +112,16 @@ export class LoyaltyRuleRepository extends BaseRepository<ILoyaltyRule> {
   /**
    * Get loyalty rule by franchise
    */
-  public async getByFranchiseId(franchiseId: string): Promise<ILoyaltyRule | null> {
+  public async getByFranchiseId(franchiseId: string, session?: ClientSession): Promise<ILoyaltyRule | null> {
     return this.model
-      .findOne({
-        franchise_id: franchiseId,
-        is_deleted: false,
-      })
+      .findOne(
+        {
+          franchise_id: new Types.ObjectId(franchiseId),
+          is_deleted: false,
+        },
+        null,
+        { session },
+      )
       .lean();
   }
 

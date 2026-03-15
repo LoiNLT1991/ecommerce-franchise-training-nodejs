@@ -1,4 +1,5 @@
 import { IsMongoId, IsNotEmpty } from "class-validator";
+import { Types } from "mongoose";
 
 export default class CreateCustomerFranchiseDto {
   @IsNotEmpty()
@@ -8,4 +9,9 @@ export default class CreateCustomerFranchiseDto {
   @IsNotEmpty()
   @IsMongoId()
   customer_id!: string;
+}
+
+export interface ICreateCustomerFranchiseDto {
+  franchise_id: Types.ObjectId;
+  customer_id: Types.ObjectId;
 }

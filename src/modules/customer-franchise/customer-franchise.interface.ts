@@ -1,6 +1,6 @@
-import { Document, Types } from "mongoose";
-import { BaseFieldName, BaseLoyaltyTier, IBase } from "../../core";
-import CreateCustomerFranchiseDto from "./dto/create.dto";
+import { ClientSession, Document, Types } from "mongoose";
+import { BaseFieldName, BaseLoyaltyTier, CustomerAuthPayload, IBase, UserAuthPayload } from "../../core";
+import { ICreateCustomerFranchiseDto } from "./dto/create.dto";
 
 export interface ICustomerFranchise extends Document, IBase {
   [BaseFieldName.CUSTOMER_ID]: Types.ObjectId;
@@ -20,6 +20,43 @@ export interface ICustomerFranchise extends Document, IBase {
   franchise_name: string;
 }
 
+export interface IAddPointPayload {
+  orderId: Types.ObjectId;
+  customerId: Types.ObjectId;
+  franchiseId: Types.ObjectId;
+  final_amount: number;
+  loggedUser: UserAuthPayload | CustomerAuthPayload;
+}
+
+export interface IRevertPointPayload {
+  orderId: Types.ObjectId;
+  customerId: Types.ObjectId;
+  franchiseId: Types.ObjectId;
+  refundReason: string;
+  loggedUser: UserAuthPayload | CustomerAuthPayload;
+}
+
+export interface IRestoreUsedPointsPayload {
+  orderId: Types.ObjectId;
+  customerId: Types.ObjectId;
+  franchiseId: Types.ObjectId;
+  points: number;
+  refundReason?: string;
+  loggedUser: UserAuthPayload | CustomerAuthPayload;
+}
+
 export interface ICustomerFranchiseQuery {
-  createItem(payload: CreateCustomerFranchiseDto, loggedUserId: string): Promise<ICustomerFranchise | null>;
+  findByCustomerAndFranchise(
+    customerId: Types.ObjectId,
+    franchiseId: Types.ObjectId,
+    session?: ClientSession,
+  ): Promise<ICustomerFranchise | null>;
+  createCustomerFranchise(
+    payload: ICreateCustomerFranchiseDto,
+    loggedUserId: string,
+    session?: ClientSession,
+  ): Promise<ICustomerFranchise | null>;
+  addPoints(payload: IAddPointPayload, session?: ClientSession): Promise<boolean>;
+  revertPoints(payload: IRevertPointPayload, session?: ClientSession): Promise<boolean>;
+  restoreUsedPoints(payload: IRestoreUsedPointsPayload, session?: ClientSession): Promise<boolean>;
 }

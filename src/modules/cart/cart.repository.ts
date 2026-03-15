@@ -1,4 +1,4 @@
-import { Types } from "mongoose";
+import { ClientSession, Types } from "mongoose";
 import { BaseRepository, CartStatus, formatItemsQuery, HttpException, HttpStatus, MSG_BUSINESS } from "../../core";
 import { ICart } from "./cart.interface";
 import CartSchema from "./cart.model";
@@ -7,6 +7,24 @@ import { SearchItemDto, SearchPaginationItemDto } from "./dto/search.dto";
 export class CartRepository extends BaseRepository<ICart> {
   constructor() {
     super(CartSchema);
+  }
+
+  public async findActiveCartById(cartId: string, session?: ClientSession): Promise<ICart | null> {
+    const query = this.model
+      .findOne({
+        _id: new Types.ObjectId(cartId),
+        status: CartStatus.ACTIVE,
+        is_deleted: false,
+      })
+      .populate("cart_items");
+
+    if (session) query.session(session);
+
+    return query;
+  }
+
+  public async updateStatus(cartId: string, status: CartStatus, session?: ClientSession) {
+    return this.model.updateOne({ _id: cartId }, { $set: { status } }, { session });
   }
 
   public async findByIdForUpdate(id: string, is_deleted = false) {

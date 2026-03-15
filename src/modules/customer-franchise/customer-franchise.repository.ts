@@ -1,4 +1,4 @@
-import { PipelineStage, Types } from "mongoose";
+import { ClientSession, PipelineStage, Types } from "mongoose";
 import { BaseRepository, formatItemsQuery, HttpException, HttpStatus, MSG_BUSINESS } from "../../core";
 import { ICustomerFranchise } from "./customer-franchise.interface";
 import CustomerFranchiseSchema from "./customer-franchise.model";
@@ -7,6 +7,24 @@ import { SearchItemDto, SearchPaginationItemDto } from "./dto/search.dto";
 export class CustomerFranchiseRepository extends BaseRepository<ICustomerFranchise> {
   constructor() {
     super(CustomerFranchiseSchema);
+  }
+
+  public async findByCustomerAndFranchise(
+    customerId: Types.ObjectId,
+    franchiseId: Types.ObjectId,
+    session?: ClientSession,
+  ) {
+    const query = CustomerFranchiseSchema.findOne({
+      customer_id: customerId,
+      franchise_id: franchiseId,
+      is_deleted: false,
+    });
+
+    if (session) {
+      query.session(session);
+    }
+
+    return query;
   }
 
   public async getItem(id: string) {
@@ -129,6 +147,7 @@ export class CustomerFranchiseRepository extends BaseRepository<ICustomerFranchi
       .findOne({
         customer_id: customerId,
         franchise_id: franchiseId,
+        is_deleted: false,
       })
       .lean();
   }
@@ -155,5 +174,20 @@ export class CustomerFranchiseRepository extends BaseRepository<ICustomerFranchi
         last_order_date: new Date(),
       },
     });
+  }
+
+  public async addPoints(
+    customerId: Types.ObjectId,
+    franchiseId: Types.ObjectId,
+    points: number,
+    session?: ClientSession,
+  ): Promise<boolean> {
+    const result = await this.model.updateOne(
+      { customer_id: customerId, franchise_id: franchiseId },
+      { $inc: { loyalty_points: points } },
+      { session },
+    );
+
+    return result.modifiedCount > 0;
   }
 }

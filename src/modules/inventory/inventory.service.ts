@@ -1,12 +1,12 @@
-import mongoose, { ClientSession } from "mongoose";
+import mongoose, { ClientSession, Types } from "mongoose";
 import {
-    BaseCrudService,
-    BaseFieldName,
-    checkEmptyObject,
-    HttpException,
-    HttpStatus,
-    MSG_BUSINESS,
-    toObjectId,
+  BaseCrudService,
+  BaseFieldName,
+  checkEmptyObject,
+  HttpException,
+  HttpStatus,
+  MSG_BUSINESS,
+  toObjectId,
 } from "../../core";
 import { AuditAction, AuditEntityType, IAuditLogger, pickAuditSnapshot } from "../audit-log";
 import { IProductQuery } from "../product";
@@ -251,5 +251,12 @@ export class InventoryService
 
   public async getByProductFranchiseId(productFranchiseId: string): Promise<IInventory | null> {
     return this.inventoryRepository.findByProductFranchiseId(productFranchiseId);
+  }
+
+  public async getByProductFranchiseIds(
+    productFranchiseIds: Types.ObjectId[],
+    session?: ClientSession,
+  ): Promise<IInventory[]> {
+    return this.inventoryRepository.getByProductFranchiseIds(productFranchiseIds, session);
   }
 }

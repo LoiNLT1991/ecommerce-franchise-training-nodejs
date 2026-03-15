@@ -24,10 +24,12 @@ const PaymentSchemaEntity = new Schema({
     index: true,
   },
 
+  [BaseFieldName.CODE]: { type: String, required: true, unique: true },
+
   [BaseFieldName.METHOD]: {
     type: String,
     enum: Object.values(PaymentMethod),
-    required: true,
+    default: PaymentMethod.DEFAULT,
   },
 
   [BaseFieldName.STATUS]: {
@@ -39,6 +41,7 @@ const PaymentSchemaEntity = new Schema({
   [BaseFieldName.AMOUNT]: { type: Number, required: true, min: 0 },
   [BaseFieldName.PROVIDER_TXN_ID]: { type: String, required: false },
   [BaseFieldName.PAID_AT]: { type: Date },
+  [BaseFieldName.REFUND_REASON]: { type: String, required: false },
 
   [BaseFieldName.CREATED_BY]: {
     type: mongoose.Schema.Types.ObjectId,
@@ -49,7 +52,6 @@ const PaymentSchemaEntity = new Schema({
   ...BASE_MODEL_FIELDS,
 });
 
-PaymentSchemaEntity.index({ order_id: 1 });
 PaymentSchemaEntity.index({ franchise_id: 1, created_at: -1 });
 PaymentSchemaEntity.index({ provider_txn_id: 1 });
 

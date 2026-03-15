@@ -10,6 +10,7 @@ const PromotionSchemaEntity = new Schema({
     type: Schema.Types.ObjectId,
     ref: COLLECTION_NAME.FRANCHISE,
     required: true,
+    index: true,
   },
   [PromotionFieldName.PRODUCT_FRANCHISE_ID]: {
     type: Schema.Types.ObjectId,
@@ -32,8 +33,6 @@ const PromotionSchemaEntity = new Schema({
 
   ...BASE_MODEL_FIELDS,
 });
-
-PromotionSchemaEntity.index({ franchise_id: 1 });
 
 PromotionSchemaEntity.index({
   franchise_id: 1,

@@ -1,5 +1,6 @@
-import { Types } from "mongoose";
-import { BaseFieldName, IBase, PaymentMethod, PaymentStatus } from "../../core";
+import { ClientSession, Document, Types } from "mongoose";
+import { BaseFieldName, CustomerAuthPayload, IBase, PaymentMethod, PaymentStatus, UserAuthPayload } from "../../core";
+import { IOrder } from "../order";
 
 export interface IPayment extends Document, IBase {
   [BaseFieldName.FRANCHISE_ID]: Types.ObjectId;
@@ -16,4 +17,14 @@ export interface IPayment extends Document, IBase {
   [BaseFieldName.PAID_AT]: Date;
   [BaseFieldName.CREATED_BY]?: Types.ObjectId;
   [BaseFieldName.CREATED_NAME]?: string;
+  [BaseFieldName.CODE]: string;
+}
+
+export interface IPaymentQuery {
+  createPayment(
+    payload: IOrder,
+    loggedUser: UserAuthPayload | CustomerAuthPayload,
+    session?: ClientSession,
+  ): Promise<IPayment>;
+  getById(id: string): Promise<IPayment | null>;
 }

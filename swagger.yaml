@@ -49,10 +49,22 @@ tags:
     description: CustomerFranchise related endpoints
   - name: Customer
     description: Customer related endpoints
+  - name: Delivery
+    description: Delivery related endpoints
   - name: Inventory
     description: Inventory related endpoints
   - name: LoyaltyRule
     description: LoyaltyRule related endpoints
+  - name: LoyaltyTransaction
+    description: LoyaltyTransaction related endpoints
+  - name: OrderItem
+    description: OrderItem related endpoints
+  - name: OrderStatusLog
+    description: OrderStatusLog related endpoints
+  - name: Order
+    description: Order related endpoints
+  - name: Payment
+    description: Payment related endpoints
   - name: Product Category Franchise
     description: Product Category Franchise related endpoints
   - name: Product Franchise
@@ -61,6 +73,8 @@ tags:
     description: Product related endpoints
   - name: Promotion
     description: Promotion related endpoints
+  - name: Refund
+    description: Delivery related endpoints
   - name: ShiftAssignment
     description: Shift assignment related endpoints
   - name: Shift

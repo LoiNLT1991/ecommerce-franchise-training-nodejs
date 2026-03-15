@@ -1,4 +1,4 @@
-import { Document, Types } from "mongoose";
+import { ClientSession, Document, Types } from "mongoose";
 import { BaseFieldName, PriceType } from "../../core/enums";
 import { IBase } from "../../core/interfaces";
 import { VoucherFieldName } from "./voucher.enum";
@@ -26,4 +26,6 @@ export interface IVoucher extends Document, IBase {
 export interface IVoucherQuery {
   getById(id: string): Promise<IVoucher | null>;
   getActiveVoucherByCode(code: string, franchiseId: Types.ObjectId): Promise<IVoucher | null>;
+  decreaseQuotaById(id: Types.ObjectId, session?: ClientSession): Promise<boolean>;
+  increaseQuotaById(id: Types.ObjectId, session?: ClientSession): Promise<boolean>;
 }

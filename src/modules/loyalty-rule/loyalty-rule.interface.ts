@@ -1,4 +1,4 @@
-import { Document, Types } from "mongoose";
+import { ClientSession, Document, Types } from "mongoose";
 import { BaseFieldName, BaseLoyaltyTier, IBase } from "../../core";
 
 export interface ILoyaltyRule extends Document, IBase {
@@ -27,5 +27,5 @@ export interface IBenefitDetail {
 
 export interface ILoyaltyRuleQuery {
   getById(id: string): Promise<ILoyaltyRule | null>;
-  getRoyaltyRuleByFranchiseId(franchiseId: string): Promise<ILoyaltyRule>;
+  getItemByFranchiseId(franchiseId: string, session?: ClientSession): Promise<ILoyaltyRule | null>;
 }

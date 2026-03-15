@@ -10,13 +10,19 @@ const OrderStatusLogSchemaEntity = new Schema({
     index: true,
   },
 
-  [BaseFieldName.CHANGED_BY]: {
+  [BaseFieldName.CHANGED_BY_STAFF]: {
     type: mongoose.Schema.Types.ObjectId,
     ref: COLLECTION_NAME.USER,
     required: false,
   },
 
-  [BaseFieldName.OLD_STATUS]: { type: String, enum: Object.values(OrderStatus), required: true },
+  [BaseFieldName.CHANGED_BY_CUSTOMER]: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: COLLECTION_NAME.CUSTOMER,
+    required: false,
+  },
+
+  [BaseFieldName.OLD_STATUS]: { type: String, enum: Object.values(OrderStatus), required: false },
   [BaseFieldName.NEW_STATUS]: { type: String, enum: Object.values(OrderStatus), required: true },
   [BaseFieldName.NOTE]: { type: String, required: false },
   [BaseFieldName.CHANGED_AT]: { type: Date, default: Date.now },

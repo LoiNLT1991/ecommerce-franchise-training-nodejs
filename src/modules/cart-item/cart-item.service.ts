@@ -59,4 +59,8 @@ export class CartItemService implements ICartItemQuery {
       _id: { $ne: exclude_id },
     });
   }
+
+  public async updateBulkCartItems(items: ICartItem[]): Promise<void> {
+    return this.cartItemRepo.bulkUpdateTotals(items);
+  }
 }

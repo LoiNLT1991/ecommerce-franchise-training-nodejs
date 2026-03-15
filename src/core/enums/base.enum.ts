@@ -41,6 +41,7 @@ export enum BaseLoyaltyTier {
 export enum CartStatus {
   ACTIVE = "ACTIVE",
   CHECKED_OUT = "CHECKED_OUT",
+  CANCELED = "CANCELED",
 }
 
 export enum PriceType {
@@ -69,12 +70,13 @@ export enum OrderStatus {
 export enum PaymentStatus {
   DEFAULT = "",
   PENDING = "PENDING",
-  SUCCESS = "SUCCESS",
-  FAILED = "FAILED",
+  PAID = "PAID",
   REFUNDED = "REFUNDED",
+  FAILED = "FAILED",
 }
 
 export enum PaymentMethod {
+  DEFAULT = "",
   CASH = "CASH",
   CARD = "CARD",
   MOMO = "MOMO",
@@ -107,6 +109,8 @@ export enum LoyaltyTransactionType {
   EARN = "EARN", // nhận điểm khi mua hàng
   REDEEM = "REDEEM", // dùng điểm
   ADJUST = "ADJUST", // admin chỉnh tay
+  REFUND = "REFUND", // reset point khi huy don hang
+  RESTORE = "RESTORE", // restore point khi huy don hang
 }
 
 export enum BaseFieldName {
@@ -147,9 +151,9 @@ export enum BaseFieldName {
   CART_ID = "cart_id",
   CART_ITEM_ID = "cart_item_id",
   CART_ITEM_OPTION_ID = "cart_item_option_id",
-  ORDER_ID = "ORDER_ID",
-  ORDER_ITEM_ID = "ORDER_ITEM_ID",
-  ORDER_ITEM_OPTION_ID = "ORDER_ITEM_OPTION_ID",
+  ORDER_ID = "order_id",
+  ORDER_ITEM_ID = "order_item_id",
+  ORDER_ITEM_OPTION_ID = "order_item_option_id",
 
   REFERENCE_TYPE = "reference_type",
   REFERENCE_ID = "reference_id",
@@ -213,6 +217,7 @@ export enum BaseFieldName {
   PRICE_SNAPSHOT = "price_snapshot",
   FINAL_PRICE = "final_price",
   APPROVE_AT = "approve_at",
+  DRAFT_AT = "draft_at",
   CONFIRMED_AT = "confirmed_at",
   COMPLETED_AT = "completed_at",
   REJECTED_AT = "rejected_at",
@@ -234,7 +239,7 @@ export enum BaseFieldName {
   PAID_AT = "paid_at",
   PROVIDER_TXN_ID = "provider_txn_id",
   CREATED_NAME = "created_name",
-  PAYMENT_ID = "PAYMENT_ID",
+  PAYMENT_ID = "payment_id",
   REASON_REJECT = "reason_reject",
   POINT_CHANGE = "point_change",
   EARN_AMOUNT_PER_POINT = "earn_amount_per_point",
@@ -249,4 +254,9 @@ export enum BaseFieldName {
   ORDER_DISCOUNT_PERCENT = "order_discount_percent",
   EARN_MULTIPLIER = "earn_multiplier",
   FREE_SHIPPING = "free_shipping",
+  CART_ITEMS = "cart_items",
+  CHANGED_BY_STAFF = "changed_by_staff",
+  CHANGED_BY_CUSTOMER = "changed_by_customer",
+  ORDER_STATUS_LOGS = "order_status_logs",
+  REFUND_REASON = "refund_reason",
 }
