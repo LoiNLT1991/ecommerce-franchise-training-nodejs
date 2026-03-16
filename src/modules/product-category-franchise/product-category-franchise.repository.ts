@@ -235,7 +235,6 @@ export class ProductCategoryFranchiseRepository extends BaseRepository<IProductC
     return this.model.findOne({
       category_franchise_id: categoryId,
       product_franchise_id: productId,
-      is_deleted: false,
     });
   }
 

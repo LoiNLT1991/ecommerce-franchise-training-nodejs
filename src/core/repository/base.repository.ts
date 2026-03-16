@@ -66,7 +66,7 @@ export class BaseRepository<T extends Document> {
   }
 
   public async findAll(filter: Partial<T> = {}): Promise<T[]> {
-    const docs = await this.model.find({ ...filter, is_deleted: false });
+    const docs = await this.model.find({ ...filter, is_active: true, is_deleted: false });
     return docs.map((doc) => this.toObject(doc));
   }
 
@@ -148,7 +148,6 @@ export class BaseRepository<T extends Document> {
   ): Promise<boolean> {
     const query: any = {
       [fieldName]: fieldValue,
-      is_deleted: false,
     };
 
     if (options?.excludeId) {

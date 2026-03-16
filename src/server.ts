@@ -79,6 +79,7 @@ const clientModule = new ClientModule(
   categoryFranchiseModule,
   productFranchiseModule,
   loyaltyRuleModule,
+  customerFranchiseModule,
 );
 const orderStatusLogModule = new OrderStatusLogModule();
 const orderItemModule = new OrderItemModule();

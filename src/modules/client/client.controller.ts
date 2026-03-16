@@ -1,5 +1,11 @@
 import { NextFunction, Request, Response } from "express";
-import { formatResponse, HttpStatus } from "../../core";
+import {
+  AuthenticatedCustomerRequest,
+  AuthenticatedUserRequest,
+  CustomerAuthPayload,
+  formatResponse,
+  HttpStatus,
+} from "../../core";
 import { ClientService } from "./client.service";
 
 export class ClientController {
@@ -68,6 +74,19 @@ export class ClientController {
     try {
       const { franchiseId } = req.params;
       const item = await this.service.getLoyaltyRuleByFranchise(franchiseId);
+      res.status(HttpStatus.Success).json(formatResponse(item));
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  public getCustomerRoyaltyDetail = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { franchiseId } = req.params;
+      const item = await this.service.getCustomerRoyaltyDetail(
+        franchiseId,
+        (req as AuthenticatedCustomerRequest).user.id,
+      );
       res.status(HttpStatus.Success).json(formatResponse(item));
     } catch (error) {
       next(error);

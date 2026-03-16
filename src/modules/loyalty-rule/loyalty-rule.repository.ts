@@ -117,7 +117,6 @@ export class LoyaltyRuleRepository extends BaseRepository<ILoyaltyRule> {
       .findOne(
         {
           franchise_id: new Types.ObjectId(franchiseId),
-          is_deleted: false,
         },
         null,
         { session },

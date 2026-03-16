@@ -189,6 +189,7 @@ export const API_PATH = {
   CLIENT_PRODUCT_DETAIL: "/api/clients/franchises/:franchiseId/products/:productId",
   CLIENT_FRANCHISE_DETAIL: "/api/clients/franchises/:franchiseId",
   CLIENT_FRANCHISE_LOYALTY_RULE: "/api/clients/franchises/:franchiseId/loyalty-rule",
+  CLIENT_CUSTOMER_LOYALTY: "/api/clients/franchises/:franchiseId/customer-loyalty",
 
   // cart, cartItem
   CART: "/api/carts",

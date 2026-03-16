@@ -1,6 +1,8 @@
+import { Types } from "mongoose";
 import { HttpException, HttpStatus } from "../../core";
 import { IAuditLogger } from "../audit-log";
 import { ICategoryFranchiseQuery, PublicCategoryFranchiseItemDto } from "../category-franchise";
+import { ICustomerFranchise, ICustomerFranchiseQuery } from "../customer-franchise";
 import { IFranchise, IFranchiseQuery, IFranchiseQueryResult } from "../franchise";
 import { ILoyaltyRule, ILoyaltyRuleQuery } from "../loyalty-rule";
 import { IProductFranchiseQuery, PublicProductDetailDto, PublicProductItemDto } from "../product-franchise";
@@ -12,6 +14,7 @@ export class ClientService {
     private readonly categoryFranchiseQuery: ICategoryFranchiseQuery,
     private readonly productFranchiseQuery: IProductFranchiseQuery,
     private readonly loyaltyRuleQuery: ILoyaltyRuleQuery,
+    private readonly customerFranchiseQuery: ICustomerFranchiseQuery,
   ) {}
 
   // Get list franchise
@@ -50,9 +53,23 @@ export class ClientService {
   // Get loyalty rule by franchise
   public async getLoyaltyRuleByFranchise(franchiseId: string): Promise<ILoyaltyRule> {
     const item = await this.loyaltyRuleQuery.getItemByFranchiseId(franchiseId);
-    
+
     if (!item) {
       throw new HttpException(HttpStatus.BadRequest, "Loyalty rule not found");
+    }
+
+    return item;
+  }
+
+  // Get customer royalty detail
+  public async getCustomerRoyaltyDetail(franchiseId: string, customerId: string): Promise<ICustomerFranchise> {
+    const item = await this.customerFranchiseQuery.findByCustomerAndFranchise(
+      new Types.ObjectId(customerId),
+      new Types.ObjectId(franchiseId),
+    );
+
+    if (!item) {
+      throw new HttpException(HttpStatus.BadRequest, "Customer not exist in franchise");
     }
 
     return item;

@@ -13,6 +13,7 @@ export class PromotionRepository extends BaseRepository<IPromotion> {
   public async getItem(id: string): Promise<IPromotion | null> {
     const pipeline = this.buildPromotionAggregate({
       _id: new Types.ObjectId(id),
+      is_active: true,
       is_deleted: false,
     });
 
@@ -109,6 +110,7 @@ export class PromotionRepository extends BaseRepository<IPromotion> {
       {
         $project: {
           _id: 1,
+          name: 1,
           franchise_id: 1,
           product_id: 1,
           type: 1,

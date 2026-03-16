@@ -79,6 +79,7 @@ export class UserFranchiseRoleRepository extends BaseRepository<IUserFranchiseRo
     try {
       const matchQuery = {
         user_id: new Types.ObjectId(userId),
+        is_active: true,
         is_deleted: false,
       };
 
@@ -155,6 +156,7 @@ export class UserFranchiseRoleRepository extends BaseRepository<IUserFranchiseRo
     try {
       const matchQuery = {
         franchise_id: new Types.ObjectId(franchiseId),
+        is_active: true,
         is_deleted: false,
       };
 

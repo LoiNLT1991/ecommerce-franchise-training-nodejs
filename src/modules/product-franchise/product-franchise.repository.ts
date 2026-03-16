@@ -103,7 +103,6 @@ export class ProductFranchiseRepository extends BaseRepository<IProductFranchise
       product_id: productId,
       franchise_id: franchiseId,
       size: size ?? null,
-      is_deleted: false,
     };
 
     if (options?.excludeId) {
@@ -747,6 +746,14 @@ export class ProductFranchiseRepository extends BaseRepository<IProductFranchise
           localField: "_id",
           foreignField: "product_franchise_id",
           as: "pcf",
+          pipeline: [
+            {
+              $match: {
+                is_active: true,
+                is_deleted: false,
+              },
+            },
+          ],
         },
       },
       { $unwind: "$pcf" },
@@ -758,6 +765,14 @@ export class ProductFranchiseRepository extends BaseRepository<IProductFranchise
           localField: "pcf.category_franchise_id",
           foreignField: "_id",
           as: "cf",
+          pipeline: [
+            {
+              $match: {
+                is_active: true,
+                is_deleted: false,
+              },
+            },
+          ],
         },
       },
       { $unwind: "$cf" },

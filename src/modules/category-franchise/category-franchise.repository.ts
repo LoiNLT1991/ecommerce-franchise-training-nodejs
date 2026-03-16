@@ -178,7 +178,6 @@ export class CategoryFranchiseRepository extends BaseRepository<ICategoryFranchi
     return this.model.findOne({
       category_id: categoryId,
       franchise_id: franchiseId,
-      is_deleted: false,
     });
   }
 

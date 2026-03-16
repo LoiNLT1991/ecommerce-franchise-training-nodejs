@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { API_PATH, IRoute } from "../../core";
+import { API_PATH, customerAuthMiddleware, IRoute } from "../../core";
 import { ClientController } from "./client.controller";
 
 export default class ClientRoute implements IRoute {
@@ -38,5 +38,12 @@ export default class ClientRoute implements IRoute {
 
     // GET domain:/api/clients/franchises/:franchiseId/loyalty-rule - Get franchise detail for client
     this.router.get(API_PATH.CLIENT_FRANCHISE_LOYALTY_RULE, this.controller.getLoyaltyRuleByFranchise);
+
+    // GET domain:/api/clients/franchises/:franchiseId/customer-loyalty - Get customer royalty detail for client
+    this.router.get(
+      API_PATH.CLIENT_CUSTOMER_LOYALTY,
+      customerAuthMiddleware(),
+      this.controller.getCustomerRoyaltyDetail,
+    );
   }
 }
