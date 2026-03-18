@@ -82,6 +82,16 @@ export class CartController extends BaseCrudController<
     }
   };
 
+  public updateCartItemQuantity = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const loggedUser: UserAuthPayload | CustomerAuthPayload = (req as AuthenticatedUserRequest)?.user;
+      await this.service.updateCartItemQuantity(req.body, loggedUser);
+      res.status(HttpStatus.Success).json(formatResponse(null));
+    } catch (error) {
+      next(error);
+    }
+  };
+
   public removeCartItem = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { cartItemId } = req.params;
@@ -93,10 +103,10 @@ export class CartController extends BaseCrudController<
     }
   };
 
-  public updateOptionItem = async (req: Request, res: Response, next: NextFunction) => {
+  public updateOptionItemQuantity = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const loggedUser: UserAuthPayload | CustomerAuthPayload = (req as AuthenticatedUserRequest)?.user;
-      await this.service.updateOptionItem(req.body, loggedUser);
+      await this.service.updateOptionItemQuantity(req.body, loggedUser);
       res.status(HttpStatus.Success).json(formatResponse(null));
     } catch (error) {
       next(error);

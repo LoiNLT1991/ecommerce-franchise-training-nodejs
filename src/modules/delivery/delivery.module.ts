@@ -21,7 +21,7 @@ export class DeliveryModule extends BaseModule<DeliveryRoute> {
 
     // Core service and Http layer
     const service = new DeliveryService(repo, auditLogger);
-    const controller = new DeliveryController();
+    const controller = new DeliveryController(service);
     this.route = new DeliveryRoute(controller);
 
     this.deliveryQuery = service;

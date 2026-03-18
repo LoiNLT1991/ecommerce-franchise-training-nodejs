@@ -14,12 +14,12 @@ import {
 import { AuditAction, AuditEntityType, IAuditLogger } from "../audit-log";
 import { ICart } from "../cart";
 import { ICustomerFranchiseQuery } from "../customer-franchise";
+import { IDeliveryQuery } from "../delivery";
 import { IInventoryQuery } from "../inventory";
 import { IOrderItemQuery } from "../order-item";
 import { IOrderStatusLogger } from "../order-status-log";
 import { IOrder, IOrderQuery } from "./order.interface";
 import { OrderRepository } from "./order.repository";
-import { IDeliveryQuery } from "../delivery";
 
 export class OrderService implements IOrderQuery {
   private readonly orderRepo: OrderRepository;
@@ -270,7 +270,6 @@ export class OrderService implements IOrderQuery {
 
       // 2. Get order items
       const orderItems = await this.orderItemQuery.getItemsByOrderId(id, session);
-
       if (!orderItems || orderItems.length === 0) {
         throw new HttpException(HttpStatus.BadRequest, "Order items not found");
       }
@@ -278,7 +277,6 @@ export class OrderService implements IOrderQuery {
       // 3. Deduct inventory
       for (const item of orderItems) {
         const ok = await this.inventoryQuery.deductProduct(String(item.product_franchise_id), item.quantity, session);
-
         if (!ok) {
           throw new HttpException(HttpStatus.BadRequest, "Not enough product stock");
         }
@@ -384,6 +382,131 @@ export class OrderService implements IOrderQuery {
     } catch (error) {
       await session.abortTransaction();
       throw error;
+    } finally {
+      session.endSession();
+    }
+  }
+
+  public async markPickingUpByDeliveryId(deliveryId: string, loggedUser: UserAuthPayload): Promise<boolean> {
+    const session = await mongoose.startSession();
+
+    try {
+      session.startTransaction();
+
+      // 1. Get delivery
+      const delivery = await this.deliveryQuery.findByIdWithSession(deliveryId, session);
+
+      if (!delivery) {
+        throw new HttpException(HttpStatus.BadRequest, "Delivery not found");
+      }
+
+      if (delivery.status !== DeliveryStatus.ASSIGNED) {
+        throw new HttpException(HttpStatus.BadRequest, "Only ASSIGNED delivery can move to PICKING_UP");
+      }
+
+      if (String(loggedUser.id) !== String(delivery.assigned_to)) {
+        throw new HttpException(HttpStatus.BadRequest, "Delivery is not assigned to you");
+      }
+
+      // 2. Get order
+      const order = await this.orderRepo.findByIdWithSession(String(delivery.order_id), session);
+
+      if (!order) {
+        throw new HttpException(HttpStatus.BadRequest, "Order not found");
+      }
+
+      if (order.status !== OrderStatus.READY_FOR_PICKUP) {
+        throw new HttpException(HttpStatus.BadRequest, "Only READY_FOR_PICKUP order can move to OUT_FOR_DELIVERY");
+      }
+
+      // 3. Update order
+      await this.orderRepo.updateStatusOrder(
+        String(order._id),
+        OrderStatus.READY_FOR_PICKUP,
+        OrderStatus.OUT_FOR_DELIVERY,
+        session,
+      );
+
+      // 4. Update delivery
+      await this.deliveryQuery.updateToPickingUp(delivery, session);
+
+      await session.commitTransaction();
+
+      // 5. Audit log
+      await this.auditLogger.log({
+        entityType: AuditEntityType.ORDER,
+        entityId: String(order._id),
+        action: AuditAction.ORDER_OUT_FOR_DELIVERY,
+        oldData: { status: OrderStatus.READY_FOR_PICKUP },
+        newData: { status: OrderStatus.OUT_FOR_DELIVERY },
+        changedBy: loggedUser.id,
+      });
+      return true;
+    } catch (err) {
+      await session.abortTransaction();
+      throw err;
+    } finally {
+      session.endSession();
+    }
+  }
+
+  public async markDeliveredByDeliveryId(deliveryId: string, loggedUser: UserAuthPayload): Promise<boolean> {
+    const session = await mongoose.startSession();
+
+    try {
+      session.startTransaction();
+
+      // 1. Get delivery
+      const delivery = await this.deliveryQuery.findByIdWithSession(deliveryId, session);
+
+      if (!delivery) {
+        throw new HttpException(HttpStatus.BadRequest, "Delivery not found");
+      }
+
+      if (delivery.status !== DeliveryStatus.PICKING_UP) {
+        throw new HttpException(HttpStatus.BadRequest, "Only PICKING_UP delivery can move to DELIVERED");
+      }
+
+      if (String(loggedUser.id) !== String(delivery.assigned_to)) {
+        throw new HttpException(HttpStatus.BadRequest, "Delivery is not assigned to you");
+      }
+
+      // 2. Get order
+      const order = await this.orderRepo.findByIdWithSession(String(delivery.order_id), session);
+
+      if (!order) {
+        throw new HttpException(HttpStatus.BadRequest, "Order not found");
+      }
+
+      if (order.status !== OrderStatus.OUT_FOR_DELIVERY) {
+        throw new HttpException(HttpStatus.BadRequest, "Only OUT_FOR_DELIVERY order can move to COMPLETED");
+      }
+
+      // 3. Update order
+      const updateOrder = await this.orderRepo.completeOrder(order._id, session);
+      if (!updateOrder) {
+        throw new HttpException(HttpStatus.BadRequest, "Complete order failed");
+      }
+
+      // 4. Update delivery
+      await this.deliveryQuery.updateToDelivered(delivery, session);
+
+      await session.commitTransaction();
+
+      // 5. Audit log
+      await this.auditLogger.log({
+        entityType: AuditEntityType.ORDER,
+        entityId: String(order._id),
+        action: AuditAction.ORDER_COMPLETED,
+        oldData: { status: OrderStatus.OUT_FOR_DELIVERY },
+        newData: { status: OrderStatus.COMPLETED },
+        changedBy: loggedUser.id,
+      });
+
+      return true;
+    } catch (err) {
+      await session.abortTransaction();
+      throw err;
     } finally {
       session.endSession();
     }

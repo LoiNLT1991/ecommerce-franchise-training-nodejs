@@ -1,24 +1,22 @@
 import { Types } from "mongoose";
 import {
-  BaseCrudService,
-  BaseFieldName,
-  checkEmptyObject,
-  HttpException,
-  HttpStatus,
-  IError,
-  MSG_BUSINESS,
-  normalizeText,
-  UpdateStatusDto,
+    BaseCrudService,
+    BaseFieldName,
+    checkEmptyObject,
+    HttpException,
+    HttpStatus,
+    IError,
+    MSG_BUSINESS,
+    normalizeText,
+    UpdateStatusDto,
 } from "../../core";
-import { IShift, IShiftQuery } from "./shift.interface";
+import { AuditAction, AuditEntityType, buildAuditDiff, IAuditLogger, pickAuditSnapshot } from "../audit-log";
 import CreateShiftDto from "./dto/create.dto";
-import UpdateShiftDto from "./dto/update.dto";
 import { SearchPaginationItemDto } from "./dto/search.dto";
-import { ShiftRepository } from "./shift.repository";
-import { AuditEntityType, AuditAction, IAuditLogger, buildAuditDiff, pickAuditSnapshot } from "../audit-log";
+import UpdateShiftDto from "./dto/update.dto";
 import { ShiftFieldName } from "./shift.enum";
-import { IShiftAssignmentQuery } from "../shift-assignment";
-import { ShiftItemDto } from "./dto/item.dto";
+import { IShift, IShiftQuery } from "./shift.interface";
+import { ShiftRepository } from "./shift.repository";
 
 export const AUDIT_FIELDS_ITEM = [
   BaseFieldName.NAME,
@@ -34,7 +32,6 @@ export class ShiftService
   private readonly shiftRepo: ShiftRepository;
   constructor(
     repo: ShiftRepository,
-    private shiftAssign: IShiftAssignmentQuery,
     private readonly auditLogger: IAuditLogger,
   ) {
     super(repo);
@@ -142,14 +139,6 @@ export class ShiftService
       throw new HttpException(HttpStatus.BadRequest, MSG_BUSINESS.NO_DATA_TO_UPDATE);
     }
   }
-  
-  protected async beforeDelete(item: IShift, loggedUserId: string): Promise<void> {
-    // check if shift has been assigned to any user
-    const isExist = await this.shiftAssign.getItemByShiftId(item._id.toString());
-    if (isExist) {
-      throw new HttpException(HttpStatus.BadRequest, MSG_BUSINESS.SHIFT_IS_ASSIGNED_TO_SOME_USERS);
-    }
-  }
 
   protected async afterUpdate(oldItem: IShift, newItem: IShift, loggedUserId: string): Promise<void> {
     const { oldData, newData } = buildAuditDiff(oldItem, newItem, AUDIT_FIELDS_ITEM);
@@ -204,11 +193,6 @@ export class ShiftService
       throw new HttpException(HttpStatus.NotFound, MSG_BUSINESS.ITEM_NOT_FOUND);
     }
 
-    const isExist = await this.shiftAssign.getItemByShiftId(id);
-    if (isExist) {
-      throw new HttpException(HttpStatus.BadRequest, MSG_BUSINESS.SHIFT_IS_ASSIGNED_TO_SOME_USERS);
-    }
-
     // 2. Check change status
     if (currentItem.is_active === is_active) {
       throw new HttpException(HttpStatus.BadRequest, MSG_BUSINESS.STATUS_NO_CHANGE);
@@ -244,8 +228,5 @@ export class ShiftService
 
   public async getFranchiseIdByShiftId(id: string): Promise<string | null> {
     return this.shiftRepo.getFranchiseIdByShiftId(id);
-  }
-  public setShiftAssignmentQuery(query: IShiftAssignmentQuery) {
-    this.shiftAssign = query;
   }
 }

@@ -14,7 +14,7 @@ export class OrderItemRepository extends BaseRepository<IOrderItem> {
 
   public async getItemsByOrderId(orderId: string, session?: ClientSession): Promise<IOrderItem[]> {
     const query = this.model.find({
-      orderId: new Types.ObjectId(orderId),
+      order_id: new Types.ObjectId(orderId),
       is_deleted: false,
     });
 

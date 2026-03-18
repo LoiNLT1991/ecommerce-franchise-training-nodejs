@@ -79,4 +79,24 @@ export class OrderController {
       next(error);
     }
   };
+
+  public markPickingUpByDeliveryId = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { deliveryId } = req.params;
+      await this.service.markPickingUpByDeliveryId(deliveryId, (req as AuthenticatedUserRequest).user);
+      res.status(HttpStatus.Success).json(formatResponse(null));
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  public markDeliveredByDeliveryId = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { deliveryId } = req.params;
+      await this.service.markDeliveredByDeliveryId(deliveryId, (req as AuthenticatedUserRequest).user);
+      res.status(HttpStatus.Success).json(formatResponse(null));
+    } catch (error) {
+      next(error);
+    }
+  };
 }

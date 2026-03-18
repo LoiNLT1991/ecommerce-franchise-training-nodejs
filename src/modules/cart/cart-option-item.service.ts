@@ -12,7 +12,7 @@ export class CartOptionItemService {
     private readonly cartItemQuery: ICartItemQuery,
   ) {}
 
-  public async updateOptionItem(
+  public async updateOptionItemQuantity(
     payload: UpdateQuantityOptionItemDto,
     loggedUser: UserAuthPayload | CustomerAuthPayload,
   ): Promise<ICartItem> {

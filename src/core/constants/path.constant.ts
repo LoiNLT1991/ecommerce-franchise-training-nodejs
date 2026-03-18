@@ -200,6 +200,7 @@ export const API_PATH = {
   GET_CARTS_BY_CUSTOMER: "/api/carts/customer/:customerId",
   CART_ITEM_STAFF: "/api/carts/items/staff",
   CART_ITEM_ID: "/api/carts/items/:cartItemId",
+  UPDATE_CART_ITEM: "/api/carts/items/update-cart-item",
   UPDATE_OPTION_ITEM: "/api/carts/items/update-option",
   REMOVE_OPTION_ITEM: "/api/carts/items/remove-option",
   ADD_CART_ITEM: "/api/carts/items",
@@ -241,4 +242,9 @@ export const API_PATH = {
 
   // delivery
   DELIVERY: "/api/deliveries",
+  DELIVERY_ID: "/api/deliveries/:id",
+  GET_DELIVERY_BY_ORDER: "/api/deliveries/order/:orderId",
+  SEARCH_DELIVERIES: "/api/deliveries/search",
+  PICKUP_DELIVERY: "/api/deliveries/:deliveryId/pickup",
+  COMPLETE_DELIVERY: "/api/deliveries/:deliveryId/complete",
 };

@@ -31,6 +31,7 @@ import { UpdateQuantityOptionItemDto } from "./dto/optionItem.dto";
 import { SearchPaginationItemDto } from "./dto/search.dto";
 import { UpdateCartDto } from "./dto/update.dto";
 import { ApplyVoucherDto } from "./dto/voucher.dto";
+import { UpdateCartItemQuantityDto } from "./dto/cartItem.dto";
 
 const AUDIT_FIELDS_ITEM = [
   BaseFieldName.FRANCHISE_ID,
@@ -191,19 +192,20 @@ export class CartService extends BaseCrudService<ICart, CreateCartDto, UpdateCar
     return this.cartRepo.getCartDetail(cart._id);
   }
 
-  //   public async removeCartItem(cartItemId: string, loggedUser: UserAuthPayload | CustomerAuthPayload) {
-  //     const cartItem = await this.cartItemQuery.getById(cartItemId);
+  public async updateCartItemQuantity(
+    payload: UpdateCartItemQuantityDto,
+    loggedUser: UserAuthPayload | CustomerAuthPayload,
+  ): Promise<boolean> {
+    const updatedItem = await this.cartItemService.updateCartItemQuantity(payload, loggedUser);
 
-  //     if (!cartItem) throw new HttpException(HttpStatus.BadRequest, "Cart item not found");
+    const cartId = updatedItem.cart_id;
 
-  //     await this.cartItemService.removeCartItem(cartItemId, loggedUser);
+    await this.recalculateCart(cartId);
 
-  //     await this.recalculateCart(cartItem.cart_id);
+    return true;
+  }
 
-  //     return this.cartRepo.getCartDetail(cartItem.cart_id);
-  //   }
-
-  public async removeCartItem(cartItemId: string, loggedUser: UserAuthPayload | CustomerAuthPayload) {
+  public async removeCartItem(cartItemId: string, loggedUser: UserAuthPayload | CustomerAuthPayload): Promise<boolean> {
     const cartItem = await this.cartItemQuery.getById(cartItemId);
 
     if (!cartItem) {
@@ -229,33 +231,33 @@ export class CartService extends BaseCrudService<ICart, CreateCartDto, UpdateCar
     // 3. recalculate nếu vẫn còn item
     await this.recalculateCart(cartId);
 
-    return this.cartRepo.getCartDetail(cartId);
+    return true;
   }
 
-  public async updateOptionItem(
+  public async updateOptionItemQuantity(
     payload: UpdateQuantityOptionItemDto,
     loggedUser: UserAuthPayload | CustomerAuthPayload,
-  ) {
-    const cartItem = await this.cartOptionItemService.updateOptionItem(payload, loggedUser);
+  ): Promise<boolean> {
+    const cartItem = await this.cartOptionItemService.updateOptionItemQuantity(payload, loggedUser);
 
     if (!cartItem) throw new HttpException(HttpStatus.BadRequest, "Cart item not found");
 
     await this.recalculateCart(cartItem.cart_id);
 
-    return this.cartRepo.getCartDetail(cartItem.cart_id);
+    return true;
   }
 
   public async removeOptionItem(
     payload: UpdateQuantityOptionItemDto,
     loggedUser: UserAuthPayload | CustomerAuthPayload,
-  ) {
+  ): Promise<boolean> {
     const cartItem = await this.cartOptionItemService.removeOptionItem(payload, loggedUser);
 
     if (!cartItem) throw new HttpException(HttpStatus.BadRequest, "Cart item not found");
 
     await this.recalculateCart(cartItem.cart_id);
 
-    return this.cartRepo.getCartDetail(cartItem.cart_id);
+    return true;
   }
 
   public async getCartDetail(cartId: string): Promise<ICart> {

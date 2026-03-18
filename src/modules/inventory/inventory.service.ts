@@ -260,7 +260,7 @@ export class InventoryService
     return this.inventoryRepository.getByProductFranchiseIds(productFranchiseIds, session);
   }
 
-  public async deductProduct(productFranchiseId: string, quantity: number, session?: ClientSession) {
-    return this.inventoryRepository.deductProduct(productFranchiseId, quantity, session);
+  public async deductProduct(productFranchiseId: string, quantity: number, session?: ClientSession): Promise<boolean> {
+    return this.inventoryRepository.deductStock(productFranchiseId, quantity, session);
   }
 }

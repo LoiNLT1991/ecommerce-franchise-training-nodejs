@@ -60,7 +60,7 @@ export enum OrderStatus {
   DEFAULT = "",
   DRAFT = "DRAFT",
   CONFIRMED = "CONFIRMED",
-  PREPARING = "PREPARING", // 
+  PREPARING = "PREPARING", //
   READY_FOR_PICKUP = "READY_FOR_PICKUP",
   OUT_FOR_DELIVERY = "OUT_FOR_DELIVERY",
   COMPLETED = "COMPLETED",
@@ -91,8 +91,8 @@ export enum RefundStatus {
 }
 
 export enum OrderCustomerFranchiseType {
-    ORDER_SUCCESS = "ORDER_SUCCESS",
-    ORDER_CANCEL = "ORDER_CANCEL",
+  ORDER_SUCCESS = "ORDER_SUCCESS",
+  ORDER_CANCEL = "ORDER_CANCEL",
 }
 
 export enum DeliveryStatus {
@@ -100,7 +100,6 @@ export enum DeliveryStatus {
   ASSIGNED = "ASSIGNED",
   PICKING_UP = "PICKING_UP",
   DELIVERED = "DELIVERED",
-  FAILED = "FAILED",
 }
 
 export enum ShiftAssignmentStatus {
@@ -183,6 +182,8 @@ export enum BaseFieldName {
   TOKEN_VERSION = "token_version",
   WORK_DATE = "work_date",
   ASSIGNED_BY = "assigned_by",
+  ASSIGNED_BY_NAME = "assigned_by_name",
+  ASSIGNED_BY_EMAIL = "assigned_by_email",
 
   LAST_RESET_PASSWORD_AT = "last_reset_password_at",
 
@@ -231,7 +232,12 @@ export enum BaseFieldName {
   PICKED_UP_AT = "picked_up_at",
   DELIVERED_AT = "delivered_at",
   ORDER_CODE = "order_code",
+  ORDER_ADDRESS = "order_address",
+  ORDER_PHONE = "order_phone",
+  ORDER_MESSAGE = "order_message",
   ASSIGNED_TO = "assigned_to",
+  ASSIGNED_TO_NAME = "assigned_to_name",
+  ASSIGNED_TO_EMAIL = "assigned_to_email",
   FAILED_REASON = "failed_reason",
   CHANGED_BY = "changed_by",
   OLD_DATA = "old_data",

@@ -12,6 +12,7 @@ import { AddToCartDto } from "./dto/create.dto";
 import { RemoveOptionItemDto, UpdateQuantityOptionItemDto } from "./dto/optionItem.dto";
 import { UpdateCartDto } from "./dto/update.dto";
 import { ApplyVoucherDto } from "./dto/voucher.dto";
+import { UpdateCartItemQuantityDto } from "./dto/cartItem.dto";
 
 export default class CartRoute implements IRoute {
   public path = API_PATH.CART;
@@ -82,6 +83,14 @@ export default class CartRoute implements IRoute {
       this.controller.updateItem,
     );
 
+    // PATCH domain:/api/carts/items/update-cart-item - Update quantity cart item
+    this.router.patch(
+      API_PATH.UPDATE_CART_ITEM,
+      authMiddleware(),
+      validationMiddleware(UpdateCartItemQuantityDto),
+      this.controller.updateCartItemQuantity,
+    );
+
     // DELETE domain:/api/carts/items/:cartItemId - Delete Cart item
     this.router.delete(API_PATH.CART_ITEM_ID, authMiddleware(), this.controller.removeCartItem);
 
@@ -90,7 +99,7 @@ export default class CartRoute implements IRoute {
       API_PATH.UPDATE_OPTION_ITEM,
       authMiddleware(),
       validationMiddleware(UpdateQuantityOptionItemDto),
-      this.controller.updateOptionItem,
+      this.controller.updateOptionItemQuantity,
     );
 
     // PATCH domain:/api/carts/items/remove-option - Remove option in cartItem

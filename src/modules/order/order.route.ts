@@ -44,5 +44,11 @@ export default class OrderRoute implements IRoute {
       validationMiddleware(AssignShipperDto),
       this.controller.markReadyForPickupOrder,
     );
+
+    // PUT domain:/api/deliveries/:deliveryId/pickup - Pickup delivery and order
+    this.router.put(API_PATH.PICKUP_DELIVERY, adminAuthMiddleware(), this.controller.markPickingUpByDeliveryId);
+
+    // PUT domain:/api/deliveries/:deliveryId/complete - Complete delivery and order
+    this.router.put(API_PATH.COMPLETE_DELIVERY, adminAuthMiddleware(), this.controller.markDeliveredByDeliveryId);
   }
 }

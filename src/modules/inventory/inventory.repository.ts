@@ -170,40 +170,26 @@ export class InventoryRepository extends BaseRepository<IInventory> {
     );
   }
 
-  public async deductProduct(productFranchiseId: string, quantity: number, session?: ClientSession): Promise<boolean> {
+  // Deduct stock when an order is COMPLETED
+  async deductStock(productFranchiseId: string, quantity: number, session?: ClientSession): Promise<boolean> {
     const result = await this.model.updateOne(
       {
         product_franchise_id: new Types.ObjectId(productFranchiseId),
-        reserved_quantity: { $gte: quantity },
-      },
-      {
-        $inc: {
-          quantity: -quantity,
-          reserved_quantity: -quantity,
-        },
-      },
-      { session },
-    );
-
-    return result.modifiedCount > 0;
-  }
-
-  // Deduct stock when an order is COMPLETED
-  public async deductStock(productFranchiseId: string, quantity: number, session?: ClientSession) {
-    await this.model.updateOne(
-      {
-        product_franchise_id: new Types.ObjectId(productFranchiseId),
         quantity: { $gte: quantity },
-        reserved_quantity: { $gte: quantity },
       },
       {
         $inc: {
           quantity: -quantity,
-          reserved_quantity: -quantity,
         },
       },
       { session },
     );
+
+    if (result.modifiedCount === 0) {
+      throw new Error("Insufficient stock");
+    }
+
+    return true;
   }
 
   // Adjust stock (increase or decrease) for inventory management

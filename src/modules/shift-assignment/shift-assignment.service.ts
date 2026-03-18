@@ -292,6 +292,7 @@ export class ShiftAssignmentService
   }
 
   public async getItemByShiftId(shiftId: string): Promise<IShiftAssignment | null> {
+    console.log('shiftId', shiftId)
     return this.shiftAssignRepo.getItemByShiftId(shiftId);
   }
 
