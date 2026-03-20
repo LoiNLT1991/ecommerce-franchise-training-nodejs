@@ -6,6 +6,7 @@ import { ShiftFieldName } from "./shift.enum";
 export interface IShift extends Document, IBase {
   [BaseFieldName.NAME]: string;
   [BaseFieldName.FRANCHISE_ID]: Types.ObjectId;
+  franchise_name?: string;
   [ShiftFieldName.START_TIME]: string;
   [ShiftFieldName.END_TIME]: string;
 }

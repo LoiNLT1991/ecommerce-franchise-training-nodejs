@@ -15,6 +15,8 @@ export interface IShiftAssignment extends Document, IBaseNoActiveField {
   [BaseFieldName.WORK_DATE]: string;
   [BaseFieldName.ASSIGNED_BY]: Types.ObjectId;
   [BaseFieldName.STATUS]: ShiftAssignmentStatus;
+  franchise_id?: Types.ObjectId;
+  franchise_name?: string;
 }
 
 export interface IShiftAssignmentQuery {

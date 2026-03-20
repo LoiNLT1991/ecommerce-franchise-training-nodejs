@@ -20,18 +20,6 @@ export class AddToCartDto {
 
   @IsOptional()
   @IsString()
-  address!: string;
-
-  @IsOptional()
-  @IsString()
-  phone!: string;
-
-  @IsOptional()
-  @IsString()
-  message!: string;
-
-  @IsOptional()
-  @IsString()
   note!: string;
 
   // optional options
@@ -60,4 +48,44 @@ export class AddCartItemOptionDto {
   @Min(1)
   @Max(10)
   quantity!: number;
+}
+
+export class AddMultipleToCartDto {
+  @IsNotEmpty()
+  @IsMongoId()
+  franchise_id!: string;
+
+  @IsOptional()
+  @IsMongoId()
+  customer_id!: string;
+
+  @IsOptional()
+  @IsMongoId()
+  staff_id!: string;
+
+  @IsNotEmpty()
+  @ValidateNested({ each: true })
+  @Type(() => AddCartItemDto)
+  items!: AddCartItemDto[];
+}
+
+export class AddCartItemDto {
+  @IsNotEmpty()
+  @IsMongoId()
+  product_franchise_id!: string;
+
+  @IsNotEmpty()
+  @Type(() => Number)
+  @IsNumber()
+  @Min(1)
+  quantity!: number;
+
+  @IsOptional()
+  @IsString()
+  note!: string;
+
+  @IsOptional()
+  @ValidateNested({ each: true })
+  @Type(() => AddCartItemOptionDto)
+  options?: AddCartItemOptionDto[];
 }

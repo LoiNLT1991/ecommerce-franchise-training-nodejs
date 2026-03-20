@@ -1,5 +1,6 @@
 import { Type } from "class-transformer";
-import { IsMongoId, IsNotEmpty, IsNumber, Min } from "class-validator";
+import { IsMongoId, IsNotEmpty, IsNumber, IsOptional, Min, ValidateNested } from "class-validator";
+import { AddCartItemOptionDto } from "./create.dto";
 
 export class UpdateCartItemQuantityDto {
   @IsNotEmpty()
@@ -11,4 +12,16 @@ export class UpdateCartItemQuantityDto {
   @IsNumber()
   @Min(1)
   quantity!: number;
+}
+
+export class UpdateCartItemOptionsDto {
+  @IsNotEmpty()
+  @IsMongoId()
+  cart_item_id!: string;
+
+  // optional options
+  @IsOptional()
+  @ValidateNested({ each: true })
+  @Type(() => AddCartItemOptionDto)
+  options?: AddCartItemOptionDto[];
 }

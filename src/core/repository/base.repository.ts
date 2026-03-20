@@ -34,7 +34,6 @@ export class BaseRepository<T extends Document> {
     return this.model
       .findOne({
         _id: objectId,
-        is_active: true,
         is_deleted: options?.is_deleted ?? false,
       })
       .exec();
@@ -45,7 +44,6 @@ export class BaseRepository<T extends Document> {
 
     const query = this.model.findOne({
       _id: objectId,
-      is_active: true,
       is_deleted: false,
     });
 

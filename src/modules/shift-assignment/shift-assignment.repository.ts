@@ -188,7 +188,7 @@ export class ShiftAssignmentRepository extends BaseRepository<IShiftAssignment> 
     return [
       { $match: matchQuery },
 
-      // join shift
+      // 1. JOIN SHIFT
       {
         $lookup: {
           from: "shifts",
@@ -204,7 +204,40 @@ export class ShiftAssignmentRepository extends BaseRepository<IShiftAssignment> 
         },
       },
 
-      // join user
+      // 2. JOIN FRANCHISE (NEW)
+      {
+        $lookup: {
+          from: "franchises",
+          let: { franchiseId: "$shift.franchise_id" },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $eq: [
+                    "$_id",
+                    {
+                      $cond: {
+                        if: { $eq: [{ $type: "$$franchiseId" }, "objectId"] },
+                        then: "$$franchiseId",
+                        else: { $toObjectId: "$$franchiseId" },
+                      },
+                    },
+                  ],
+                },
+              },
+            },
+          ],
+          as: "franchise",
+        },
+      },
+      {
+        $unwind: {
+          path: "$franchise",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+
+      // 3. JOIN USER (giữ nguyên)
       {
         $lookup: {
           from: "users",
@@ -220,7 +253,7 @@ export class ShiftAssignmentRepository extends BaseRepository<IShiftAssignment> 
         },
       },
 
-      // output mapping
+      // 4. OUTPUT MAPPING (UPDATE)
       {
         $project: {
           _id: 1,
@@ -235,9 +268,17 @@ export class ShiftAssignmentRepository extends BaseRepository<IShiftAssignment> 
           updated_at: 1,
 
           id: "$_id",
+
+          // user
           user_name: "$user.name",
+
+          // shift
           start_time: "$shift.start_time",
           end_time: "$shift.end_time",
+
+          // ✅ NEW FIELD
+          franchise_id: "$shift.franchise_id",
+          franchise_name: "$franchise.name",
         },
       },
     ];

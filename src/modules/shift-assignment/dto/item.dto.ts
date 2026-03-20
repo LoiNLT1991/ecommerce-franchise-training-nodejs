@@ -14,4 +14,6 @@ export interface ShiftAssignmentItemDto {
   is_deleted: boolean;
   created_at: string;
   updated_at: string;
+  franchise_id?: Types.ObjectId;
+  franchise_name?: string;
 }

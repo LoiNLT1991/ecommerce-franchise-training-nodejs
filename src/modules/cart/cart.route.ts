@@ -8,11 +8,12 @@ import {
   validationMiddleware,
 } from "../../core";
 import { CartController } from "./cart.controller";
-import { AddToCartDto } from "./dto/create.dto";
+import { AddMultipleToCartDto, AddToCartDto } from "./dto/create.dto";
 import { RemoveOptionItemDto, UpdateQuantityOptionItemDto } from "./dto/optionItem.dto";
 import { UpdateCartDto } from "./dto/update.dto";
 import { ApplyVoucherDto } from "./dto/voucher.dto";
-import { UpdateCartItemQuantityDto } from "./dto/cartItem.dto";
+import { UpdateCartItemOptionsDto, UpdateCartItemQuantityDto } from "./dto/cartItem.dto";
+import { CheckoutCartDto } from "./dto/checkout.dto";
 
 export default class CartRoute implements IRoute {
   public path = API_PATH.CART;
@@ -51,7 +52,12 @@ export default class CartRoute implements IRoute {
     this.router.get(API_PATH.COUNT_CART_ITEM, customerAuthMiddleware(), this.controller.countCartItemsInCart);
 
     // PUT domain:/api/carts/:id/checkout - Checkout cart
-    this.router.put(API_PATH.CHECKOUT_CART, authMiddleware(), this.controller.checkoutCart);
+    this.router.put(
+      API_PATH.CHECKOUT_CART,
+      authMiddleware(),
+      validationMiddleware(CheckoutCartDto),
+      this.controller.checkoutCart,
+    );
 
     // PUT domain:/api/carts/:id/cancel - Cancel cart
     this.router.put(API_PATH.CANCEL_CART, authMiddleware(), this.controller.cancelCart);
@@ -71,6 +77,14 @@ export default class CartRoute implements IRoute {
       validationMiddleware(AddToCartDto),
       this.controller.addProductToCart,
     );
+    
+    // POST domain:/api/carts/items/staff-bulk - Add more products in cart, add or update cart item, add option in cart item role staff
+    this.router.post(
+      API_PATH.CART_ITEM_STAFF_BULK,
+      adminAuthMiddleware(),
+      validationMiddleware(AddMultipleToCartDto),
+      this.controller.addProductsToCart,
+    );
 
     // GET domain:/api/carts/:id - Get item
     this.router.get(API_PATH.CART_ID, authMiddleware(), this.controller.getCartDetail);
@@ -89,6 +103,14 @@ export default class CartRoute implements IRoute {
       authMiddleware(),
       validationMiddleware(UpdateCartItemQuantityDto),
       this.controller.updateCartItemQuantity,
+    );
+
+    // PUT domain:/api/carts/items/update-options-cart-item - Update options cart item
+    this.router.put(
+      API_PATH.UPDATE_OPTIONS_IN_CART_ITEM,
+      authMiddleware(),
+      validationMiddleware(UpdateCartItemOptionsDto),
+      this.controller.updateCartItemOptions,
     );
 
     // DELETE domain:/api/carts/items/:cartItemId - Delete Cart item

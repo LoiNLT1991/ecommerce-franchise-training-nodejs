@@ -15,5 +15,7 @@ export const mapItemToResponse = (item: IShiftAssignment): ShiftAssignmentItemDt
     work_date: item.work_date,
     assigned_by: item.assigned_by,
     status: item.status,
+    franchise_id: item.franchise_id,
+    franchise_name: item.franchise_name,
   };
 };

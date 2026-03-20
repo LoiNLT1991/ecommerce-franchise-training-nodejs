@@ -26,12 +26,13 @@ import { CartVoucherService } from "./cart-voucher.service";
 import { CartHelper } from "./cart.helper";
 import { ICart } from "./cart.interface";
 import { CartRepository } from "./cart.repository";
-import { AddToCartDto, CreateCartDto } from "./dto/create.dto";
+import { AddMultipleToCartDto, AddToCartDto, CreateCartDto } from "./dto/create.dto";
 import { UpdateQuantityOptionItemDto } from "./dto/optionItem.dto";
 import { SearchPaginationItemDto } from "./dto/search.dto";
 import { UpdateCartDto } from "./dto/update.dto";
 import { ApplyVoucherDto } from "./dto/voucher.dto";
-import { UpdateCartItemQuantityDto } from "./dto/cartItem.dto";
+import { UpdateCartItemOptionsDto, UpdateCartItemQuantityDto } from "./dto/cartItem.dto";
+import { CheckoutCartDto } from "./dto/checkout.dto";
 
 const AUDIT_FIELDS_ITEM = [
   BaseFieldName.FRANCHISE_ID,
@@ -104,18 +105,7 @@ export class CartService extends BaseCrudService<ICart, CreateCartDto, UpdateCar
      */
     this.cartHelper.resolveCustomerAndStaff(payload, loggedUser);
 
-    const {
-      staff_id,
-      franchise_id,
-      customer_id,
-      product_franchise_id,
-      quantity,
-      options,
-      address,
-      phone,
-      note,
-      message,
-    } = payload;
+    const { staff_id, franchise_id, customer_id, product_franchise_id, quantity, options, note } = payload;
 
     /**
      * STEP 1 — Validate franchise
@@ -146,7 +136,7 @@ export class CartService extends BaseCrudService<ICart, CreateCartDto, UpdateCar
     /**
      * STEP 5 — Get or create ACTIVE cart
      */
-    const cart = await this.getOrCreateActiveCart(customer_id, franchise_id, address, phone, message, staff_id);
+    const cart = await this.getOrCreateActiveCart(customer_id, franchise_id, staff_id);
 
     /**
      * STEP 6 — Check existing cart item
@@ -192,6 +182,62 @@ export class CartService extends BaseCrudService<ICart, CreateCartDto, UpdateCar
     return this.cartRepo.getCartDetail(cart._id);
   }
 
+  public async addMultipleProductsToCart(
+    payload: AddMultipleToCartDto,
+    loggedUser: UserAuthPayload | CustomerAuthPayload,
+  ): Promise<ICart | null> {
+    /**
+     * STEP 1 — Resolve user
+     */
+    this.cartHelper.resolveCustomerAndStaff(payload, loggedUser);
+
+    const { franchise_id, customer_id, staff_id, items } = payload;
+
+    if (!items?.length) {
+      throw new HttpException(HttpStatus.BadRequest, "Items is empty");
+    }
+
+    /**
+     * STEP 2 — Validate franchise
+     */
+    const franchise = await this.franchiseQuery.getById(franchise_id);
+    if (!franchise) {
+      throw new HttpException(HttpStatus.BadRequest, "Franchise not found");
+    }
+
+    /**
+     * STEP 3 — Get or create cart
+     */
+    const cart = await this.getOrCreateActiveCart(customer_id, franchise_id, staff_id);
+
+    /**
+     * STEP 4 — Loop items
+     */
+    for (const item of items) {
+      if (!item.product_franchise_id) {
+        throw new HttpException(HttpStatus.BadRequest, "Product is required in item");
+      }
+
+      await this.addSingleItemToCart(
+        {
+          ...item,
+          franchise_id,
+          customer_id,
+          staff_id,
+        },
+        loggedUser,
+        cart,
+      );
+    }
+
+    /**
+     * STEP 5 — Recalculate
+     */
+    await this.recalculateCart(cart._id);
+
+    return this.cartRepo.getCartDetail(cart._id);
+  }
+
   public async updateCartItemQuantity(
     payload: UpdateCartItemQuantityDto,
     loggedUser: UserAuthPayload | CustomerAuthPayload,
@@ -201,6 +247,77 @@ export class CartService extends BaseCrudService<ICart, CreateCartDto, UpdateCar
     const cartId = updatedItem.cart_id;
 
     await this.recalculateCart(cartId);
+
+    return true;
+  }
+
+  public async updateCartItemOptions(
+    payload: UpdateCartItemOptionsDto,
+    loggedUser: UserAuthPayload | CustomerAuthPayload,
+  ): Promise<boolean> {
+    const { cart_item_id, options } = payload;
+
+    /**
+     * STEP 1 — Get cart item
+     */
+    const cartItem = await this.cartItemQuery.getById(cart_item_id);
+    if (!cartItem) {
+      throw new HttpException(HttpStatus.BadRequest, "Cart item not found");
+    }
+
+    /**
+     * STEP 2 — Get cart (để lấy franchise_id)
+     */
+    const cart = await this.cartRepo.findById(String(cartItem.cart_id));
+    if (!cart) {
+      throw new HttpException(HttpStatus.BadRequest, "Cart not found");
+    }
+
+    /**
+     * STEP 3 — Validate toppings (reuse logic)
+     */
+    const toppingsMap = await this.cartHelper.validateAndGetToppings(options, cart.franchise_id.toString());
+
+    /**
+     * STEP 4 — Normalize options + hash
+     */
+    const { normalizedOptions, optionsHash } = this.cartHelper.buildOptionsHash(options);
+
+    /**
+     * STEP 5 — Check existing item (duplicate options)
+     */
+    const existingItem = await this.cartItemQuery.getCartItem({
+      cart_id: cart._id,
+      product_franchise_id: cartItem.product_franchise_id,
+      options_hash: optionsHash,
+    });
+
+    /**
+     * STEP 6 — Build options doc
+     */
+    const optionDocs = this.cartHelper.buildCartItemOptions(normalizedOptions, toppingsMap);
+
+    /**
+     * STEP 7 — Handle merge / update
+     */
+    if (existingItem && existingItem._id.toString() !== cart_item_id) {
+      // 👉 merge quantity
+      existingItem.quantity += cartItem.quantity;
+      await existingItem.save();
+
+      // 👉 delete old item
+      await this.cartItemService.removeCartItem(cart_item_id, loggedUser);
+    } else {
+      // 👉 update current item
+      cartItem.options = optionDocs;
+      cartItem.options_hash = optionsHash;
+      await cartItem.save();
+    }
+
+    /**
+     * STEP 8 — Recalculate cart
+     */
+    await this.recalculateCart(cart._id);
 
     return true;
   }
@@ -287,14 +404,7 @@ export class CartService extends BaseCrudService<ICart, CreateCartDto, UpdateCar
     return this.cartRepo.getCartDetail(cart._id);
   }
 
-  private async getOrCreateActiveCart(
-    customerId: string,
-    franchiseId: string,
-    address?: string,
-    phone?: string,
-    message?: string,
-    staff_id?: string,
-  ) {
+  private async getOrCreateActiveCart(customerId: string, franchiseId: string, staff_id?: string) {
     let cart = await this.cartRepo.getCartStatusActive(customerId, franchiseId);
 
     if (cart) {
@@ -305,9 +415,6 @@ export class CartService extends BaseCrudService<ICart, CreateCartDto, UpdateCar
       customer_id: new Types.ObjectId(customerId),
       franchise_id: new Types.ObjectId(franchiseId),
       status: CartStatus.ACTIVE,
-      address,
-      phone,
-      message,
       staff_id: staff_id ? new Types.ObjectId(staff_id) : undefined,
     });
   }
@@ -391,7 +498,13 @@ export class CartService extends BaseCrudService<ICart, CreateCartDto, UpdateCar
     });
   }
 
-  public async checkoutCart(id: string, loggedUser: UserAuthPayload | CustomerAuthPayload): Promise<ICart> {
+  public async checkoutCart(
+    id: string,
+    payload: CheckoutCartDto,
+    loggedUser: UserAuthPayload | CustomerAuthPayload,
+  ): Promise<ICart> {
+    const { address, phone, message } = payload;
+
     const session = await mongoose.startSession();
 
     try {
@@ -418,7 +531,7 @@ export class CartService extends BaseCrudService<ICart, CreateCartDto, UpdateCar
       await this.paymentQuery.createPayment(order, loggedUser, session);
 
       // 6: Update cart status
-      await this.cartRepo.updateStatus(id, CartStatus.CHECKED_OUT, session);
+      await this.cartRepo.updateStatus(id, CartStatus.CHECKED_OUT, { address, phone, message }, session);
 
       // 7: Return updated cart
       const updatedCart = await this.cartRepo.findById(id);
@@ -482,6 +595,51 @@ export class CartService extends BaseCrudService<ICart, CreateCartDto, UpdateCar
     }
 
     return updatedCart;
+  }
+
+  private async addSingleItemToCart(
+    payload: AddToCartDto,
+    loggedUser: UserAuthPayload | CustomerAuthPayload,
+    cart: ICart,
+  ) {
+    const { franchise_id, product_franchise_id, quantity, options, note } = payload;
+
+    // validate product
+    const productFranchise = await this.productFranchiseQuery.getItemActive(product_franchise_id);
+    if (!productFranchise || productFranchise.franchise_id.toString() !== franchise_id) {
+      throw new HttpException(HttpStatus.BadRequest, "Product not available in this franchise");
+    }
+
+    // validate toppings
+    const toppingsMap = await this.cartHelper.validateAndGetToppings(options, franchise_id);
+
+    // normalize
+    const { normalizedOptions, optionsHash } = this.cartHelper.buildOptionsHash(options);
+
+    // check existing
+    const existingItem = await this.cartItemQuery.getCartItem({
+      cart_id: cart._id,
+      product_franchise_id: productFranchise._id,
+      options_hash: optionsHash,
+    });
+
+    const optionDocs = this.cartHelper.buildCartItemOptions(normalizedOptions, toppingsMap);
+
+    if (existingItem) {
+      existingItem.quantity += quantity;
+      existingItem.note = note || "";
+      await existingItem.save();
+    } else {
+      await this.cartItemQuery.createCartItem({
+        cart_id: cart._id,
+        product_franchise_id: productFranchise._id,
+        quantity,
+        note: note || "",
+        product_cart_price: productFranchise.price_base,
+        options_hash: optionsHash,
+        options: optionDocs,
+      });
+    }
   }
 
   private async recalculateCart(cartId: Types.ObjectId) {

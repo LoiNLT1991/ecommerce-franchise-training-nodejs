@@ -7,6 +7,7 @@ export const mapItemToResponse = (item: IShift): ShiftItemDto => {
   return {
     ...base,
     name: item.name,
+    franchise_name: item.franchise_name,
     franchise_id: item.franchise_id, 
     start_time: item.start_time,
     end_time: item.end_time,

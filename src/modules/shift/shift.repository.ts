@@ -1,18 +1,9 @@
-import {
-  BaseRepository,
-  formatItemsQuery,
-  HttpException,
-  HttpStatus,
-  MSG_BUSINESS,
-} from "../../core";
+import { BaseRepository, formatItemsQuery, HttpException, HttpStatus, MSG_BUSINESS } from "../../core";
 import ShiftSchema from "./shift.model";
 import { SearchItemDto, SearchPaginationItemDto } from "./dto/search.dto";
 import { IShift, IShiftQuery } from "./shift.interface";
 import { Types } from "mongoose";
-export class ShiftRepository
-  extends BaseRepository<IShift>
-  implements IShiftQuery
-{
+export class ShiftRepository extends BaseRepository<IShift> implements IShiftQuery {
   constructor() {
     super(ShiftSchema);
   }
@@ -21,16 +12,13 @@ export class ShiftRepository
     return this.findById(id);
   }
 
-  public async getItems(
-    model: SearchPaginationItemDto,
-  ): Promise<{ data: IShift[]; total: number }> {
+  public async getItems(model: SearchPaginationItemDto): Promise<{ data: IShift[]; total: number }> {
     const searchCondition = {
       ...new SearchItemDto(),
       ...model.searchCondition,
     };
 
-    const { name, franchise_id, start_time, end_time, is_active, is_deleted } =
-      searchCondition;
+    const { name, franchise_id, start_time, end_time, is_active, is_deleted } = searchCondition;
     const { pageNum, pageSize } = model.pageInfo;
 
     let matchQuery: Record<string, any> = {};
@@ -87,11 +75,7 @@ export class ShiftRepository
         },
         {
           $facet: {
-            data: [
-              { $sort: { created_at: -1 } },
-              { $skip: skip },
-              { $limit: pageSize },
-            ],
+            data: [{ $sort: { created_at: -1 } }, { $skip: skip }, { $limit: pageSize }],
             total: [{ $count: "count" }],
           },
         },
@@ -102,10 +86,7 @@ export class ShiftRepository
         total: result[0].total[0]?.count || 0,
       };
     } catch (error) {
-      throw new HttpException(
-        HttpStatus.BadRequest,
-        MSG_BUSINESS.DATABASE_QUERY_FAILED,
-      );
+      throw new HttpException(HttpStatus.BadRequest, MSG_BUSINESS.DATABASE_QUERY_FAILED);
     }
   }
 
@@ -121,10 +102,7 @@ export class ShiftRepository
   }
 
   public async getFranchiseIdByShiftId(id: string): Promise<string | null> {
-    const shift = await this.model
-      .findById(id)
-      .select("franchise_id")
-      .lean() as unknown as IShift;
+    const shift = (await this.model.findById(id).select("franchise_id").lean()) as unknown as IShift;
     return shift?.franchise_id?.toString();
   }
 }

@@ -1,6 +1,6 @@
-import { IsEmpty, IsOptional, IsString } from "class-validator";
+import { IsOptional, IsString } from "class-validator";
 
-export class UpdateCartDto {
+export class CheckoutCartDto {
   @IsOptional()
   @IsString()
   address!: string;

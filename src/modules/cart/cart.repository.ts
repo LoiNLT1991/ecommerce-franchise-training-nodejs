@@ -23,8 +23,28 @@ export class CartRepository extends BaseRepository<ICart> {
     return query;
   }
 
-  public async updateStatus(cartId: string, status: CartStatus, session?: ClientSession) {
-    return this.model.updateOne({ _id: cartId }, { $set: { status } }, { session });
+  public async updateStatus(
+    cartId: string,
+    status: CartStatus,
+    extraData?: {
+      address?: string;
+      phone?: string;
+      message?: string;
+    },
+    session?: ClientSession,
+  ) {
+    const updateData: any = {
+      status,
+    };
+
+    // 👇 chỉ add khi checkout
+    if (status === CartStatus.CHECKED_OUT && extraData) {
+      updateData.address = extraData.address;
+      updateData.phone = extraData.phone;
+      updateData.message = extraData.message;
+    }
+
+    return this.model.updateOne({ _id: cartId }, { $set: updateData }, { session });
   }
 
   public async findByIdForUpdate(id: string, is_deleted = false) {

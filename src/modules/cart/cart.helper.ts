@@ -36,14 +36,23 @@ export class CartHelper {
     return toppingsMap;
   }
 
-  public resolveCustomerAndStaff(payload: AddToCartDto, loggedUser: UserAuthPayload | CustomerAuthPayload) {
+  public resolveCustomerAndStaff(
+    payload: {
+      customer_id?: string;
+      staff_id?: string;
+    },
+    loggedUser: UserAuthPayload | CustomerAuthPayload,
+  ) {
+    // 👉 staff login
     if (loggedUser.context) {
       payload.staff_id = loggedUser.id;
 
       if (!payload.customer_id) {
         throw new HttpException(HttpStatus.BadRequest, "Customer is required");
       }
-    } else {
+    }
+    // 👉 customer login
+    else {
       payload.customer_id = loggedUser.id;
     }
   }
