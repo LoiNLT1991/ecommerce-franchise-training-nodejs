@@ -27,4 +27,5 @@ export interface IPaymentQuery {
     session?: ClientSession,
   ): Promise<IPayment>;
   getById(id: string): Promise<IPayment | null>;
+  countItems(franchiseId?: Types.ObjectId): Promise<Record<string, number>>;
 }

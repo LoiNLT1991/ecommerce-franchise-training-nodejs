@@ -1,3 +1,4 @@
+import { Types } from "mongoose";
 import {
   BaseCrudService,
   BaseFieldName,
@@ -283,8 +284,11 @@ export class ProductCategoryFranchiseService
     return result;
   }
   // Support for IProductCategoryFranchiseQuery
-  // TODO: consider caching for better performance
   public async getById(id: string): Promise<IProductCategoryFranchise | null> {
     return this.repo.findById(id);
+  }
+
+  public async countItems(franchiseId?: Types.ObjectId): Promise<number> {
+    return this.productCategoryFranchiseRepo.countUniqueProducts(franchiseId);
   }
 }

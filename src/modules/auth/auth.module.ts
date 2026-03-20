@@ -15,7 +15,7 @@ export class AuthModule extends BaseModule<AuthRoute> {
     super();
 
     // ===== External domain dependencies =====
-    const userContext = userFranchiseRoleModule.getUserContext();
+    const userContext = userFranchiseRoleModule.getUserFranchiseRoleQuery();
     const userQuery = userModule.getUserQuery();
     const userValidation = userModule.getUserValidation();
 

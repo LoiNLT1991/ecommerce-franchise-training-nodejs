@@ -10,7 +10,7 @@ import UserFranchiseRoleRoute from "./user-franchise-role.route";
 import UserFranchiseRoleService from "./user-franchise-role.service";
 
 export class UserFranchiseRoleModule extends BaseModule<UserFranchiseRoleRoute> {
-  private readonly userContextProvider: IUserFranchiseRoleQuery;
+  private readonly userFranchiseRoleQuery: IUserFranchiseRoleQuery;
 
   constructor(userModule: UserModule, roleModule: RoleModule, franchiseModule: FranchiseModule) {
     super();
@@ -38,10 +38,10 @@ export class UserFranchiseRoleModule extends BaseModule<UserFranchiseRoleRoute> 
     this.route = new UserFranchiseRoleRoute(controller);
 
     // ===== Expose ONLY interface =====
-    this.userContextProvider = service;
+    this.userFranchiseRoleQuery = service;
   }
 
-  public getUserContext(): IUserFranchiseRoleQuery {
-    return this.userContextProvider;
+  public getUserFranchiseRoleQuery(): IUserFranchiseRoleQuery {
+    return this.userFranchiseRoleQuery;
   }
 }

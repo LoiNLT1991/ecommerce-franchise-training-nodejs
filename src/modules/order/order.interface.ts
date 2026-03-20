@@ -67,4 +67,5 @@ export interface IOrderQuery {
     loggedUser: UserAuthPayload | CustomerAuthPayload,
     session?: ClientSession,
   ): Promise<boolean>;
+  countItems(franchiseId?: Types.ObjectId): Promise<Record<string, number>>;
 }

@@ -310,16 +310,8 @@ export default class CustomerFranchiseService
     return true;
   }
 
-  public async countCustomerFranchises(franchiseId?: string): Promise<number> {
-    console.log("franchiseId", franchiseId);
-    let id: Types.ObjectId | undefined;
-
-    if (franchiseId && Types.ObjectId.isValid(franchiseId)) {
-      id = new Types.ObjectId(franchiseId);
-    }
-
-    console.log("id", id);
-    return this.customerFranchiseRepo.countUniqueCustomers(id);
+  public async countCustomerFranchises(franchiseId?: Types.ObjectId): Promise<number> {
+    return this.customerFranchiseRepo.countUniqueCustomers(franchiseId);
   }
 
   private async updateCustomerStats(

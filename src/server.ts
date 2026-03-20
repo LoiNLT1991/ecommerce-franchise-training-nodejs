@@ -11,6 +11,7 @@ import { ClientModule } from "./modules/client";
 import { CustomerModule } from "./modules/customer";
 import { CustomerAuthModule } from "./modules/customer-auth";
 import { CustomerFranchiseModule } from "./modules/customer-franchise";
+import { DashboardModule } from "./modules/dashboard";
 import { DeliveryModule } from "./modules/delivery";
 import { FranchiseModule } from "./modules/franchise";
 import { IndexModule } from "./modules/index";
@@ -32,7 +33,6 @@ import { ShiftAssignmentModule } from "./modules/shift-assignment";
 import { UserModule } from "./modules/user";
 import { UserFranchiseRoleModule } from "./modules/user-franchise-role";
 import { VoucherModule } from "./modules/voucher/voucher.module";
-import { DashboardModule } from "./modules/dashboard";
 
 dotenv.config();
 validateEnv();
@@ -107,7 +107,17 @@ const cartModule = new CartModule(
   inventoryModule,
 );
 
-const dashboardModule = new DashboardModule(customerModule, customerFranchiseModule);
+const dashboardModule = new DashboardModule(
+  userModule,
+  userFranchiseRoleModule,
+  customerModule,
+  customerFranchiseModule,
+  productModule,
+  productCategoryFranchiseModule,
+  orderModule,
+  paymentModule,
+  deliveryModule,
+);
 
 // ===== Register routes =====
 const routes = [

@@ -19,4 +19,5 @@ export interface IProductCategoryFranchise extends Document, IBase {
 
 export interface IProductCategoryFranchiseQuery {
   getById(id: string): Promise<IProductCategoryFranchise | null>;
+  countItems(franchiseId?: Types.ObjectId): Promise<number>;
 }

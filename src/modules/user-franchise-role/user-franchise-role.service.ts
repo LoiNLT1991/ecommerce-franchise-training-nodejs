@@ -278,4 +278,8 @@ export default class UserFranchiseRoleService
       is_deleted: false,
     });
   }
+
+  public async countUserFranchises(franchiseId?: Types.ObjectId): Promise<number> {
+    return this.userFranchiseRoleRepo.countUniqueUsers(franchiseId);
+  }
 }

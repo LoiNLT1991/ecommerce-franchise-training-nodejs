@@ -511,4 +511,8 @@ export class OrderService implements IOrderQuery {
       session.endSession();
     }
   }
+
+  public async countItems(franchiseId?: Types.ObjectId): Promise<Record<string, number>> {
+    return this.orderRepo.countByStatus("status", Object.values(OrderStatus), franchiseId);
+  }
 }

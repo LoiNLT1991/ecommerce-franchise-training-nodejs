@@ -37,4 +37,8 @@ export class UserQuery implements IUserQuery {
   public async increaseTokenVersion(userId: string): Promise<IUser | null> {
     return this.userRepo.findByIdAndUpdate(userId, { $inc: { token_version: 1 } }, { new: true });
   }
+
+  public async countItems(session?: ClientSession): Promise<number> {
+    return this.userRepo.countItems(session);
+  }
 }

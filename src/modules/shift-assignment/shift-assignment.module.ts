@@ -19,7 +19,7 @@ export class ShiftAssignmentModule extends BaseModule<ShiftAssignmentRoute> {
     const repo = new ShiftAssignmentRepository();
     const shiftQuery = shiftModule.getShiftQuery();
     const userQuery = userModule.getUserQuery();
-    const userFranchiseRoleQuery = userFranchiseRoleModule.getUserContext();
+    const userFranchiseRoleQuery = userFranchiseRoleModule.getUserFranchiseRoleQuery();
 
     // Core service
     const service = new ShiftAssignmentService(

@@ -183,4 +183,8 @@ export class ProductService
   public async getById(id: string): Promise<IProduct | null> {
     return this.productRepo.findById(id);
   }
+
+  public async countItems(): Promise<number> {
+    return this.productRepo.countItems();
+  }
 }

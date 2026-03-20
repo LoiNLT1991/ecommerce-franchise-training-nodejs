@@ -1,4 +1,4 @@
-import { ClientSession } from "mongoose";
+import { ClientSession, Types } from "mongoose";
 import { DeliveryStatus, HttpException, HttpStatus } from "../../core";
 import { IAuditLogger } from "../audit-log";
 import { IAddDeliveryPayload, IDelivery, IDeliveryQuery } from "./delivery.interface";
@@ -62,9 +62,13 @@ export class DeliveryService implements IDeliveryQuery {
     return delivery.save({ session });
   }
 
-  async updateToDelivered(delivery: IDelivery, session?: ClientSession): Promise<IDelivery> {
+  public async updateToDelivered(delivery: IDelivery, session?: ClientSession): Promise<IDelivery> {
     delivery.status = DeliveryStatus.DELIVERED;
     delivery.delivered_at = new Date();
     return delivery.save({ session });
+  }
+
+  public async countItems(franchiseId?: Types.ObjectId): Promise<Record<string, number>> {
+    return this.deliveryRepo.countByStatus("status", Object.values(DeliveryStatus), franchiseId);
   }
 }

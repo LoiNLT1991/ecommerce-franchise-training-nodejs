@@ -10,6 +10,16 @@ export class UserRepository extends BaseRepository<IUser> {
     super(UserSchema);
   }
 
+  public async countItems(session?: ClientSession): Promise<number> {
+    const query = this.model.countDocuments({
+      is_deleted: false,
+    });
+
+    if (session) query.session(session);
+
+    return query;
+  }
+
   public async getItems(model: SearchPaginationItemDto): Promise<{ data: IUser[]; total: number }> {
     const searchCondition = {
       ...new SearchItemDto(),

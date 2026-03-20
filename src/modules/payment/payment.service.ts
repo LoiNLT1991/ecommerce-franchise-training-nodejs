@@ -283,4 +283,8 @@ export class PaymentService implements IPaymentQuery {
   public async getById(id: string): Promise<IPayment | null> {
     return this.paymentRepository.findById(id);
   }
+
+  public async countItems(franchiseId?: Types.ObjectId): Promise<Record<string, number>> {
+    return this.paymentRepository.countByStatus("status", Object.values(PaymentStatus), franchiseId);
+  }
 }

@@ -196,4 +196,52 @@ export class BaseRepository<T extends Document> {
     const count = await this.model.countDocuments({ ...filter, is_deleted: false });
     return count > 0;
   }
+
+  async countByStatus(
+    statusField: string,
+    statuses: string[],
+    franchiseId?: Types.ObjectId,
+    session?: ClientSession,
+  ): Promise<Record<string, number>> {
+    const match: any = {
+      is_deleted: false,
+    };
+
+    if (franchiseId) {
+      match.franchise_id = franchiseId;
+    }
+
+    const aggregateQuery = this.model.aggregate([
+      {
+        $match: match,
+      },
+      {
+        $group: {
+          _id: `$${statusField}`,
+          count: { $sum: 1 },
+        },
+      },
+    ]);
+
+    if (session) {
+      aggregateQuery.session(session);
+    }
+
+    const result = await aggregateQuery;
+
+    // init object từ enum
+    const formatted: Record<string, number> = {};
+    statuses.forEach((status) => {
+      if (status) formatted[status] = 0;
+    });
+
+    // map result
+    result.forEach((item: any) => {
+      if (item._id) {
+        formatted[item._id] = item.count;
+      }
+    });
+
+    return formatted;
+  }
 }

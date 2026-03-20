@@ -1,4 +1,4 @@
-import { PipelineStage, Types } from "mongoose";
+import { ClientSession, PipelineStage, Types } from "mongoose";
 import { MSG_BUSINESS } from "../../core/constants";
 import { HttpStatus } from "../../core/enums";
 import { HttpException } from "../../core/exceptions";
@@ -11,6 +11,39 @@ import UserFranchiseRoleSchema from "./user-franchise-role.model";
 export class UserFranchiseRoleRepository extends BaseRepository<IUserFranchiseRole> {
   constructor() {
     super(UserFranchiseRoleSchema);
+  }
+
+  public async countUniqueUsers(franchiseId?: Types.ObjectId, session?: ClientSession): Promise<number> {
+    // build match condition
+    const match: any = {
+      is_deleted: false,
+    };
+
+    if (franchiseId) {
+      match.franchise_id = franchiseId;
+    }
+
+    const aggregateQuery = this.model.aggregate([
+      {
+        $match: match,
+      },
+      {
+        $group: {
+          _id: "$user_id",
+        },
+      },
+      {
+        $count: "total",
+      },
+    ]);
+
+    if (session) {
+      aggregateQuery.session(session);
+    }
+
+    const result = await aggregateQuery;
+
+    return result[0]?.total || 0;
   }
 
   public async getItem(id: string): Promise<IUserFranchiseRole | null> {

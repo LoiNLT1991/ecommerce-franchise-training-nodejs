@@ -17,4 +17,5 @@ export interface IProduct extends Document, IBase {
 
 export interface IProductQuery {
   getById(id: string): Promise<IProduct | null>;
+  countItems(): Promise<number>;
 }

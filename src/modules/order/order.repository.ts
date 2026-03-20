@@ -7,7 +7,7 @@ export class OrderRepository extends BaseRepository<IOrder> {
   constructor() {
     super(OrderSchema);
   }
-
+  
   public async getOrdersForStaff(franchiseId: string, status?: OrderStatus) {
     const matchQuery: Record<string, any> = {
       franchise_id: new Types.ObjectId(franchiseId),

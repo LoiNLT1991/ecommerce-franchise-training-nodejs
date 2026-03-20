@@ -34,4 +34,5 @@ export interface IUserQuery {
   getUserById(id: string, isFull?: boolean): Promise<IUser | null>;
   updateUserTokenVersion(userId: string, session?: ClientSession): Promise<IUser | null>;
   increaseTokenVersion(userId: string): Promise<IUser | null>;
+  countItems(session?: ClientSession): Promise<number>;
 }

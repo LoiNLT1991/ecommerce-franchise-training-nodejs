@@ -10,6 +10,39 @@ export class ProductCategoryFranchiseRepository extends BaseRepository<IProductC
     super(ProductCategoryFranchiseSchema);
   }
 
+  public async countUniqueProducts(franchiseId?: Types.ObjectId, session?: ClientSession): Promise<number> {
+    // build match condition
+    const match: any = {
+      is_deleted: false,
+    };
+
+    if (franchiseId) {
+      match.franchise_id = franchiseId;
+    }
+
+    const aggregateQuery = this.model.aggregate([
+      {
+        $match: match,
+      },
+      {
+        $group: {
+          _id: "$product_franchise_id",
+        },
+      },
+      {
+        $count: "total",
+      },
+    ]);
+
+    if (session) {
+      aggregateQuery.session(session);
+    }
+
+    const result = await aggregateQuery;
+
+    return result[0]?.total || 0;
+  }
+
   public async getItems(model: SearchPaginationItemDto): Promise<{ data: IProductCategoryFranchise[]; total: number }> {
     const searchCondition = { ...new SearchItemDto(), ...model.searchCondition };
     const { franchise_id, product_id, category_id, is_active, is_deleted } = searchCondition;

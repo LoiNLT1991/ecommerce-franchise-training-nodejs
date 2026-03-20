@@ -42,4 +42,5 @@ export interface IDeliveryQuery {
   createDelivery(payload: IAddDeliveryPayload, session?: ClientSession): Promise<IDelivery>;
   updateToPickingUp(delivery: IDelivery, session?: ClientSession): Promise<IDelivery>;
   updateToDelivered(delivery: IDelivery, session?: ClientSession): Promise<IDelivery>;
+  countItems(franchiseId?: Types.ObjectId): Promise<Record<string, number>>;
 }

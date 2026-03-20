@@ -12,6 +12,12 @@ export class ProductRepository extends BaseRepository<IProduct> {
     super(ProductSchema);
   }
 
+  public async countItems(): Promise<number> {
+    return this.model.countDocuments({
+      is_deleted: false,
+    });
+  }
+
   public async getItems(model: SearchPaginationItemDto): Promise<{ data: IProduct[]; total: number }> {
     const searchCondition = {
       ...new SearchItemDto(),
