@@ -7,7 +7,7 @@ export class OrderRepository extends BaseRepository<IOrder> {
   constructor() {
     super(OrderSchema);
   }
-  
+
   public async getOrdersForStaff(franchiseId: string, status?: OrderStatus) {
     const matchQuery: Record<string, any> = {
       franchise_id: new Types.ObjectId(franchiseId),
@@ -23,6 +23,24 @@ export class OrderRepository extends BaseRepository<IOrder> {
         $match: matchQuery,
       },
 
+      // 👇 JOIN với collection customers
+      {
+        $lookup: {
+          from: "customers", // tên collection
+          localField: "customer_id",
+          foreignField: "_id",
+          as: "customer",
+        },
+      },
+
+      // 👇 vì customer là array -> convert thành object
+      {
+        $unwind: {
+          path: "$customer",
+          preserveNullAndEmptyArrays: true, // tránh crash nếu null
+        },
+      },
+
       {
         $sort: { created_at: 1 },
       },
@@ -31,14 +49,13 @@ export class OrderRepository extends BaseRepository<IOrder> {
         $project: {
           _id: 1,
           code: 1,
-          customer_name: 1,
+          customer_id: 1,
+          customer_name: "$customer.name",
           phone: 1,
 
           status: 1,
-
           subtotal_amount: 1,
           final_amount: 1,
-
           created_at: 1,
         },
       },
