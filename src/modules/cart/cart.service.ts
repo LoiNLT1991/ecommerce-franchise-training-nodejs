@@ -525,6 +525,9 @@ export class CartService extends BaseCrudService<ICart, CreateCartDto, UpdateCar
       await this.validateCartBeforeCheckout(cart);
 
       // 4: Create order
+      cart.address = address;
+      cart.phone = phone;
+      cart.message = message;
       const order = await this.orderQuery.createOrder(cart, loggedUser, session);
 
       // 5: Create payment
